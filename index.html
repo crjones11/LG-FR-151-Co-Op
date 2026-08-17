@@ -116,6 +116,28 @@
   .chip.on{background:var(--gold);box-shadow:inset 0 0 0 1px #ffe8a0, 0 2px 0 #a87800;}
   .chip.on::before{content:'▶ ';}
 
+  .infobox{
+    margin:10px 14px 0;max-width:760px;
+    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
+    box-shadow:inset 0 0 0 2px var(--frame-lt);
+    overflow:hidden;
+  }
+  .info-head{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;
+    color:var(--ink-dk);padding:8px 11px;cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:7px;
+  }
+  .info-head:active{background:var(--parch-2);}
+  .caret{color:var(--frame);font-size:9px;transition:transform .15s ease;display:inline-block;}
+  .infobox.open .caret{transform:rotate(90deg);}
+  .info-body{
+    display:none;padding:0 11px 10px;
+    font-size:10.5px;line-height:1.6;color:var(--ink);font-family:'IBM Plex Mono',monospace;
+    border-top:1px solid var(--parch-3);margin-top:0;padding-top:9px;
+  }
+  .infobox.open .info-body{display:block;}
+  .info-body b{color:var(--ink-dk);}
+
   .disclaimer{
     margin:12px 14px 0;padding:9px 11px;
     background:var(--parch);border:3px solid var(--navy);border-radius:9px;
@@ -170,7 +192,9 @@
   }
   .row.caught-both{background:linear-gradient(180deg,#fff8d8,var(--parch));border-color:#a87800;}
   .row.trade-alert{border-left:5px solid var(--gold);}
-  .row.missable{border-left:5px solid #b060c0;}
+  .row.coord{border-left:5px solid #b060c0;}
+  .row.pergame{border-left:5px solid var(--frame);}
+  .coord-label{color:#8848a8;font-weight:700;}
   .row-main{display:flex;align-items:center;gap:8px;}
   .dexnum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:34px;flex-shrink:0;font-weight:600;}
   .pname{flex:1;font-size:13px;font-weight:700;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;}
@@ -182,9 +206,16 @@
   }
   .tag.fr{color:#fff;background:var(--fr);border-color:#a02818;}
   .tag.lg{color:#fff;background:var(--lg);border-color:#286818;}
+  /* location-scoped version split — outlined, so it reads as subordinate to a true exclusive */
+  .tag.frhere{color:var(--fr);background:#fff0ec;border-color:var(--fr);}
+  .tag.lghere{color:#286818;background:#eef8ec;border-color:var(--lg);}
   .tag.trade{color:#503800;background:var(--gold);border-color:#a87800;}
   .tag.special{color:#fff;background:#8848a8;border-color:#582868;}
   .tag.rare{color:#fff;background:var(--frame);border-color:var(--navy);}
+  .tag.water{color:#fff;background:#3888c0;border-color:#205878;}
+  .tag.evo{color:#404858;background:var(--parch-3);border-color:var(--ink);}
+  .tag.item{color:#583c00;background:#f8e8b8;border-color:#a88820;}
+  .tag.info{color:var(--ink);background:var(--parch-2);border-color:var(--ink);}
 
   .check{
     width:30px;height:28px;border-radius:5px;
@@ -320,9 +351,11 @@
     <div class="chip" data-filter="trade">NEEDS TRADE</div>
     <div class="chip" data-filter="uncaught">UNCAUGHT</div>
     <div class="chip" data-filter="tradeevo">TRADE EVOS</div>
-    <div class="chip" data-filter="missable">⚠ ONE-SHOT</div>
+    <div class="chip" data-filter="coord">⚠ COORDINATE</div>
+    <div class="chip" data-filter="perGame">1 PER GAME</div>
     <div class="chip" data-filter="mine">I CAN'T CATCH</div>
     <div class="chip" id="hideDone">HIDE DONE</div>
+    <div class="chip" id="collapseAll">⊟ ALL</div>
   </div>
 </header>
 
@@ -333,12 +366,18 @@
 
 <div class="beast-panel" id="beastPanel"></div>
 
-<div class="disclaimer">
-  <b>SWITCH TRADING:</b> local wireless only — no online trading, and no Nintendo Switch Online membership needed. Both Switches must be physically near each other with the game running. Go to any Pokémon Center → upstairs → Pokémon Wireless Club → Union Room. Unlocks once you have the Pokédex from Oak. Up to 4 players. <b>Plan trades here, execute them when you're in the same room.</b>
+<div class="infobox">
+  <div class="info-head" data-info="switch"><span class="caret">▶</span> SWITCH TRADING — HOW IT WORKS</div>
+  <div class="info-body">
+    Local wireless only — no online trading, and no Nintendo Switch Online membership needed. Both Switches must be physically near each other with the game running. Go to any Pokémon Center → upstairs → Pokémon Wireless Club → Union Room. Unlocks once you have the Pokédex from Oak. Up to 4 players. <b>Plan trades here, execute them when you're in the same room.</b>
+  </div>
 </div>
 
-<div class="disclaimer">
-  <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.
+<div class="infobox">
+  <div class="info-head" data-info="sources"><span class="caret">▶</span> SOURCES &amp; DATA NOTES</div>
+  <div class="info-body">
+    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.
+  </div>
 </div>
 
 <main id="main"><div class="loading">connecting…</div></main>
@@ -370,25 +409,29 @@ const notesRef    = ref(db,'kanto-trail/notes');
 const claimsRef   = ref(db,'kanto-trail/claims');
 
 // One-shot / must-choose. Each entry explains WHY it's limited.
-const MISSABLE = {
-  138:"Mt. Moon — pick Helix OR Dome, not both",
-  140:"Mt. Moon — pick Helix OR Dome, not both",
-  142:"Old Amber — one per game",
-  106:"Fighting Dojo — pick Hitmonlee OR Hitmonchan",
-  107:"Fighting Dojo — pick Hitmonlee OR Hitmonchan",
-  133:"Gift behind Celadon — one only",
-  131:"Gift from Silph Co. — also catchable in Icefall Cave (Sevii), so not strictly one-shot",
-  83:"TRADE-ONLY species. Vermilion, house left of the Mart — costs a Spearow. Arrives holding a Stick.",
-  122:"TRADE-ONLY species. Route 2, house past the Cut trees — costs an Abra",
-  108:"NPC trade, Route 18 gate 2F — costs a Golduck (FR) / Slowbro (LG)",
-  124:"NPC trade, Cerulean — costs a Poliwhirl",
-  101:"Optional trade, Cinnabar Lab meeting room — costs a Raichu (Electrode also catchable)",
-  114:"Optional trade, Cinnabar Lab meeting room — costs a Venonat (Tangela also catchable)",
-  86:"Optional trade, Cinnabar Lab testing room — costs a Ponyta (Seel also in Seafoam)",
-  144:"Legendary — gone if it faints or you flee",
-  145:"Legendary — gone if it faints or you flee",
-  146:"Legendary — gone if it faints or you flee",
-  150:"Legendary — gone if it faints or you flee"
+// MUST COORDINATE: a single game forces an either/or, so you two must take
+// opposite options and trade. These are the only entries that get claim buttons.
+const COORDINATE = {
+  138:"Mt. Moon fossil — one game can only get ONE. Take opposite fossils.",
+  140:"Mt. Moon fossil — one game can only get ONE. Take opposite fossils.",
+  106:"Fighting Dojo — one game can only get ONE. Take opposite Hitmons.",
+  107:"Fighting Dojo — one game can only get ONE. Take opposite Hitmons."
+};
+
+// ONE PER GAME: you EACH get your own — no coordination needed, but don't
+// lose it, because there's no second chance within your own save.
+const ONE_PER_GAME = {
+  142:"Old Amber — one per game, but you each get one",
+  133:"Eevee gift behind Celadon — one per game",
+  131:"Silph Co. gift — also catchable in Icefall Cave, so recoverable",
+  83:"Trade-only species — do this in your own game (costs a Spearow)",
+  122:"Trade-only species — do this in your own game (costs an Abra)",
+  124:"Trade-only species — do this in your own game (costs a Poliwhirl)",
+  108:"Trade-only species — do this in your own game (Golduck FR / Slowbro LG)",
+  144:"Legendary — you each get your own. Gone if it faints or you flee.",
+  145:"Legendary — you each get your own. Gone if it faints or you flee.",
+  146:"Legendary — you each get your own. Gone if it faints or you flee.",
+  150:"Legendary — you each get your own. Gone if it faints or you flee."
 };
 
 const FR_ONLY = [23,24,43,44,45,54,55,58,59,90,91,123,125];const LG_ONLY = [27,28,37,38,69,70,71,79,80,120,121,126,127];
@@ -432,7 +475,7 @@ const ROUTES = [
   ]},
   { area:"Route 11 & Diglett's Cave", mons:[
     {n:96,name:"Drowzee"},{n:50,name:"Diglett"},{n:51,name:"Dugtrio"},
-    {n:30,name:"Nidorina",t:"FR only"},{n:33,name:"Nidorino",t:"LG only"}
+    {n:30,name:"Nidorina",v:"FR"},{n:33,name:"Nidorino",v:"LG"}
   ]},
   { area:"Route 10 → Rock Tunnel", note:"Bring Flash.", mons:[
     {n:100,name:"Voltorb",t:"Route 10"},{n:66,name:"Machop"},{n:95,name:"Onix"},{n:75,name:"Graveler"}
@@ -441,7 +484,7 @@ const ROUTES = [
     {n:92,name:"Gastly"},{n:93,name:"Haunter"},{n:104,name:"Cubone"}
   ]},
   { area:"Routes 7 & 8 → Celadon City", mons:[
-    {n:58,name:"Growlithe",t:"FR only"},{n:37,name:"Vulpix",t:"LG only"},
+    {n:58,name:"Growlithe"},{n:37,name:"Vulpix"},
     {n:88,name:"Grimer",t:"Celadon City"},{n:109,name:"Koffing",t:"Celadon City"}
   ]},
   { area:"Celadon Game Corner", note:"Coin prizes — none of these are one-shot, but they cost a lot of coins. Scyther is 5,500 (FR); Pinsir 2,500 (LG).", mons:[
@@ -467,26 +510,26 @@ const ROUTES = [
   ]},
   { area:"Routes 19–20 & Seafoam Islands", note:"Articuno is here.", mons:[
     {n:86,name:"Seel"},{n:87,name:"Dewgong"},{n:42,name:"Golbat"},
-    {n:55,name:"Golduck",t:"FR only"},{n:80,name:"Slowbro",t:"LG only"},{n:144,name:"Articuno",t:"legendary"}
+    {n:55,name:"Golduck"},{n:80,name:"Slowbro"},{n:144,name:"Articuno",t:"legendary"}
   ]},
   { area:"Route 21 → Cinnabar Island", mons:[
     {n:114,name:"Tangela",t:"Rt21 + Cinnabar"},{n:101,name:"Electrode",t:"Cinnabar Island"},
-    {n:117,name:"Seadra",t:"Super Rod, FR only"},{n:99,name:"Kingler",t:"Super Rod, LG only"}
+    {n:117,name:"Seadra",t:"Super Rod",v:"FR"},{n:99,name:"Kingler",t:"Super Rod",v:"LG"}
   ]},
   { area:"Pokémon Mansion", note:"Secret Key for the Gym. Muk is LG-only here; Weezing is FR-only.", mons:[
-    {n:89,name:"Muk",t:"LG only"},{n:110,name:"Weezing",t:"FR only"},
+    {n:89,name:"Muk",v:"LG"},{n:110,name:"Weezing",v:"FR"},
     {n:138,name:"Omanyte",t:"Helix Fossil"},{n:140,name:"Kabuto",t:"Dome Fossil"},{n:142,name:"Aerodactyl",t:"Old Amber"}
   ]},
   { area:"Power Plant", note:"Surf from Route 10. Some Poké Ball items are static Lv34 Electrode. Zapdos is Lv50 — save first.", mons:[
-    {n:81,name:"Magnemite"},{n:82,name:"Magneton"},{n:125,name:"Electabuzz",t:"FR only"},
+    {n:81,name:"Magnemite"},{n:82,name:"Magneton"},{n:125,name:"Electabuzz"},
     {n:145,name:"Zapdos",t:"legendary"}
   ]},
   { area:"Route 23 & Victory Road", mons:[
-    {n:24,name:"Arbok",t:"FR only"},{n:28,name:"Sandslash",t:"LG only"},{n:67,name:"Machoke"},
+    {n:24,name:"Arbok"},{n:28,name:"Sandslash"},{n:67,name:"Machoke"},
     {n:57,name:"Primeape"},{n:105,name:"Marowak"}
   ]},
   { area:"Sevii Islands — Kanto species found here", note:"Unlocks after Blaine. Several species appear ONLY here or are far easier here.", mons:[
-    {n:126,name:"Magmar",t:"Mt. Ember, LG only"},{n:146,name:"Moltres",t:"Mt. Ember, legendary"},
+    {n:126,name:"Magmar",t:"Mt. Ember"},{n:146,name:"Moltres",t:"Mt. Ember, legendary"},
     {n:77,name:"Ponyta",t:"Kindle Rd / Mt. Ember ONLY"},{n:78,name:"Rapidash",t:"Kindle Rd / Mt. Ember ONLY"},
     {n:53,name:"Persian",t:"Sevii routes only"},{n:97,name:"Hypno",t:"Berry Forest only"},
     {n:73,name:"Tentacruel",t:"Sevii waters"},{n:18,name:"Pidgeot",t:"—"}
@@ -529,7 +572,19 @@ const SEEN=new Set(); const ALL=[];
 ROUTES.forEach(r=>{ if(r.noCount) return; r.mons.forEach(m=>{ if(!SEEN.has(m.n)){SEEN.add(m.n); ALL.push(m);} }); });
 
 let progress={}, notes={}, claims={}, names={p1:"Player 1",p2:"Player 2",p1ver:"LG",p2ver:"FR"};
-let filter='all', search='', hideDone=false, collapsed={}, openNotes={};
+let filter='all', search='', hideDone=false, openNotes={};
+
+// Collapsed state is a per-device view preference, not shared progress —
+// so it lives in localStorage, not Firebase. Keyed by area NAME so that
+// adding or reordering sections later doesn't scramble which ones are shut.
+let collapsed = (()=>{
+  try{ return JSON.parse(localStorage.getItem('kanto-collapsed')||'{}'); }
+  catch(e){ return {}; }
+})();
+function saveCollapsed(){
+  try{ localStorage.setItem('kanto-collapsed', JSON.stringify(collapsed)); }
+  catch(e){ /* private mode or storage blocked — collapse still works, just won't persist */ }
+}
 
 // Starter determines which roaming Johto beast appears post-game (it gets a type advantage on you)
 const BEAST = { B:"Entei (Fire)", C:"Suicune (Water)", S:"Raikou (Electric)" };
@@ -578,7 +633,8 @@ function matches(m){
   if(filter==='trade')    return needsTrade(m.n);
   if(filter==='uncaught') return !(p.p1&&p.p2);
   if(filter==='tradeevo') return TRADE_EVO.includes(m.n);
-  if(filter==='missable') return !!MISSABLE[m.n];
+  if(filter==='coord')    return !!COORDINATE[m.n];
+  if(filter==='perGame')  return !!ONE_PER_GAME[m.n];
   if(filter==='mine')     return cantCatch(m.n);
   return true;
 }
@@ -602,13 +658,13 @@ function render(){
     anyShown=true;
     const caught=section.mons.filter(m=>{const p=progress[String(m.n)];return p&&p.p1&&p.p2;}).length;
     const done=caught===section.mons.length;
-    const isCol=collapsed[idx];
+    const isCol=collapsed[section.area];
 
     const sec=document.createElement('div');
     sec.className='route-section';
     sec.innerHTML=`
       <div class="route-trail"></div>
-      <div class="route-head" data-idx="${idx}">
+      <div class="route-head" data-area="${section.area.replace(/"/g,'&quot;')}">
         <div class="route-marker ${done?'done':''}">${done?'✓':idx+1}</div>
         <div class="route-title">${section.area}</div>
         <div class="route-count">${caught}/${section.mons.length} ${isCol?'▸':'▾'}</div>
@@ -624,27 +680,38 @@ function render(){
       const tags=[];
       if(ver==='FR') tags.push('<span class="tag fr">FR ONLY</span>');
       if(ver==='LG') tags.push('<span class="tag lg">LG ONLY</span>');
+      // m.v = version split for THIS LOCATION only (species itself exists in both games)
+      if(m.v==='FR' && ver!=='FR') tags.push('<span class="tag frhere">FR HERE</span>');
+      if(m.v==='LG' && ver!=='LG') tags.push('<span class="tag lghere">LG HERE</span>');
       if(m.t){
-        let cls='';
-        if(m.t.includes('TRADE')) cls='trade';
-        else if(m.t.includes('legendary')||m.t.includes('event')) cls='special';
+        let cls='info'; // default so nothing renders unstyled
+        if(m.t.includes('TRADE')||m.t.includes('give')||m.t.includes('trade')||m.t.includes('swap')) cls='trade';
+        else if(m.t.includes('legendary')||m.t.includes('event')||m.t.includes('not required')) cls='special';
         else if(m.t.includes('rare')) cls='rare';
+        else if(m.t.includes('Rod')||m.t.includes('surf')) cls='water';
+        else if(m.t.includes('Stone')||m.t.includes('Lv')) cls='evo';
+        else if(m.t.includes('Fossil')||m.t.includes('Amber')||m.t.includes('pick one')||m.t.includes('gift')||m.t.includes('coins')||m.t.includes('prize')) cls='item';
         tags.push(`<span class="tag ${cls}">${m.t}</span>`);
       }
       const row=document.createElement('div');
-      const isMiss=!!MISSABLE[m.n];
+      const isCoord=!!COORDINATE[m.n];
+      const isPerGame=!!ONE_PER_GAME[m.n];
       const claim=claims[String(m.n)]||null;
-      row.className='row'+((p.p1&&p.p2)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'')+(isMiss?' missable':'');
+      row.className='row'+((p.p1&&p.p2)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'')
+        +(isCoord?' coord':'')+(isPerGame?' pergame':'');
       const n1=names.p1||'P1', n2=names.p2||'P2';
-      const claimHtml = isMiss ? `
+      let claimHtml='';
+      if(isCoord){
+        claimHtml=`
+        <div class="claim-row"><span class="claim-label coord-label">⚠ ${COORDINATE[m.n]}</span></div>
         <div class="claim-row">
-          <span class="claim-label">${MISSABLE[m.n]}</span>
-        </div>
-        <div class="claim-row">
-          <span class="claim-label">CLAIM:</span>
+          <span class="claim-label">WHO TAKES IT:</span>
           <div class="claim-btn ${claim==='p1'?'p1':''}" data-claim="${m.n}" data-who="p1">${n1}</div>
           <div class="claim-btn ${claim==='p2'?'p2':''}" data-claim="${m.n}" data-who="p2">${n2}</div>
-        </div>` : '';
+        </div>`;
+      } else if(isPerGame){
+        claimHtml=`<div class="claim-row"><span class="claim-label">${ONE_PER_GAME[m.n]}</span></div>`;
+      }
       row.innerHTML=`
         <div class="row-main">
           <span class="dexnum">#${String(m.n).padStart(3,'0')}</span>
@@ -667,7 +734,9 @@ function render(){
 
   main.querySelectorAll('.check').forEach(el=>el.addEventListener('click',()=>toggle(el.dataset.num,el.dataset.player)));
   main.querySelectorAll('.route-head').forEach(el=>el.addEventListener('click',()=>{
-    collapsed[el.dataset.idx]=!collapsed[el.dataset.idx]; render();
+    const a=el.dataset.area;
+    if(collapsed[a]) delete collapsed[a]; else collapsed[a]=true;
+    saveCollapsed(); render();
   }));
   main.querySelectorAll('.note-btn').forEach(el=>el.addEventListener('click',()=>{
     const n=el.dataset.note; openNotes[n]=!openNotes[n]; render();
@@ -717,18 +786,35 @@ function renderBars(){
 
 function renderTradePanel(){
   const panel=document.getElementById('tradePanel');
-  if(filter!=='trade'&&filter!=='mine'&&filter!=='missable'){ panel.classList.remove('open'); return; }
+  if(filter!=='trade'&&filter!=='mine'&&filter!=='coord'&&filter!=='perGame'){ panel.classList.remove('open'); return; }
   panel.classList.add('open');
   const n1=names.p1||'P1', n2=names.p2||'P2';
 
-  if(filter==='missable'){
-    const unclaimed=ALL.filter(m=>MISSABLE[m.n]&&!claims[String(m.n)]).map(m=>m.name);
-    const c1=ALL.filter(m=>claims[String(m.n)]==='p1').map(m=>m.name);
-    const c2=ALL.filter(m=>claims[String(m.n)]==='p2').map(m=>m.name);
+  if(filter==='coord'){
+    const pairs=[
+      {label:'Mt. Moon fossil', a:{n:138,name:'Omanyte (Helix)'}, b:{n:140,name:'Kabuto (Dome)'}},
+      {label:'Fighting Dojo',   a:{n:106,name:'Hitmonlee'},       b:{n:107,name:'Hitmonchan'}}
+    ];
+    let html='';
+    pairs.forEach(pr=>{
+      const ca=claims[String(pr.a.n)], cb=claims[String(pr.b.n)];
+      const who=x=>x==='p1'?n1:x==='p2'?n2:null;
+      let status;
+      if(!ca&&!cb) status='<span>undecided</span>';
+      else if(ca&&cb&&ca===cb) status='<b style="color:#a02818">⚠ CONFLICT — both assigned to '+who(ca)+'</b>';
+      else if(ca&&cb) status=`${pr.a.name} → ${who(ca)} &nbsp;/&nbsp; ${pr.b.name} → ${who(cb)} ✓`;
+      else if(ca) status=`${pr.a.name} → ${who(ca)}; <span>${pr.b.name} unassigned</span>`;
+      else status=`${pr.b.name} → ${who(cb)}; <span>${pr.a.name} unassigned</span>`;
+      html+=`<b>${pr.label}:</b> ${status}<br>`;
+    });
+    html+='<span>Everything else is one-per-game — you each get your own.</span>';
+    document.getElementById('tradeContent').innerHTML=html;
+    return;
+  }
+  if(filter==='perGame'){
     document.getElementById('tradeContent').innerHTML=
-      `<b>${n1} claimed:</b> ${c1.length?c1.join(', '):'<span>none</span>'}<br>`+
-      `<b>${n2} claimed:</b> ${c2.length?c2.join(', '):'<span>none</span>'}<br>`+
-      `<b>Undecided:</b> ${unclaimed.length?unclaimed.join(', '):'<span>all sorted ✓</span>'}`;
+      '<b>No coordination needed on these.</b> Each of you obtains them in your own save. '+
+      'Listed here so you don\'t lose a one-time chance <span>within your own game</span>.';
     return;
   }
   if(filter==='mine'){
@@ -754,6 +840,29 @@ document.querySelectorAll('.chip[data-filter]').forEach(c=>c.addEventListener('c
 }));
 document.getElementById('hideDone').addEventListener('click',function(){
   hideDone=!hideDone; this.classList.toggle('on',hideDone); render();
+});
+// Info panels: closed by default, state remembered per-device.
+(function(){
+  let open={};
+  try{ open=JSON.parse(localStorage.getItem('kanto-info')||'{}'); }catch(e){}
+  document.querySelectorAll('.info-head').forEach(h=>{
+    const key=h.dataset.info, box=h.parentElement;
+    if(open[key]) box.classList.add('open');
+    h.addEventListener('click',()=>{
+      const nowOpen=box.classList.toggle('open');
+      if(nowOpen) open[key]=true; else delete open[key];
+      try{ localStorage.setItem('kanto-info', JSON.stringify(open)); }catch(e){}
+    });
+  });
+})();
+
+document.getElementById('collapseAll').addEventListener('click',function(){
+  // if anything is open, shut everything; otherwise open everything
+  const anyOpen = ROUTES.some(r=>!collapsed[r.area]);
+  collapsed = {};
+  if(anyOpen) ROUTES.forEach(r=>{ collapsed[r.area]=true; });
+  saveCollapsed(); render();
+  this.textContent = anyOpen ? '⊞ ALL' : '⊟ ALL';
 });
 document.getElementById('search').addEventListener('input',e=>{ search=e.target.value; render(); });
 ['p1name','p2name'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
