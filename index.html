@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanto Trail — LG/FR Dex Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12160f;
+    --surface: #1b2116;
+    --surface-2: #232b1c;
+    --line: #35402b;
+    --cream: #ede6d3;
+    --muted: #9aa68c;
+    --pokeball: #d1401f;
+    --pokeball-dark: #8f2a14;
+    --grass: #6f9c4a;
+    --gold: #e8b73c;
+    --p1: #4f9fd9;
+    --p2: #d9634f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 20% 0%, #1c2417 0%, transparent 45%),
+      var(--bg);
+    color:var(--cream);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  header{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg, var(--bg) 80%, transparent);
+    padding:18px 16px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  .title-row{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  h1{
+    font-family:'Press Start 2P', monospace;
+    font-size:14px;
+    letter-spacing:0.5px;
+    margin:0;
+    color:var(--gold);
+    text-shadow:2px 2px 0 var(--pokeball-dark);
+  }
+  .sub{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono', monospace; letter-spacing:0.3px;}
+  .names{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .name-field{
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface); border:1px solid var(--line); border-radius:3px;
+    padding:5px 8px;
+  }
+  .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .dot.p1{background:var(--p1);} .dot.p2{background:var(--p2);}
+  .name-field input{
+    background:transparent; border:none; color:var(--cream); font-family:'IBM Plex Mono', monospace;
+    font-size:12px; width:90px; outline:none;
+  }
+  .progress-wrap{margin-top:12px; display:flex; flex-direction:column; gap:6px;}
+  .pbar-row{display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted);}
+  .pbar{flex:1; height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; border:1px solid var(--line);}
+  .pbar-fill{height:100%; transition:width .3s ease;}
+  .pbar-fill.p1{background:var(--p1);} .pbar-fill.p2{background:var(--p2);} .pbar-fill.both{background:var(--gold);}
+  .pbar-num{width:56px; text-align:right;}
+
+  .disclaimer{
+    margin:14px 16px 0; padding:10px 12px; background:var(--surface); border:1px dashed var(--line);
+    border-radius:3px; font-size:11.5px; line-height:1.5; color:var(--muted); font-family:'IBM Plex Mono', monospace;
+  }
+  .disclaimer b{color:var(--cream);}
+
+  main{padding:14px 16px 0; max-width:720px; margin:0 auto;}
+
+  .route-section{position:relative; margin-top:26px;}
+  .route-trail{
+    position:absolute; left:9px; top:28px; bottom:-16px; width:2px;
+    background:repeating-linear-gradient(to bottom, var(--grass) 0 6px, transparent 6px 11px);
+  }
+  .route-section:last-child .route-trail{display:none;}
+  .route-head{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .route-marker{
+    width:20px; height:20px; border-radius:50%; background:var(--surface-2); border:2px solid var(--grass);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono', monospace; font-size:9px;
+    color:var(--grass); flex-shrink:0; z-index:1;
+  }
+  .route-title{font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:13px; color:var(--cream);}
+  .route-note{font-size:10.5px; color:var(--muted); margin-left:30px; margin-bottom:8px; margin-top:-4px;}
+
+  .rows{margin-left:30px; display:flex; flex-direction:column; gap:1px;}
+  .row{
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:2px;
+    padding:8px 10px;
+  }
+  .row.caught-both{border-color:var(--gold);}
+  .dexnum{font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--muted); width:32px; flex-shrink:0;}
+  .pname{flex:1; font-size:13.5px; font-weight:500;}
+  .tags{display:flex; gap:4px; flex-shrink:0;}
+  .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:8.5px; padding:2px 5px; border-radius:2px; letter-spacing:0.3px;
+    border:1px solid var(--line); color:var(--muted); white-space:nowrap;
+  }
+  .tag.trade{color:var(--gold); border-color:var(--gold);}
+  .tag.special{color:#c98fd9; border-color:#5a3d63;}
+  .check{
+    width:26px; height:26px; border-radius:3px; border:1px solid var(--line); background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+    font-size:13px; font-weight:700; transition:all .15s ease; user-select:none;
+  }
+  .check.p1.on{background:var(--p1); border-color:var(--p1); color:#0c1a26;}
+  .check.p2.on{background:var(--p2); border-color:var(--p2); color:#260c0c;}
+
+  footer{max-width:720px; margin:34px auto 0; padding:0 16px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--muted); text-align:center;}
+  .reset-btn{
+    margin-top:14px; background:none; border:1px solid var(--line); color:var(--muted);
+    font-family:'IBM Plex Mono', monospace; font-size:10px; padding:6px 10px; border-radius:3px; cursor:pointer;
+  }
+  .loading{text-align:center; padding:60px 0; color:var(--muted); font-family:'IBM Plex Mono', monospace; font-size:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <h1>KANTO TRAIL</h1>
+    <span class="sub">LEAFGREEN × FIRERED — SHARED DEX LOG</span>
+  </div>
+  <div class="names">
+    <div class="name-field"><span class="dot p1"></span><input id="p1name" placeholder="Player 1" maxlength="14"></div>
+    <div class="name-field"><span class="dot p2"></span><input id="p2name" placeholder="Player 2" maxlength="14"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="pbar-row"><span style="width:70px">P1</span><div class="pbar"><div class="pbar-fill p1" id="bar-p1" style="width:0%"></div></div><span class="pbar-num" id="num-p1">0/151</span></div>
+    <div class="pbar-row"><span style="width:70px">P2</span><div class="pbar"><div class="pbar-fill p2" id="bar-p2" style="width:0%"></div></div><span class="pbar-num" id="num-p2">0/151</span></div>
+    <div class="pbar-row"><span style="width:70px">BOTH ✓</span><div class="pbar"><div class="pbar-fill both" id="bar-both" style="width:0%"></div></div><span class="pbar-num" id="num-both">0/151</span></div>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <b>Note on accuracy:</b> order below follows the general path through Kanto (route → route, town → town) as I recall it, but I have not cross-checked every exact encounter tile or LG/FR version-exclusive pairing against a guide. If one of you is missing something the other already has, it's worth a quick check on Serebii/Bulbapedia's FireRed/LeafGreen encounter tables before assuming it's a version exclusive. Trade-evolution tags (⇄ TRADE) I'm confident on — Kadabra, Machoke, Graveler, and Haunter all need a trade to reach their final form.
+</div>
+
+<main id="main">
+  <div class="loading">loading trail…</div>
+</main>
+
+<footer>
+  Tap a colored square to mark caught for that trainer. Data syncs between you both.
+  <br><button class="reset-btn" id="resetBtn">reset all progress</button>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+// TODO: paste your full config here, including databaseURL from the Realtime Database console
+const firebaseConfig = {
+  apiKey: "AIzaSyDSHzeZDMVi5QWNM7x-6bWtG4t2G46IpyE",
+  authDomain: "lg-fr-151-co-op.firebaseapp.com",
+  databaseURL: "PASTE_YOUR_DATABASE_URL_HERE",
+  projectId: "lg-fr-151-co-op",
+  storageBucket: "lg-fr-151-co-op.firebasestorage.app",
+  messagingSenderId: "691960539460",
+  appId: "1:691960539460:web:90ac294225d3ffa5ec4f11"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const progressRef = ref(db, 'kanto-trail/progress');
+const namesRef = ref(db, 'kanto-trail/names');
+
+const ROUTES = [
+  { area: "Starters (already traded!)", note: "You've both already got all three via trade.", mons: [
+    {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"}
+  ]},
+  { area: "Route 1 → Viridian City", note: "", mons: [
+    {n:16,name:"Pidgey"},{n:19,name:"Rattata"}
+  ]},
+  { area: "Route 22 (before Viridian Forest)", note: "", mons: [
+    {n:21,name:"Spearow"},{n:56,name:"Mankey"}
+  ]},
+  { area: "Viridian Forest", note: "", mons: [
+    {n:10,name:"Caterpie"},{n:13,name:"Weedle"},{n:11,name:"Metapod"},{n:14,name:"Kakuna"},{n:25,name:"Pikachu"}
+  ]},
+  { area: "Pewter City → Mt. Moon", note: "Fossil choice happens later in Cinnabar's lab — Mt. Moon is where you find the fossils themselves.", mons: [
+    {n:41,name:"Zubat"},{n:74,name:"Geodude"},{n:46,name:"Paras"},{n:35,name:"Clefairy"},
+    {n:138,name:"Omanyte",tag:"fossil choice"},{n:140,name:"Kabuto",tag:"fossil choice"}
+  ]},
+  { area: "Route 24–25 (Cerulean, Nugget Bridge)", note: "", mons: [
+    {n:29,name:"Nidoran♀"},{n:32,name:"Nidoran♂"},{n:69,name:"Bellsprout"},{n:43,name:"Oddish"},{n:48,name:"Venonat"}
+  ]},
+  { area: "Route 5–9 / Rock Tunnel", note: "", mons: [
+    {n:52,name:"Meowth"},{n:23,name:"Ekans"},{n:27,name:"Sandshrew"},{n:66,name:"Machop"},{n:95,name:"Onix"},{n:58,name:"Growlithe"},{n:37,name:"Vulpix"}
+  ]},
+  { area: "Vermilion City / S.S. Anne", note: "", mons: [
+    {n:98,name:"Krabby"},{n:120,name:"Staryu"},{n:129,name:"Magikarp"},{n:63,name:"Abra"},{n:133,name:"Eevee",tag:"gift, one only"}
+  ]},
+  { area: "Route 11 / Diglett's Cave", note: "", mons: [
+    {n:50,name:"Diglett"},{n:81,name:"Magnemite"}
+  ]},
+  { area: "Celadon City / Route 7–8", note: "", mons: [
+    {n:114,name:"Tangela"},{n:102,name:"Exeggcute"},{n:88,name:"Grimer"},{n:109,name:"Koffing"}
+  ]},
+  { area: "Safari Zone", note: "", mons: [
+    {n:111,name:"Rhyhorn"},{n:113,name:"Chansey"},{n:115,name:"Kangaskhan"},{n:123,name:"Scyther",tag:"vers. exclusive?"},
+    {n:127,name:"Pinsir",tag:"vers. exclusive?"},{n:128,name:"Tauros"},{n:83,name:"Farfetch'd"}
+  ]},
+  { area: "Fuchsia City / Route 15–19", note: "", mons: [
+    {n:118,name:"Goldeen"},{n:79,name:"Slowpoke"},{n:117,name:"Seadra"},{n:72,name:"Tentacool"},{n:86,name:"Seel"}
+  ]},
+  { area: "Silph Co. (Saffron City)", note: "", mons: [
+    {n:100,name:"Voltorb"},{n:130,name:"Gyarados"}
+  ]},
+  { area: "Lavender Town / Pokémon Tower", note: "", mons: [
+    {n:92,name:"Gastly"},{n:96,name:"Drowzee"},{n:105,name:"Marowak"},{n:147,name:"Dratini"}
+  ]},
+  { area: "Route 12–14 (Lavender south)", note: "", mons: [
+    {n:132,name:"Ditto"},{n:44,name:"Gloom"}
+  ]},
+  { area: "Power Plant", note: "", mons: [
+    {n:81,name:"Magnemite"},{n:82,name:"Magneton"},{n:145,name:"Zapdos",tag:"legendary"},
+    {n:125,name:"Electabuzz",tag:"vers. exclusive?"}
+  ]},
+  { area: "Route 20–21 / Seafoam Islands", note: "", mons: [
+    {n:90,name:"Shellder"},{n:120,name:"Staryu"},{n:87,name:"Dewgong"},{n:144,name:"Articuno",tag:"legendary"}
+  ]},
+  { area: "Cinnabar Island", note: "Choose your fossil revival here if you haven't already.", mons: [
+    {n:143,name:"Snorlax",tag:"story blocker"},{n:126,name:"Magmar",tag:"vers. exclusive?"}
+  ]},
+  { area: "Victory Road", note: "", mons: [
+    {n:42,name:"Golbat"},{n:75,name:"Graveler",tag:"⇄ TRADE to evolve"},{n:67,name:"Machoke",tag:"⇄ TRADE to evolve"},{n:104,name:"Cubone"}
+  ]},
+  { area: "Trade-evolution only (need your friend!)", note: "These species' final forms can't be reached solo — trade back and forth.", mons: [
+    {n:65,name:"Alakazam",tag:"⇄ from Kadabra"},{n:68,name:"Machamp",tag:"⇄ from Machoke"},
+    {n:76,name:"Golem",tag:"⇄ from Graveler"},{n:94,name:"Gengar",tag:"⇄ from Haunter"}
+  ]},
+  { area: "Cerulean Cave (post-E4)", note: "", mons: [
+    {n:150,name:"Mewtwo",tag:"legendary"}
+  ]},
+  { area: "Mew", note: "Event-only in FRLG — not obtainable through normal play. Included for dex completion tracking only.", mons: [
+    {n:151,name:"Mew",tag:"event only"}
+  ]}
+];
+
+// Fill in remaining base-stage species not yet placed, evolutions are assumed automatic and not separately tracked
+// unless they require trade (handled above) — this keeps the list to first-obtainable form per line.
+const EXTRA = [
+  {n:12,name:"Butterfree",tag:"evolves from Caterpie line"},{n:15,name:"Beedrill",tag:"evolves from Weedle line"},
+  {n:17,name:"Pidgeotto",tag:"evolves"},{n:18,name:"Pidgeot",tag:"evolves"},{n:20,name:"Raticate",tag:"evolves"},
+  {n:22,name:"Fearow",tag:"evolves"},{n:24,name:"Arbok",tag:"evolves"},{n:26,name:"Raichu",tag:"Thunderstone"},
+  {n:28,name:"Sandslash",tag:"evolves"},{n:30,name:"Nidorina",tag:"evolves"},{n:31,name:"Nidoqueen",tag:"Moonstone"},
+  {n:33,name:"Nidorino",tag:"evolves"},{n:34,name:"Nidoking",tag:"Moonstone"},{n:36,name:"Clefable",tag:"Moonstone"},
+  {n:38,name:"Ninetales",tag:"Firestone"},{n:39,name:"Jigglypuff",tag:"Route 3/routes"},{n:40,name:"Wigglytuff",tag:"Moonstone"},
+  {n:45,name:"Vileplume",tag:"Leafstone"},{n:47,name:"Parasect",tag:"evolves"},{n:49,name:"Venomoth",tag:"evolves"},
+  {n:51,name:"Dugtrio",tag:"evolves"},{n:53,name:"Persian",tag:"evolves"},{n:54,name:"Psyduck",tag:"Route 6/24/25"},
+  {n:55,name:"Golduck",tag:"evolves"},{n:57,name:"Primeape",tag:"evolves"},{n:59,name:"Arcanine",tag:"Firestone"},
+  {n:60,name:"Poliwag",tag:"Routes 6/22/25"},{n:61,name:"Poliwhirl",tag:"evolves"},{n:62,name:"Poliwrath",tag:"Waterstone"},
+  {n:64,name:"Kadabra",tag:"evolves from Abra"},{n:70,name:"Weepinbell",tag:"evolves"},{n:71,name:"Victreebel",tag:"Leafstone"},
+  {n:73,name:"Tentacruel",tag:"evolves"},{n:77,name:"Ponyta",tag:"Route 17"},{n:78,name:"Rapidash",tag:"evolves"},
+  {n:80,name:"Slowbro",tag:"evolves"},{n:84,name:"Doduo",tag:"Route 16/18"},{n:85,name:"Dodrio",tag:"evolves"},
+  {n:89,name:"Muk",tag:"evolves"},{n:91,name:"Cloyster",tag:"Waterstone"},{n:93,name:"Haunter",tag:"evolves from Gastly"},
+  {n:97,name:"Hypno",tag:"evolves"},{n:99,name:"Kingler",tag:"evolves"},{n:101,name:"Electrode",tag:"evolves"},
+  {n:103,name:"Exeggutor",tag:"Leafstone"},{n:106,name:"Hitmonlee",tag:"Karate King gift"},{n:107,name:"Hitmonchan",tag:"Karate King gift"},
+  {n:108,name:"Lickitung",tag:"Route 18"},{n:110,name:"Weezing",tag:"evolves"},{n:112,name:"Rhydon",tag:"evolves"},
+  {n:116,name:"Horsea",tag:"Route 12/22"},{n:119,name:"Seaking",tag:"evolves"},{n:121,name:"Starmie",tag:"Waterstone"},
+  {n:122,name:"Mr. Mime",tag:"in-game trade"},{n:124,name:"Jynx",tag:"Seafoam/Rt12"},{n:131,name:"Lapras",tag:"gift, Silph Co."},
+  {n:134,name:"Vaporeon",tag:"Eevee + Waterstone"},{n:135,name:"Jolteon",tag:"Eevee + Thunderstone"},{n:136,name:"Flareon",tag:"Eevee + Firestone"},
+  {n:137,name:"Porygon",tag:"Game Corner prize"},{n:139,name:"Omastar",tag:"evolves"},{n:141,name:"Kabutops",tag:"evolves"},
+  {n:142,name:"Aerodactyl",tag:"Old Amber fossil"},{n:146,name:"Moltres",tag:"legendary, Mt. Ember (Sevii — post-dex)"},
+  {n:148,name:"Dragonair",tag:"evolves"},{n:149,name:"Dragonite",tag:"evolves"}
+];
+ROUTES.splice(ROUTES.length-1, 0, { area:"Evolutions & stones (catch the pre-evo, evolve as normal)", note:"Not separately encountered in the wild — tracked here so the dex list stays complete.", mons: EXTRA });
+
+const ALL = ROUTES.flatMap(r => r.mons);
+
+let progress = {};
+let names = {p1:"Player 1", p2:"Player 2"};
+
+function load(){
+  // render() builds the whole list fresh each time, so it's safe to call from either listener
+  onValue(progressRef, (snapshot) => {
+    progress = snapshot.val() || {};
+    render();
+  });
+  onValue(namesRef, (snapshot) => {
+    const val = snapshot.val();
+    if(val) names = val;
+    render();
+  });
+}
+
+async function saveProgress(){
+  try{ await set(progressRef, progress); }catch(e){ console.error(e); }
+}
+async function saveNames(){
+  try{ await set(namesRef, names); }catch(e){ console.error(e); }
+}
+
+function toggle(num, player){
+  const key = String(num);
+  if(!progress[key]) progress[key] = {p1:false, p2:false};
+  progress[key][player] = !progress[key][player];
+  saveProgress();
+  renderBars();
+  renderChecks();
+}
+
+function render(){
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  document.getElementById('p1name').value = names.p1 || '';
+  document.getElementById('p2name').value = names.p2 || '';
+
+  ROUTES.forEach((section, idx) => {
+    const sec = document.createElement('div');
+    sec.className = 'route-section';
+    sec.innerHTML = `
+      <div class="route-trail"></div>
+      <div class="route-head">
+        <div class="route-marker">${idx+1}</div>
+        <div class="route-title">${section.area}</div>
+      </div>
+      ${section.note ? `<div class="route-note">${section.note}</div>` : ''}
+      <div class="rows"></div>
+    `;
+    const rowsWrap = sec.querySelector('.rows');
+    section.mons.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.dataset.num = m.n;
+      const tagHtml = m.tag ? `<span class="tag ${m.tag.includes('TRADE')?'trade':(m.tag.includes('legendary')||m.tag.includes('event')?'special':'')}">${m.tag}</span>` : '';
+      row.innerHTML = `
+        <span class="dexnum">#${String(m.n).padStart(3,'0')}</span>
+        <span class="pname">${m.name}</span>
+        <div class="tags">${tagHtml}</div>
+        <div class="check p1" data-num="${m.n}" data-player="p1">P1</div>
+        <div class="check p2" data-num="${m.n}" data-player="p2">P2</div>
+      `;
+      rowsWrap.appendChild(row);
+    });
+    main.appendChild(sec);
+  });
+
+  main.querySelectorAll('.check').forEach(el => {
+    el.addEventListener('click', () => toggle(el.dataset.num, el.dataset.player));
+  });
+
+  renderChecks();
+  renderBars();
+}
+
+function renderChecks(){
+  document.querySelectorAll('.check').forEach(el => {
+    const num = el.dataset.num, player = el.dataset.player;
+    const on = progress[num] && progress[num][player];
+    el.classList.toggle('on', !!on);
+    el.textContent = on ? '✓' : (player === 'p1' ? 'P1' : 'P2');
+  });
+  document.querySelectorAll('.row').forEach(row => {
+    const num = row.dataset.num;
+    const both = progress[num] && progress[num].p1 && progress[num].p2;
+    row.classList.toggle('caught-both', !!both);
+  });
+}
+
+function renderBars(){
+  const total = ALL.length;
+  let c1=0, c2=0, cb=0;
+  ALL.forEach(m => {
+    const p = progress[String(m.n)];
+    if(p && p.p1) c1++;
+    if(p && p.p2) c2++;
+    if(p && p.p1 && p.p2) cb++;
+  });
+  document.getElementById('bar-p1').style.width = (c1/total*100)+'%';
+  document.getElementById('bar-p2').style.width = (c2/total*100)+'%';
+  document.getElementById('bar-both').style.width = (cb/total*100)+'%';
+  document.getElementById('num-p1').textContent = c1+'/'+total;
+  document.getElementById('num-p2').textContent = c2+'/'+total;
+  document.getElementById('num-both').textContent = cb+'/'+total;
+}
+
+document.getElementById('p1name').addEventListener('change', e => { names.p1 = e.target.value || 'Player 1'; saveNames(); });
+document.getElementById('p2name').addEventListener('change', e => { names.p2 = e.target.value || 'Player 2'; saveNames(); });
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(confirm('Reset all caught progress for both trainers?')){
+    progress = {};
+    saveProgress();
+    renderChecks();
+    renderBars();
+  }
+});
+
+load();
+</script>
+</body>
+</html>
