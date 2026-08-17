@@ -8,86 +8,284 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#12160f; --surface:#1b2116; --surface-2:#232b1c; --line:#35402b;
-    --cream:#ede6d3; --muted:#9aa68c; --gold:#e8b73c; --grass:#6f9c4a;
-    --p1:#4f9fd9; --p2:#d9634f; --fr:#e05c3e; --lg:#5fa855;
+    /* FRLG palette: GBA dialogue-frame navy, parchment fill, version accents */
+    --navy:#204060;
+    --navy-dk:#102840;
+    --frame:#4878a8;
+    --frame-lt:#88b8e0;
+    --parch:#f8f8e8;
+    --parch-2:#e8e8d0;
+    --parch-3:#d8d8c0;
+    --ink:#485870;
+    --ink-dk:#283848;
+    --shadow:#c8c8b0;
+    --fr:#e03c28;      /* FireRed */
+    --lg:#48a038;      /* LeafGreen */
+    --gold:#f8b800;
+    --hp-green:#58c840;
+    --hp-yellow:#f8c030;
+    --muted:#788898;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:radial-gradient(circle at 20% 0%, #1c2417 0%, transparent 45%), var(--bg);
-    color:var(--cream); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:60px;
+    margin:0;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 4px),
+      linear-gradient(180deg,#78a8d8 0%, #a8d0e8 100%);
+    background-attachment:fixed;
+    color:var(--ink-dk);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
   }
-  header{position:sticky; top:0; z-index:20; background:var(--bg); padding:14px 16px 10px; border-bottom:1px solid var(--line);}
-  .title-row{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
-  h1{font-family:'Press Start 2P',monospace; font-size:13px; margin:0; color:var(--gold); text-shadow:2px 2px 0 #8f2a14;}
-  .sub{font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
 
-  .players{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
-  .pcard{display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:5px 8px;}
-  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-  .dot.p1{background:var(--p1);} .dot.p2{background:var(--p2);}
-  .pcard input{background:transparent;border:none;color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:12px;width:80px;outline:none;}
-  .pcard select{background:var(--surface-2);border:1px solid var(--line);color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:2px;padding:2px 4px;outline:none;}
+  /* ---- GBA dialogue frame: dark outer, light inner bevel, parchment fill ---- */
+  .gba{
+    background:var(--parch);
+    border:3px solid var(--navy);
+    border-radius:9px;
+    box-shadow:inset 0 0 0 2px var(--frame-lt), 0 2px 0 var(--navy-dk);
+  }
 
-  .progress-wrap{margin-top:10px;display:flex;flex-direction:column;gap:5px;}
-  .pbar-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
-  .pbar{flex:1;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line);}
-  .pbar-fill{height:100%;transition:width .3s ease;}
-  .pbar-fill.p1{background:var(--p1);} .pbar-fill.p2{background:var(--p2);} .pbar-fill.both{background:var(--gold);}
-  .pbar-num{width:56px;text-align:right;}
+  header{
+    position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg,#5890c8 0%, #4878a8 60%, #386890 100%);
+    background-color:#4878a8;
+    padding:12px 14px 11px;
+    border-bottom:3px solid var(--navy-dk);
+    box-shadow:0 2px 0 rgba(0,0,0,.15);
+  }
+  .title-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  h1{
+    font-family:'Press Start 2P',monospace;font-size:12px;margin:0;
+    color:var(--parch);
+    text-shadow:2px 2px 0 var(--navy-dk);
+    letter-spacing:.5px;
+  }
+  .sub{font-size:9px;color:#d8e8f8;font-family:'IBM Plex Mono',monospace;text-shadow:1px 1px 0 var(--navy-dk);}
 
-  .controls{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-  .search{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:6px 9px;color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;}
-  .search:focus{border-color:var(--grass);}
-  .chip{background:var(--surface);border:1px solid var(--line);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 8px;border-radius:3px;cursor:pointer;white-space:nowrap;}
-  .chip.on{background:var(--grass);border-color:var(--grass);color:#0f1a09;font-weight:600;}
+  .players{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;}
+  .pcard{
+    display:flex;align-items:center;gap:5px;
+    background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff;
+    padding:4px 7px;
+  }
+  .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--navy);}
+  .dot.p1{background:var(--lg);} .dot.p2{background:var(--fr);}
+  .pcard input{
+    background:transparent;border:none;color:var(--ink-dk);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;width:76px;outline:none;
+  }
+  .pcard select{
+    background:var(--parch-2);border:1.5px solid var(--ink);color:var(--ink-dk);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:4px;padding:2px 3px;outline:none;font-weight:600;
+  }
 
-  .disclaimer{margin:12px 16px 0;padding:10px 12px;background:var(--surface);border:1px dashed var(--line);border-radius:3px;font-size:11px;line-height:1.55;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
-  .disclaimer b{color:var(--cream);}
+  /* ---- HP-bar styled progress ---- */
+  .progress-wrap{
+    margin-top:9px;display:flex;flex-direction:column;gap:4px;
+    background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff;padding:7px 9px;
+  }
+  .pbar-row{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink);font-weight:600;}
+  .pbar{
+    flex:1;height:8px;background:var(--parch-3);border:1.5px solid var(--ink-dk);border-radius:4px;overflow:hidden;
+  }
+  .pbar-fill{height:100%;transition:width .3s ease;border-radius:2px;}
+  .pbar-fill.p1{background:linear-gradient(180deg,#78d858,var(--lg));}
+  .pbar-fill.p2{background:linear-gradient(180deg,#f86850,var(--fr));}
+  .pbar-fill.both{background:linear-gradient(180deg,#ffd858,var(--gold));}
+  .pbar-num{width:54px;text-align:right;}
 
-  main{padding:12px 16px 0;max-width:760px;margin:0 auto;}
-  .route-section{position:relative;margin-top:22px;}
-  .route-trail{position:absolute;left:9px;top:28px;bottom:-14px;width:2px;background:repeating-linear-gradient(to bottom,var(--grass) 0 6px,transparent 6px 11px);}
-  .route-head{display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer;user-select:none;}
-  .route-marker{width:20px;height:20px;border-radius:50%;background:var(--surface-2);border:2px solid var(--grass);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--grass);flex-shrink:0;z-index:1;}
-  .route-marker.done{background:var(--gold);border-color:var(--gold);color:#1a1405;}
-  .route-title{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12.5px;flex:1;}
-  .route-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
-  .route-note{font-size:10.5px;color:var(--muted);margin-left:30px;margin-bottom:7px;margin-top:-3px;line-height:1.5;}
-  .rows{margin-left:30px;display:flex;flex-direction:column;gap:1px;}
+  /* ---- menu-style chips ---- */
+  .controls{margin-top:9px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+  .search{
+    flex:1;min-width:130px;background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff;
+    padding:6px 9px;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;font-weight:600;
+  }
+  .search::placeholder{color:var(--muted);}
+  .chip{
+    background:var(--parch);border:2px solid var(--navy);border-radius:6px;
+    box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
+    color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;
+    padding:5px 8px;cursor:pointer;white-space:nowrap;letter-spacing:.3px;
+  }
+  .chip:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff;}
+  .chip.on{background:var(--gold);box-shadow:inset 0 0 0 1px #ffe8a0, 0 2px 0 #a87800;}
+  .chip.on::before{content:'▶ ';}
+
+  .disclaimer{
+    margin:12px 14px 0;padding:9px 11px;
+    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
+    box-shadow:inset 0 0 0 2px var(--frame-lt);
+    font-size:10.5px;line-height:1.6;color:var(--ink);font-family:'IBM Plex Mono',monospace;
+    max-width:760px;
+  }
+  .disclaimer b{color:var(--ink-dk);}
+
+  main{padding:12px 14px 0;max-width:760px;margin:0 auto;}
+
+  /* ---- route sections ---- */
+  .route-section{position:relative;margin-top:16px;}
+  .route-trail{
+    position:absolute;left:10px;top:32px;bottom:-10px;width:3px;
+    background:repeating-linear-gradient(to bottom,var(--navy) 0 4px, transparent 4px 9px);
+    opacity:.4;
+  }
+  .route-head{
+    display:flex;align-items:center;gap:9px;margin-bottom:7px;cursor:pointer;user-select:none;
+    background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
+    padding:6px 9px;
+  }
+  .route-head:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff;}
+  .route-marker{
+    width:20px;height:20px;border-radius:50%;
+    background:var(--parch-2);border:2px solid var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--ink);
+    flex-shrink:0;z-index:1;
+  }
+  .route-marker.done{
+    background:radial-gradient(circle at 50% 32%, var(--fr) 0 45%, #fff 45% 55%, var(--parch) 55%);
+    border-color:var(--navy-dk);color:transparent;
+  }
+  .route-title{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12px;flex:1;color:var(--ink-dk);}
+  .route-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);font-weight:600;}
+  .route-note{
+    font-size:10px;color:var(--ink);margin-left:32px;margin-bottom:6px;line-height:1.55;
+    font-family:'IBM Plex Mono',monospace;
+    background:rgba(255,255,255,.55);border-left:3px solid var(--frame);border-radius:0 4px 4px 0;padding:5px 8px;
+  }
+  .rows{margin-left:32px;display:flex;flex-direction:column;gap:3px;}
   .rows.collapsed{display:none;}
 
-  .row{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:7px 9px;}
-  .row.caught-both{border-color:var(--gold);}
-  .row.trade-alert{border-left:3px solid var(--gold);}
-  .row-main{display:flex;align-items:center;gap:9px;}
-  .dexnum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:32px;flex-shrink:0;}
-  .pname{flex:1;font-size:13px;font-weight:500;}
-  .tags{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:190px;}
-  .tag{font-family:'IBM Plex Mono',monospace;font-size:8px;padding:2px 4px;border-radius:2px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;}
-  .tag.fr{color:var(--fr);border-color:var(--fr);}
-  .tag.lg{color:var(--lg);border-color:var(--lg);}
-  .tag.trade{color:var(--gold);border-color:var(--gold);}
-  .tag.special{color:#c98fd9;border-color:#5a3d63;}
-  .check{width:26px;height:26px;border-radius:3px;border:1px solid var(--line);background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;transition:all .12s ease;user-select:none;}
-  .check.p1.on{background:var(--p1);border-color:var(--p1);color:#0c1a26;}
-  .check.p2.on{background:var(--p2);border-color:var(--p2);color:#260c0c;}
-  .note-btn{width:22px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:12px;flex-shrink:0;user-select:none;}
-  .note-btn.has{color:var(--gold);}
-  .note-row{margin-top:6px;display:none;}
+  /* ---- pokedex-entry rows ---- */
+  .row{
+    background:var(--parch);border:2px solid var(--navy);border-radius:6px;
+    box-shadow:inset 0 0 0 1px #fff;
+    padding:6px 8px;
+  }
+  .row.caught-both{background:linear-gradient(180deg,#fff8d8,var(--parch));border-color:#a87800;}
+  .row.trade-alert{border-left:5px solid var(--gold);}
+  .row.missable{border-left:5px solid #b060c0;}
+  .row-main{display:flex;align-items:center;gap:8px;}
+  .dexnum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:34px;flex-shrink:0;font-weight:600;}
+  .pname{flex:1;font-size:13px;font-weight:700;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;}
+  .row.caught-both .pname::before{content:'● ';color:var(--fr);}
+  .tags{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:200px;}
+  .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;padding:2px 4px;border-radius:3px;
+    border:1.5px solid var(--ink);color:var(--ink);background:var(--parch-2);white-space:nowrap;
+  }
+  .tag.fr{color:#fff;background:var(--fr);border-color:#a02818;}
+  .tag.lg{color:#fff;background:var(--lg);border-color:#286818;}
+  .tag.trade{color:#503800;background:var(--gold);border-color:#a87800;}
+  .tag.special{color:#fff;background:#8848a8;border-color:#582868;}
+  .tag.rare{color:#fff;background:var(--frame);border-color:var(--navy);}
+
+  .check{
+    width:30px;height:28px;border-radius:5px;
+    border:2px solid var(--navy);background:var(--parch-2);
+    box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+    font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--ink);
+    transition:none;user-select:none;
+  }
+  .check:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff;}
+  .check.p1.on{background:var(--lg);color:#fff;border-color:#286818;box-shadow:inset 0 0 0 1px #88d878, 0 2px 0 #1a4810;}
+  .check.p2.on{background:var(--fr);color:#fff;border-color:#a02818;box-shadow:inset 0 0 0 1px #f89888, 0 2px 0 #701808;}
+  .note-btn{
+    width:24px;height:28px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--muted);font-size:13px;flex-shrink:0;user-select:none;
+  }
+  .note-btn.has{color:#a87800;}
+  .note-row{margin-top:5px;display:none;}
   .note-row.open{display:block;}
-  .note-row input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:5px 7px;color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;}
-  .note-row input:focus{border-color:var(--grass);}
+  .note-row input{
+    width:100%;background:var(--parch-2);border:2px solid var(--ink);border-radius:5px;
+    padding:5px 7px;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;font-weight:600;
+  }
+  .note-row input:focus{border-color:var(--frame);}
 
-  .trade-panel{margin:0 16px;max-width:760px;background:var(--surface);border:1px solid var(--gold);border-radius:3px;padding:11px 13px;display:none;}
+  .claim-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:5px 8px;border-radius:5px;
+    border:2px solid var(--ink);color:var(--ink);background:var(--parch-2);
+    box-shadow:0 2px 0 rgba(0,0,0,.15);
+    cursor:pointer;user-select:none;white-space:nowrap;flex-shrink:0;min-height:28px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .claim-btn:active{transform:translateY(2px);box-shadow:none;}
+  .claim-btn.p1{background:var(--lg);border-color:#286818;color:#fff;}
+  .claim-btn.p2{background:var(--fr);border-color:#a02818;color:#fff;}
+  .claim-row{margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .claim-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink);letter-spacing:.3px;font-weight:600;}
+
+  /* ---- panels ---- */
+  .trade-panel{
+    margin:12px 14px 0;max-width:760px;
+    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
+    box-shadow:inset 0 0 0 2px var(--gold);
+    padding:10px 12px;display:none;
+  }
   .trade-panel.open{display:block;}
-  .trade-panel h3{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin:0 0 8px;letter-spacing:.5px;}
-  .trade-line{font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;color:var(--cream);}
+  .trade-panel h3{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a87800;margin:0 0 7px;letter-spacing:.5px;}
+  .trade-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:var(--ink-dk);}
   .trade-line span{color:var(--muted);}
+  .beast-panel{
+    margin:12px 14px 0;max-width:760px;
+    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
+    box-shadow:inset 0 0 0 2px #b060c0;
+    padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.65;
+    color:var(--ink-dk);display:none;
+  }
+  .beast-panel.open{display:block;}
+  .beast-panel h3{font-size:10.5px;color:#8848a8;margin:0 0 6px;letter-spacing:.5px;}
+  .beast-panel .warn{color:#a02818;margin-top:6px;display:block;}
 
-  footer{max-width:760px;margin:30px auto 0;padding:0 16px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-align:center;line-height:1.7;}
-  .reset-btn{margin-top:12px;background:none;border:1px solid var(--line);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 10px;border-radius:3px;cursor:pointer;}
-  .loading{text-align:center;padding:50px 0;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  footer{
+    max-width:760px;margin:24px auto 0;padding:12px 14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);text-align:center;line-height:1.7;
+  }
+  .reset-btn{
+    margin-top:10px;background:var(--parch);border:2px solid var(--navy);border-radius:6px;
+    box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
+    color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;
+    padding:6px 11px;cursor:pointer;
+  }
+  .reset-btn:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff;}
+  .loading{
+    text-align:center;padding:40px 14px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:12px;
+    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
+    box-shadow:inset 0 0 0 2px var(--frame-lt);
+  }
+
+  /* ---- mobile first ---- */
+  @media (max-width:640px){
+    header{padding:10px 10px 9px;}
+    h1{font-size:10px;}
+    .sub{display:none;}
+    main{padding:10px 10px 0;}
+    .disclaimer,.trade-panel,.beast-panel{margin-left:10px;margin-right:10px;}
+    .rows{margin-left:20px;}
+    .route-note{margin-left:20px;}
+    .route-trail{left:9px;}
+    .row-main{flex-wrap:wrap;gap:6px;}
+    .pname{flex:1 1 auto;min-width:96px;font-size:14px;}
+    .tags{max-width:100%;flex-basis:100%;order:5;justify-content:flex-start;margin-top:3px;}
+    .check{width:40px;height:34px;font-size:11px;}
+    .note-btn{width:30px;height:34px;font-size:15px;}
+    .claim-btn{font-size:10px;padding:7px 10px;min-height:34px;}
+    .chip{font-size:10.5px;padding:7px 10px;}
+    .search{font-size:16px;}
+    .note-row input{font-size:16px;}
+    .pcard input{font-size:16px;width:70px;}
+    .pcard select{font-size:11px;}
+    .controls{gap:5px;}
+  }
+
 </style>
 </head>
 <body>
@@ -102,17 +300,19 @@
       <span class="dot p1"></span>
       <input id="p1name" placeholder="Player 1" maxlength="14">
       <select id="p1ver"><option value="LG">LeafGreen</option><option value="FR">FireRed</option></select>
+      <select id="p1starter"><option value="">starter?</option><option value="B">Bulbasaur</option><option value="C">Charmander</option><option value="S">Squirtle</option></select>
     </div>
     <div class="pcard">
       <span class="dot p2"></span>
       <input id="p2name" placeholder="Player 2" maxlength="14">
       <select id="p2ver"><option value="FR">FireRed</option><option value="LG">LeafGreen</option></select>
+      <select id="p2starter"><option value="">starter?</option><option value="B">Bulbasaur</option><option value="C">Charmander</option><option value="S">Squirtle</option></select>
     </div>
   </div>
   <div class="progress-wrap">
-    <div class="pbar-row"><span id="lbl-p1" style="width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">P1</span><div class="pbar"><div class="pbar-fill p1" id="bar-p1"></div></div><span class="pbar-num" id="num-p1">0/151</span></div>
-    <div class="pbar-row"><span id="lbl-p2" style="width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">P2</span><div class="pbar"><div class="pbar-fill p2" id="bar-p2"></div></div><span class="pbar-num" id="num-p2">0/151</span></div>
-    <div class="pbar-row"><span style="width:64px">BOTH ✓</span><div class="pbar"><div class="pbar-fill both" id="bar-both"></div></div><span class="pbar-num" id="num-both">0/151</span></div>
+    <div class="pbar-row"><span id="lbl-p1" style="width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">P1</span><div class="pbar"><div class="pbar-fill p1" id="bar-p1"></div></div><span class="pbar-num" id="num-p1">0/150</span></div>
+    <div class="pbar-row"><span id="lbl-p2" style="width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">P2</span><div class="pbar"><div class="pbar-fill p2" id="bar-p2"></div></div><span class="pbar-num" id="num-p2">0/150</span></div>
+    <div class="pbar-row"><span style="width:64px">BOTH ✓</span><div class="pbar"><div class="pbar-fill both" id="bar-both"></div></div><span class="pbar-num" id="num-both">0/150</span></div>
   </div>
   <div class="controls">
     <input class="search" id="search" placeholder="search name or #num…">
@@ -120,23 +320,31 @@
     <div class="chip" data-filter="trade">NEEDS TRADE</div>
     <div class="chip" data-filter="uncaught">UNCAUGHT</div>
     <div class="chip" data-filter="tradeevo">TRADE EVOS</div>
+    <div class="chip" data-filter="missable">⚠ ONE-SHOT</div>
+    <div class="chip" data-filter="mine">I CAN'T CATCH</div>
     <div class="chip" id="hideDone">HIDE DONE</div>
   </div>
 </header>
 
 <div class="trade-panel" id="tradePanel">
-  <h3>▸ TRADE LIST — WHO OWES WHO</h3>
+  <h3>▸ TRADE LIST</h3>
   <div class="trade-line" id="tradeContent"></div>
 </div>
 
+<div class="beast-panel" id="beastPanel"></div>
+
 <div class="disclaimer">
-  <b>Data confidence:</b> version-exclusive tags (FR ONLY / LG ONLY) are verified against Pokémon Database and I'm confident in them. Trade-evolution tags are also confirmed. <b>Route placement is still approximate</b> — I ordered these from general recall of the Kanto route progression, not a verified encounter table, so a given species may be catchable earlier or in more places than shown. Treat the ordering as a guide, not gospel.
+  <b>SWITCH TRADING:</b> local wireless only — no online trading, and no Nintendo Switch Online membership needed. Both Switches must be physically near each other with the game running. Go to any Pokémon Center → upstairs → Pokémon Wireless Club → Union Room. Unlocks once you have the Pokédex from Oak. Up to 4 players. <b>Plan trades here, execute them when you're in the same room.</b>
+</div>
+
+<div class="disclaimer">
+  <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.
 </div>
 
 <main id="main"><div class="loading">connecting…</div></main>
 
 <footer>
-  Tap P1/P2 to mark caught. Tap ✎ to add a note. Tap a route header to collapse it.
+  Tap P1/P2 to mark caught. Tap ✎ for a note. Tap a route header to collapse.
   <br>Everything syncs live between both trainers.
   <br><button class="reset-btn" id="resetBtn">reset all progress</button>
 </footer>
@@ -159,137 +367,219 @@ const db = getDatabase(app);
 const progressRef = ref(db,'kanto-trail/progress');
 const namesRef    = ref(db,'kanto-trail/names');
 const notesRef    = ref(db,'kanto-trail/notes');
+const claimsRef   = ref(db,'kanto-trail/claims');
 
-// ---- VERSION EXCLUSIVES (verified vs Pokémon Database) ----
-const FR_ONLY = [23,24,43,44,45,54,55,58,59,90,91,123,125];
-const LG_ONLY = [27,28,37,38,69,70,71,79,80,120,121,126,127];
-// ---- TRADE EVOLUTIONS (confirmed) ----
+// One-shot / must-choose. Each entry explains WHY it's limited.
+const MISSABLE = {
+  138:"Mt. Moon — pick Helix OR Dome, not both",
+  140:"Mt. Moon — pick Helix OR Dome, not both",
+  142:"Old Amber — one per game",
+  106:"Fighting Dojo — pick Hitmonlee OR Hitmonchan",
+  107:"Fighting Dojo — pick Hitmonlee OR Hitmonchan",
+  133:"Gift behind Celadon — one only",
+  131:"Gift from Silph Co. — also catchable in Icefall Cave (Sevii), so not strictly one-shot",
+  83:"TRADE-ONLY species. Vermilion, house left of the Mart — costs a Spearow. Arrives holding a Stick.",
+  122:"TRADE-ONLY species. Route 2, house past the Cut trees — costs an Abra",
+  108:"NPC trade, Route 18 gate 2F — costs a Golduck (FR) / Slowbro (LG)",
+  124:"NPC trade, Cerulean — costs a Poliwhirl",
+  101:"Optional trade, Cinnabar Lab meeting room — costs a Raichu (Electrode also catchable)",
+  114:"Optional trade, Cinnabar Lab meeting room — costs a Venonat (Tangela also catchable)",
+  86:"Optional trade, Cinnabar Lab testing room — costs a Ponyta (Seel also in Seafoam)",
+  144:"Legendary — gone if it faints or you flee",
+  145:"Legendary — gone if it faints or you flee",
+  146:"Legendary — gone if it faints or you flee",
+  150:"Legendary — gone if it faints or you flee"
+};
+
+const FR_ONLY = [23,24,43,44,45,54,55,58,59,90,91,123,125];const LG_ONLY = [27,28,37,38,69,70,71,79,80,120,121,126,127];
 const TRADE_EVO = [65,68,76,94];
 
+// Route order follows the guide's walkthrough sequence.
 const ROUTES = [
-  { area:"Starters", note:"You've both already got all three via trade.", mons:[
-    {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"},
-    {n:2,name:"Ivysaur",t:"evolves"},{n:3,name:"Venusaur",t:"evolves"},
-    {n:5,name:"Charmeleon",t:"evolves"},{n:6,name:"Charizard",t:"evolves"},
-    {n:8,name:"Wartortle",t:"evolves"},{n:9,name:"Blastoise",t:"evolves"}
+  { area:"Pallet Town — Starters", note:"You've both already traded for all three.", mons:[
+    {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"}
   ]},
-  { area:"Route 1 → Viridian", mons:[
-    {n:16,name:"Pidgey"},{n:19,name:"Rattata"},{n:17,name:"Pidgeotto",t:"evolves"},{n:18,name:"Pidgeot",t:"evolves"},{n:20,name:"Raticate",t:"evolves"}
+  { area:"Route 1", mons:[
+    {n:16,name:"Pidgey"},{n:19,name:"Rattata"}
   ]},
-  { area:"Route 22", mons:[
-    {n:21,name:"Spearow"},{n:22,name:"Fearow",t:"evolves"},{n:56,name:"Mankey"},{n:57,name:"Primeape",t:"evolves"},{n:60,name:"Poliwag"},{n:61,name:"Poliwhirl",t:"evolves"},{n:62,name:"Poliwrath",t:"Water Stone"}
+  { area:"Route 22", note:"Don't pass the first grass patch until your team is Lv7–9.", mons:[
+    {n:21,name:"Spearow"},{n:56,name:"Mankey"},
+    {n:60,name:"Poliwag",t:"Good Rod"},{n:118,name:"Goldeen",t:"Good Rod"},{n:129,name:"Magikarp",t:"Old Rod"}
   ]},
-  { area:"Viridian Forest", mons:[
-    {n:10,name:"Caterpie"},{n:11,name:"Metapod",t:"evolves"},{n:12,name:"Butterfree",t:"evolves"},
-    {n:13,name:"Weedle"},{n:14,name:"Kakuna",t:"evolves"},{n:15,name:"Beedrill",t:"evolves"},{n:25,name:"Pikachu"},{n:26,name:"Raichu",t:"Thunder Stone"}
+  { area:"Route 2 & Viridian Forest", mons:[
+    {n:10,name:"Caterpie"},{n:11,name:"Metapod"},{n:13,name:"Weedle"},{n:14,name:"Kakuna"},
+    {n:25,name:"Pikachu",t:"Viridian Forest"}
   ]},
-  { area:"Route 2–3 → Pewter", mons:[
-    {n:39,name:"Jigglypuff"},{n:40,name:"Wigglytuff",t:"Moon Stone"},{n:23,name:"Ekans"},{n:24,name:"Arbok",t:"evolves"},{n:27,name:"Sandshrew"},{n:28,name:"Sandslash",t:"evolves"}
+  { area:"Route 3", mons:[
+    {n:39,name:"Jigglypuff"},{n:29,name:"Nidoran♀"},{n:32,name:"Nidoran♂"}
   ]},
-  { area:"Mt. Moon", note:"Fossils found here; revived later at Cinnabar. You each only get ONE — trade the other.", mons:[
-    {n:41,name:"Zubat"},{n:42,name:"Golbat",t:"evolves"},{n:74,name:"Geodude"},{n:46,name:"Paras"},{n:47,name:"Parasect",t:"evolves"},
-    {n:35,name:"Clefairy"},{n:36,name:"Clefable",t:"Moon Stone"},
-    {n:138,name:"Omanyte",t:"fossil"},{n:139,name:"Omastar",t:"evolves"},{n:140,name:"Kabuto",t:"fossil"},{n:141,name:"Kabutops",t:"evolves"}
+  { area:"Mt. Moon", note:"Fossil choice here — one only. Two Moon Stones on this map.", mons:[
+    {n:41,name:"Zubat"},{n:74,name:"Geodude"},{n:35,name:"Clefairy"},{n:46,name:"Paras"}
   ]},
-  { area:"Route 4–6 / Cerulean", mons:[
-    {n:54,name:"Psyduck"},{n:55,name:"Golduck",t:"evolves"},{n:79,name:"Slowpoke"},{n:80,name:"Slowbro",t:"evolves"}
+  { area:"Route 4 → Cerulean City", mons:[
+    {n:23,name:"Ekans"},{n:27,name:"Sandshrew"},
+    {n:54,name:"Psyduck",t:"Super Rod"},{n:79,name:"Slowpoke",t:"Super Rod"},
+    {n:98,name:"Krabby",t:"Good Rod"},{n:116,name:"Horsea",t:"Super Rod"},{n:72,name:"Tentacool",t:"surf"}
   ]},
-  { area:"Route 24–25 (Nugget Bridge)", mons:[
-    {n:29,name:"Nidoran♀"},{n:30,name:"Nidorina",t:"evolves"},{n:31,name:"Nidoqueen",t:"Moon Stone"},
-    {n:32,name:"Nidoran♂"},{n:33,name:"Nidorino",t:"evolves"},{n:34,name:"Nidoking",t:"Moon Stone"},
-    {n:43,name:"Oddish"},{n:44,name:"Gloom",t:"evolves"},{n:45,name:"Vileplume",t:"Leaf Stone"},
-    {n:69,name:"Bellsprout"},{n:70,name:"Weepinbell",t:"evolves"},{n:71,name:"Victreebel",t:"Leaf Stone"},
-    {n:48,name:"Venonat"},{n:49,name:"Venomoth",t:"evolves"},{n:63,name:"Abra"},{n:64,name:"Kadabra",t:"evolves"}
+  { area:"Routes 24 & 25 (Nugget Bridge → Bill)", mons:[
+    {n:63,name:"Abra"},{n:43,name:"Oddish"},{n:69,name:"Bellsprout"}
   ]},
-  { area:"Vermilion / S.S. Anne", mons:[
-    {n:98,name:"Krabby"},{n:99,name:"Kingler",t:"evolves"},{n:129,name:"Magikarp"},{n:130,name:"Gyarados",t:"evolves"},
-    {n:133,name:"Eevee",t:"gift, one only"},{n:134,name:"Vaporeon",t:"Water Stone"},{n:135,name:"Jolteon",t:"Thunder Stone"},{n:136,name:"Flareon",t:"Fire Stone"}
+  { area:"Routes 5 & 6 → Vermilion", note:"Nidoran♀ is on Route 5 in FR only; Nidoran♂ on Route 5 in LG only. Day Care is on Route 5.", mons:[
+    {n:52,name:"Meowth"}
   ]},
-  { area:"Diglett's Cave / Route 11", mons:[
-    {n:50,name:"Diglett"},{n:51,name:"Dugtrio",t:"evolves"},{n:81,name:"Magnemite"},{n:82,name:"Magneton",t:"evolves"},
-    {n:96,name:"Drowzee"},{n:97,name:"Hypno",t:"evolves"}
+  { area:"Vermilion City", note:"OLD ROD: yellow house west of the Pokémon Center. S.S. Anne has no wild encounters.", mons:[
+    {n:120,name:"Staryu",t:"Super Rod"},{n:90,name:"Shellder",t:"Super Rod"},{n:130,name:"Gyarados",t:"Super Rod"}
   ]},
-  { area:"Rock Tunnel / Route 9–10", mons:[
-    {n:66,name:"Machop"},{n:67,name:"Machoke",t:"evolves"},{n:95,name:"Onix"},{n:52,name:"Meowth"},{n:53,name:"Persian",t:"evolves"},
-    {n:58,name:"Growlithe"},{n:59,name:"Arcanine",t:"Fire Stone"},{n:37,name:"Vulpix"},{n:38,name:"Ninetales",t:"Fire Stone"},
-    {n:104,name:"Cubone"},{n:105,name:"Marowak",t:"evolves"}
+  { area:"Route 11 & Diglett's Cave", mons:[
+    {n:96,name:"Drowzee"},{n:50,name:"Diglett"},{n:51,name:"Dugtrio"},
+    {n:30,name:"Nidorina",t:"FR only"},{n:33,name:"Nidorino",t:"LG only"}
   ]},
-  { area:"Lavender / Pokémon Tower", mons:[
-    {n:92,name:"Gastly"},{n:93,name:"Haunter",t:"evolves"}
+  { area:"Route 10 → Rock Tunnel", note:"Bring Flash.", mons:[
+    {n:100,name:"Voltorb",t:"Route 10"},{n:66,name:"Machop"},{n:95,name:"Onix"},{n:75,name:"Graveler"}
   ]},
-  { area:"Celadon / Route 7–8 / Game Corner", mons:[
-    {n:88,name:"Grimer"},{n:89,name:"Muk",t:"evolves"},{n:109,name:"Koffing"},{n:110,name:"Weezing",t:"evolves"},
-    {n:102,name:"Exeggcute"},{n:103,name:"Exeggutor",t:"Leaf Stone"},{n:114,name:"Tangela"},
-    {n:137,name:"Porygon",t:"Game Corner prize"},{n:122,name:"Mr. Mime",t:"in-game trade"}
+  { area:"Lavender Town & Pokémon Tower", note:"Silph Scope needed. Poké Flute is the reward.", mons:[
+    {n:92,name:"Gastly"},{n:93,name:"Haunter"},{n:104,name:"Cubone"}
   ]},
-  { area:"Route 12–14", mons:[
-    {n:132,name:"Ditto"},{n:116,name:"Horsea"},{n:117,name:"Seadra",t:"evolves"},{n:124,name:"Jynx",t:"in-game trade"}
+  { area:"Routes 7 & 8 → Celadon City", mons:[
+    {n:58,name:"Growlithe",t:"FR only"},{n:37,name:"Vulpix",t:"LG only"},
+    {n:88,name:"Grimer",t:"Celadon City"},{n:109,name:"Koffing",t:"Celadon City"}
   ]},
-  { area:"Silph Co. (Saffron)", mons:[
-    {n:100,name:"Voltorb"},{n:101,name:"Electrode",t:"evolves"},{n:131,name:"Lapras",t:"gift"},
-    {n:106,name:"Hitmonlee",t:"Dojo — pick one"},{n:107,name:"Hitmonchan",t:"Dojo — pick one"}
+  { area:"Celadon Game Corner", note:"Coin prizes — none of these are one-shot, but they cost a lot of coins. Scyther is 5,500 (FR); Pinsir 2,500 (LG).", mons:[
+    {n:133,name:"Eevee",t:"gift behind Celadon"},{n:137,name:"Porygon",t:"prize"},
+    {n:147,name:"Dratini",t:"prize"},{n:123,name:"Scyther",t:"5,500 coins"},{n:127,name:"Pinsir",t:"2,500 coins"},
+    {n:35,name:"Clefairy",t:"prize"},{n:63,name:"Abra",t:"prize"}
   ]},
-  { area:"Safari Zone", note:"Chansey and Kangaskhan are notoriously low encounter rates — budget time here.", mons:[
-    {n:111,name:"Rhyhorn"},{n:112,name:"Rhydon",t:"evolves"},{n:113,name:"Chansey",t:"rare"},{n:115,name:"Kangaskhan",t:"rare"},
-    {n:123,name:"Scyther"},{n:127,name:"Pinsir"},{n:128,name:"Tauros"},{n:83,name:"Farfetch'd",t:"in-game trade"},
-    {n:147,name:"Dratini"},{n:148,name:"Dragonair",t:"evolves"},{n:149,name:"Dragonite",t:"evolves"}
+  { area:"Routes 12–15", note:"SUPER ROD: house past the halfway point of Silence Bridge on Route 12. Snorlax blocks Route 12 — a second one blocks Route 16.", mons:[
+    {n:48,name:"Venonat"},{n:17,name:"Pidgeotto"},{n:44,name:"Gloom"},{n:70,name:"Weepinbell"},
+    {n:132,name:"Ditto"},{n:143,name:"Snorlax",t:"Rt12 + Rt16"}
   ]},
-  { area:"Fuchsia / Routes 15–19", mons:[
-    {n:118,name:"Goldeen"},{n:119,name:"Seaking",t:"evolves"},{n:72,name:"Tentacool"},{n:73,name:"Tentacruel",t:"evolves"},
-    {n:84,name:"Doduo"},{n:85,name:"Dodrio",t:"evolves"},{n:77,name:"Ponyta"},{n:78,name:"Rapidash",t:"evolves"},
-    {n:108,name:"Lickitung",t:"in-game trade"}
+  { area:"Routes 16–18 (Cycling Road)", note:"HM02 Fly is in a house off Route 16.", mons:[
+    {n:84,name:"Doduo"},{n:20,name:"Raticate"},{n:22,name:"Fearow"}
   ]},
-  { area:"Power Plant", mons:[
-    {n:125,name:"Electabuzz"},{n:126,name:"Magmar"},{n:145,name:"Zapdos",t:"legendary"}
+  { area:"Fuchsia City & Safari Zone", note:"GOOD ROD: second brown house east of the Pokémon Center. 600 steps / 25 balls per run. Gold Teeth → HM04. HM03 Surf is in the Zone.", mons:[
+    {n:113,name:"Chansey"},{n:115,name:"Kangaskhan"},{n:128,name:"Tauros"},{n:111,name:"Rhyhorn"},
+    {n:102,name:"Exeggcute"},{n:47,name:"Parasect"},{n:49,name:"Venomoth"},
+    {n:148,name:"Dragonair",t:"Super Rod"},{n:119,name:"Seaking",t:"Super Rod"}
   ]},
-  { area:"Seafoam Islands / Routes 19–21", mons:[
-    {n:86,name:"Seel"},{n:87,name:"Dewgong",t:"evolves"},{n:90,name:"Shellder"},{n:91,name:"Cloyster",t:"Water Stone"},
-    {n:120,name:"Staryu"},{n:121,name:"Starmie",t:"Water Stone"},{n:144,name:"Articuno",t:"legendary"}
+  { area:"Saffron City", note:"No wild encounters. Fighting Dojo: pick ONE of the two.", mons:[
+    {n:106,name:"Hitmonlee",t:"pick one"},{n:107,name:"Hitmonchan",t:"pick one"},
+    {n:131,name:"Lapras",t:"gift, Silph Co."}
   ]},
-  { area:"Cinnabar Island", note:"Revive fossils here. Old Amber → Aerodactyl.", mons:[
-    {n:142,name:"Aerodactyl",t:"Old Amber"},{n:143,name:"Snorlax",t:"story blocker — 2 in game"},{n:146,name:"Moltres",t:"legendary — Mt. Ember"}
+  { area:"Routes 19–20 & Seafoam Islands", note:"Articuno is here.", mons:[
+    {n:86,name:"Seel"},{n:87,name:"Dewgong"},{n:42,name:"Golbat"},
+    {n:55,name:"Golduck",t:"FR only"},{n:80,name:"Slowbro",t:"LG only"},{n:144,name:"Articuno",t:"legendary"}
   ]},
-  { area:"Victory Road", mons:[
-    {n:75,name:"Graveler",t:"evolves"},{n:76,name:"Golem",t:"⇄ TRADE"}
+  { area:"Route 21 → Cinnabar Island", mons:[
+    {n:114,name:"Tangela",t:"Rt21 + Cinnabar"},{n:101,name:"Electrode",t:"Cinnabar Island"},
+    {n:117,name:"Seadra",t:"Super Rod, FR only"},{n:99,name:"Kingler",t:"Super Rod, LG only"}
   ]},
-  { area:"Trade evolutions — need each other!", note:"These four can ONLY be reached by trading. Trade, let it evolve, trade back.", mons:[
-    {n:65,name:"Alakazam",t:"⇄ TRADE from Kadabra"},{n:68,name:"Machamp",t:"⇄ TRADE from Machoke"},
-    {n:76,name:"Golem",t:"⇄ TRADE from Graveler"},{n:94,name:"Gengar",t:"⇄ TRADE from Haunter"}
+  { area:"Pokémon Mansion", note:"Secret Key for the Gym. Muk is LG-only here; Weezing is FR-only.", mons:[
+    {n:89,name:"Muk",t:"LG only"},{n:110,name:"Weezing",t:"FR only"},
+    {n:138,name:"Omanyte",t:"Helix Fossil"},{n:140,name:"Kabuto",t:"Dome Fossil"},{n:142,name:"Aerodactyl",t:"Old Amber"}
   ]},
-  { area:"Cerulean Cave (post-Elite Four)", mons:[
-    {n:150,name:"Mewtwo",t:"legendary"}
+  { area:"Power Plant", note:"Surf from Route 10. Some Poké Ball items are static Lv34 Electrode. Zapdos is Lv50 — save first.", mons:[
+    {n:81,name:"Magnemite"},{n:82,name:"Magneton"},{n:125,name:"Electabuzz",t:"FR only"},
+    {n:145,name:"Zapdos",t:"legendary"}
   ]},
-  { area:"Mew", note:"Event-only — not obtainable in normal play. Tracked for completeness.", mons:[
-    {n:151,name:"Mew",t:"event only"}
+  { area:"Route 23 & Victory Road", mons:[
+    {n:24,name:"Arbok",t:"FR only"},{n:28,name:"Sandslash",t:"LG only"},{n:67,name:"Machoke"},
+    {n:57,name:"Primeape"},{n:105,name:"Marowak"}
+  ]},
+  { area:"Sevii Islands — Kanto species found here", note:"Unlocks after Blaine. Several species appear ONLY here or are far easier here.", mons:[
+    {n:126,name:"Magmar",t:"Mt. Ember, LG only"},{n:146,name:"Moltres",t:"Mt. Ember, legendary"},
+    {n:77,name:"Ponyta",t:"Kindle Rd / Mt. Ember ONLY"},{n:78,name:"Rapidash",t:"Kindle Rd / Mt. Ember ONLY"},
+    {n:53,name:"Persian",t:"Sevii routes only"},{n:97,name:"Hypno",t:"Berry Forest only"},
+    {n:73,name:"Tentacruel",t:"Sevii waters"},{n:18,name:"Pidgeot",t:"—"}
+  ]},
+  { area:"Cerulean Cave (post-Elite Four)", note:"Surf SOUTH from Route 24. Needs Hall of Fame + Celio's network. Bring Super Rod and Rock Smash. Mewtwo is Lv70 and uses Recover.", mons:[
+    {n:64,name:"Kadabra",t:"only wild spot"},{n:82,name:"Magneton"},{n:47,name:"Parasect"},
+    {n:57,name:"Primeape"},{n:132,name:"Ditto"},{n:67,name:"Machoke"},{n:101,name:"Electrode"},
+    {n:61,name:"Poliwhirl",t:"Super Rod"},{n:150,name:"Mewtwo",t:"legendary"}
+  ]},
+  { area:"⇄ NPC trades — all 9, each one-time", note:"Farfetch'd, Mr. Mime, Jynx and Lickitung are TRADE-ONLY — confirmed no wild encounter exists. The Cinnabar Lab three are optional. Spearow for the Farfetch'd trade is on Routes 3,4,9,10,11,16,17,18,22,23.", mons:[
+    {n:122,name:"Mr. Mime",t:"Rt2 — give Abra"},
+    {n:83,name:"Farfetch'd",t:"Vermilion — give Spearow"},
+    {n:124,name:"Jynx",t:"Cerulean — give Poliwhirl"},
+    {n:108,name:"Lickitung",t:"Rt18 — Golduck/Slowbro"},
+    {n:101,name:"Electrode",t:"optional — give Raichu"},
+    {n:114,name:"Tangela",t:"optional — give Venonat"},
+    {n:86,name:"Seel",t:"optional — give Ponyta"}
+  ]},
+  { area:"⇄ Trade evolutions — you need each other", note:"These four can ONLY be reached by trading. Trade, let it evolve, trade back.", mons:[
+    {n:65,name:"Alakazam",t:"⇄ TRADE Kadabra"},{n:68,name:"Machamp",t:"⇄ TRADE Machoke"},
+    {n:76,name:"Golem",t:"⇄ TRADE Graveler"},{n:94,name:"Gengar",t:"⇄ TRADE Haunter"}
+  ]},
+  { area:"Evolution-only (no wild encounter)", note:"Confirmed to have no wild location — you must evolve the pre-evo.", mons:[
+    {n:2,name:"Ivysaur",t:"Lv16"},{n:3,name:"Venusaur",t:"Lv32"},{n:5,name:"Charmeleon",t:"Lv16"},{n:6,name:"Charizard",t:"Lv36"},
+    {n:8,name:"Wartortle",t:"Lv16"},{n:9,name:"Blastoise",t:"Lv36"},{n:12,name:"Butterfree",t:"Lv10"},{n:15,name:"Beedrill",t:"Lv10"},
+    {n:26,name:"Raichu",t:"Thunder Stone"},{n:31,name:"Nidoqueen",t:"Moon Stone"},{n:34,name:"Nidoking",t:"Moon Stone"},
+    {n:36,name:"Clefable",t:"Moon Stone"},{n:38,name:"Ninetales",t:"Fire Stone"},{n:40,name:"Wigglytuff",t:"Moon Stone"},
+    {n:45,name:"Vileplume",t:"Leaf Stone"},{n:59,name:"Arcanine",t:"Fire Stone"},{n:62,name:"Poliwrath",t:"Water Stone"},
+    {n:71,name:"Victreebel",t:"Leaf Stone"},{n:85,name:"Dodrio",t:"Lv31"},{n:91,name:"Cloyster",t:"Water Stone"},
+    {n:103,name:"Exeggutor",t:"Leaf Stone"},{n:112,name:"Rhydon",t:"Lv42"},{n:121,name:"Starmie",t:"Water Stone"},
+    {n:134,name:"Vaporeon",t:"Water Stone"},{n:135,name:"Jolteon",t:"Thunder Stone"},{n:136,name:"Flareon",t:"Fire Stone"},
+    {n:139,name:"Omastar",t:"Lv40"},{n:141,name:"Kabutops",t:"Lv40"},{n:149,name:"Dragonite",t:"Lv55"}
+  ]},
+  { area:"Mew — does NOT count", note:"The Kanto Dex is 150, not 151. Mew is excluded from completion and isn't obtainable in normal play. Tracked here for interest only; it is not in your totals.", noCount:true, mons:[
+    {n:151,name:"Mew",t:"not required"}
   ]}
 ];
 
-// dedupe by dex number for accurate totals
 const SEEN=new Set(); const ALL=[];
-ROUTES.forEach(r=>r.mons.forEach(m=>{ if(!SEEN.has(m.n)){SEEN.add(m.n); ALL.push(m);} }));
+ROUTES.forEach(r=>{ if(r.noCount) return; r.mons.forEach(m=>{ if(!SEEN.has(m.n)){SEEN.add(m.n); ALL.push(m);} }); });
 
-let progress={}, notes={}, names={p1:"Player 1",p2:"Player 2",p1ver:"LG",p2ver:"FR"};
+let progress={}, notes={}, claims={}, names={p1:"Player 1",p2:"Player 2",p1ver:"LG",p2ver:"FR"};
 let filter='all', search='', hideDone=false, collapsed={}, openNotes={};
+
+// Starter determines which roaming Johto beast appears post-game (it gets a type advantage on you)
+const BEAST = { B:"Entei (Fire)", C:"Suicune (Water)", S:"Raikou (Electric)" };
+const BEAST_GLITCHY = { B:true, C:false, S:true }; // Entei & Raikou can vanish via the Roar bug
+
+function renderBeastPanel(){
+  const panel=document.getElementById('beastPanel');
+  const s1=names.p1starter, s2=names.p2starter;
+  if(!s1&&!s2){ panel.classList.remove('open'); return; }
+  panel.classList.add('open');
+  const n1=names.p1||'P1', n2=names.p2||'P2';
+  let html='<h3>▸ ROAMING LEGENDARY (post-game)</h3>';
+  if(s1) html+=`<b>${n1}</b> → ${BEAST[s1]}<br>`;
+  if(s2) html+=`<b>${n2}</b> → ${BEAST[s2]}<br>`;
+  const risky=[];
+  if(s1&&BEAST_GLITCHY[s1]) risky.push(n1);
+  if(s2&&BEAST_GLITCHY[s2]) risky.push(n2);
+  if(risky.length){
+    html+=`<span class="warn">On GBA, Entei and Raikou could be permanently lost to the Roar escape glitch — <b>this is fixed in the Switch release</b>, so ${risky.join(' & ')} are safe. Still save first out of habit.</span>`;
+  }
+  html+=`<span class="warn">Repel trick: lead with a Lv11–49 Pokémon on Route 2 and spray a Repel — only the beast can spawn. Use Mean Look or Arena Trap to stop it fleeing.</span>`;
+  panel.innerHTML=html;
+}
 
 function verOf(n){ return FR_ONLY.includes(n)?'FR' : LG_ONLY.includes(n)?'LG' : null; }
 
-// A mon "needs trade" if one player has it and the other doesn't
 function needsTrade(n){
   const p=progress[String(n)];
   if(!p) return false;
-  return (p.p1 && !p.p2) || (p.p2 && !p.p1);
+  return (p.p1&&!p.p2)||(p.p2&&!p.p1);
+}
+// "I can't catch" = exclusive to the OTHER player's version, from P1's seat
+function cantCatch(n){
+  const v=verOf(n);
+  if(!v) return false;
+  return v !== (names.p1ver||'LG');
 }
 
 function matches(m){
-  const p = progress[String(m.n)] || {};
-  if(hideDone && p.p1 && p.p2) return false;
+  const p=progress[String(m.n)]||{};
+  if(hideDone&&p.p1&&p.p2) return false;
   if(search){
     const q=search.toLowerCase();
-    if(!m.name.toLowerCase().includes(q) && !String(m.n).includes(q)) return false;
+    if(!m.name.toLowerCase().includes(q)&&!String(m.n).includes(q)) return false;
   }
   if(filter==='trade')    return needsTrade(m.n);
-  if(filter==='uncaught') return !(p.p1 && p.p2);
+  if(filter==='uncaught') return !(p.p1&&p.p2);
   if(filter==='tradeevo') return TRADE_EVO.includes(m.n);
+  if(filter==='missable') return !!MISSABLE[m.n];
+  if(filter==='mine')     return cantCatch(m.n);
   return true;
 }
 
@@ -300,17 +590,19 @@ function render(){
   document.getElementById('p2name').value = names.p2==='Player 2'?'':names.p2;
   document.getElementById('p1ver').value = names.p1ver||'LG';
   document.getElementById('p2ver').value = names.p2ver||'FR';
+  document.getElementById('p1starter').value = names.p1starter||'';
+  document.getElementById('p2starter').value = names.p2starter||'';
   document.getElementById('lbl-p1').textContent = names.p1||'P1';
   document.getElementById('lbl-p2').textContent = names.p2||'P2';
 
   let anyShown=false;
   ROUTES.forEach((section,idx)=>{
-    const visible = section.mons.filter(matches);
+    const visible=section.mons.filter(matches);
     if(!visible.length) return;
     anyShown=true;
-    const caught = section.mons.filter(m=>{const p=progress[String(m.n)];return p&&p.p1&&p.p2;}).length;
-    const done = caught===section.mons.length;
-    const isCol = collapsed[idx];
+    const caught=section.mons.filter(m=>{const p=progress[String(m.n)];return p&&p.p1&&p.p2;}).length;
+    const done=caught===section.mons.length;
+    const isCol=collapsed[idx];
 
     const sec=document.createElement('div');
     sec.className='route-section';
@@ -321,7 +613,7 @@ function render(){
         <div class="route-title">${section.area}</div>
         <div class="route-count">${caught}/${section.mons.length} ${isCol?'▸':'▾'}</div>
       </div>
-      ${section.note && !isCol?`<div class="route-note">${section.note}</div>`:''}
+      ${section.note&&!isCol?`<div class="route-note">${section.note}</div>`:''}
       <div class="rows ${isCol?'collapsed':''}"></div>`;
     const wrap=sec.querySelector('.rows');
 
@@ -333,11 +625,26 @@ function render(){
       if(ver==='FR') tags.push('<span class="tag fr">FR ONLY</span>');
       if(ver==='LG') tags.push('<span class="tag lg">LG ONLY</span>');
       if(m.t){
-        const cls = m.t.includes('TRADE')?'trade' : (m.t.includes('legendary')||m.t.includes('event'))?'special':'';
+        let cls='';
+        if(m.t.includes('TRADE')) cls='trade';
+        else if(m.t.includes('legendary')||m.t.includes('event')) cls='special';
+        else if(m.t.includes('rare')) cls='rare';
         tags.push(`<span class="tag ${cls}">${m.t}</span>`);
       }
       const row=document.createElement('div');
-      row.className='row'+((p.p1&&p.p2)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'');
+      const isMiss=!!MISSABLE[m.n];
+      const claim=claims[String(m.n)]||null;
+      row.className='row'+((p.p1&&p.p2)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'')+(isMiss?' missable':'');
+      const n1=names.p1||'P1', n2=names.p2||'P2';
+      const claimHtml = isMiss ? `
+        <div class="claim-row">
+          <span class="claim-label">${MISSABLE[m.n]}</span>
+        </div>
+        <div class="claim-row">
+          <span class="claim-label">CLAIM:</span>
+          <div class="claim-btn ${claim==='p1'?'p1':''}" data-claim="${m.n}" data-who="p1">${n1}</div>
+          <div class="claim-btn ${claim==='p2'?'p2':''}" data-claim="${m.n}" data-who="p2">${n2}</div>
+        </div>` : '';
       row.innerHTML=`
         <div class="row-main">
           <span class="dexnum">#${String(m.n).padStart(3,'0')}</span>
@@ -347,8 +654,9 @@ function render(){
           <div class="check p1 ${p.p1?'on':''}" data-num="${m.n}" data-player="p1">${p.p1?'✓':'P1'}</div>
           <div class="check p2 ${p.p2?'on':''}" data-num="${m.n}" data-player="p2">${p.p2?'✓':'P2'}</div>
         </div>
+        ${claimHtml}
         <div class="note-row ${openNotes[m.n]?'open':''}">
-          <input type="text" placeholder="note — e.g. traded 8/16, in Box 3" value="${note.replace(/"/g,'&quot;')}" data-noteinput="${m.n}">
+          <input type="text" placeholder="note — e.g. traded 8/16, Box 3" value="${note.replace(/"/g,'&quot;')}" data-noteinput="${m.n}">
         </div>`;
       wrap.appendChild(row);
     });
@@ -365,12 +673,16 @@ function render(){
     const n=el.dataset.note; openNotes[n]=!openNotes[n]; render();
     const inp=document.querySelector(`[data-noteinput="${n}"]`); if(inp&&openNotes[n]) inp.focus();
   }));
+  main.querySelectorAll('[data-claim]').forEach(el=>{
+    el.addEventListener('click',()=>toggleClaim(el.dataset.claim, el.dataset.who));
+  });
   main.querySelectorAll('[data-noteinput]').forEach(el=>{
-    el.addEventListener('change',()=>{ saveNote(el.dataset.noteinput, el.value); });
+    el.addEventListener('change',()=>saveNote(el.dataset.noteinput,el.value));
   });
 
   renderBars();
   renderTradePanel();
+  renderBeastPanel();
 }
 
 function toggle(num,player){
@@ -383,6 +695,12 @@ function saveNote(num,val){
   const k=String(num);
   if(val.trim()) notes[k]=val.trim(); else delete notes[k];
   set(notesRef,notes).catch(e=>console.error(e));
+}
+// Tapping the player who already holds the claim releases it.
+function toggleClaim(num,who){
+  const k=String(num);
+  if(claims[k]===who) delete claims[k]; else claims[k]=who;
+  set(claimsRef,claims).catch(e=>console.error(e));
 }
 
 function renderBars(){
@@ -399,21 +717,37 @@ function renderBars(){
 
 function renderTradePanel(){
   const panel=document.getElementById('tradePanel');
-  if(filter!=='trade'){ panel.classList.remove('open'); return; }
+  if(filter!=='trade'&&filter!=='mine'&&filter!=='missable'){ panel.classList.remove('open'); return; }
   panel.classList.add('open');
-  const p1owes=[], p2owes=[];
+  const n1=names.p1||'P1', n2=names.p2||'P2';
+
+  if(filter==='missable'){
+    const unclaimed=ALL.filter(m=>MISSABLE[m.n]&&!claims[String(m.n)]).map(m=>m.name);
+    const c1=ALL.filter(m=>claims[String(m.n)]==='p1').map(m=>m.name);
+    const c2=ALL.filter(m=>claims[String(m.n)]==='p2').map(m=>m.name);
+    document.getElementById('tradeContent').innerHTML=
+      `<b>${n1} claimed:</b> ${c1.length?c1.join(', '):'<span>none</span>'}<br>`+
+      `<b>${n2} claimed:</b> ${c2.length?c2.join(', '):'<span>none</span>'}<br>`+
+      `<b>Undecided:</b> ${unclaimed.length?unclaimed.join(', '):'<span>all sorted ✓</span>'}`;
+    return;
+  }
+  if(filter==='mine'){
+    const list=ALL.filter(m=>cantCatch(m.n)).map(m=>m.name);
+    document.getElementById('tradeContent').innerHTML=
+      `<b>${n1} must trade for these ${list.length}:</b><br>${list.join(', ')}`;
+    return;
+  }
+  const p1owes=[],p2owes=[];
   ALL.forEach(m=>{
     const p=progress[String(m.n)]||{};
     if(p.p1&&!p.p2) p1owes.push(m.name);
     if(p.p2&&!p.p1) p2owes.push(m.name);
   });
-  const n1=names.p1||'P1', n2=names.p2||'P2';
   document.getElementById('tradeContent').innerHTML=
     `<b>${n1} → ${n2}:</b> ${p1owes.length?p1owes.join(', '):'<span>nothing yet</span>'}<br>`+
     `<b>${n2} → ${n1}:</b> ${p2owes.length?p2owes.join(', '):'<span>nothing yet</span>'}`;
 }
 
-// ---- controls ----
 document.querySelectorAll('.chip[data-filter]').forEach(c=>c.addEventListener('click',()=>{
   document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('on'));
   c.classList.add('on'); filter=c.dataset.filter; render();
@@ -426,20 +760,20 @@ document.getElementById('search').addEventListener('input',e=>{ search=e.target.
   names[id==='p1name'?'p1':'p2']=e.target.value||(id==='p1name'?'Player 1':'Player 2');
   set(namesRef,names).catch(e=>console.error(e));
 }));
-['p1ver','p2ver'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
+['p1ver','p2ver','p1starter','p2starter'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
   names[id]=e.target.value; set(namesRef,names).catch(e=>console.error(e));
 }));
 document.getElementById('resetBtn').addEventListener('click',()=>{
-  if(confirm('Reset ALL caught progress and notes for both trainers?')){
-    progress={}; notes={};
-    set(progressRef,progress); set(notesRef,notes);
+  if(confirm('Reset ALL caught progress, notes and claims for both trainers?')){
+    progress={}; notes={}; claims={};
+    set(progressRef,progress); set(notesRef,notes); set(claimsRef,claims);
   }
 });
 
-// ---- live sync ----
 onValue(progressRef,s=>{ progress=s.val()||{}; render(); });
 onValue(namesRef,s=>{ const v=s.val(); if(v) names={...names,...v}; render(); });
 onValue(notesRef,s=>{ notes=s.val()||{}; render(); });
+onValue(claimsRef,s=>{ claims=s.val()||{}; render(); });
 </script>
 </body>
 </html>
