@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4878a8">
 <title>Kanto Trail — LG/FR Dex Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,12 +34,18 @@
     --muted:#788898;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
+  html{
     background:
       repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 4px),
       linear-gradient(180deg,#78a8d8 0%, #a8d0e8 100%);
     background-attachment:fixed;
+    background-color:#a8d0e8;
+    min-height:100%;
+  }
+  body{
+    margin:0;
+    background:transparent;
+    min-height:100dvh;
     color:var(--ink-dk);
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
@@ -60,7 +67,11 @@
     padding:12px 14px 11px;
     border-bottom:3px solid var(--navy-dk);
     box-shadow:0 2px 0 rgba(0,0,0,.15);
+    transition:transform .22s ease;
+    will-change:transform;
   }
+  /* slides up out of the way when scrolling down, returns on scroll up */
+  header.tucked{transform:translateY(-100%);}
   .title-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   h1{
     font-family:'Press Start 2P',monospace;font-size:12px;margin:0;
@@ -303,7 +314,8 @@
   .info-body .warn{color:#a02818;margin-top:6px;display:block;}
 
   footer{
-    max-width:760px;margin:24px auto 0;padding:12px 14px;
+    max-width:760px;margin:24px auto 0;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
     font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);text-align:center;line-height:1.7;
   }
   .reset-btn{
@@ -946,6 +958,39 @@ function renderTradePanel(){
 }
 
 // Filter row collapses by default to save vertical space on mobile.
+// Header tucks away on scroll-down and returns on scroll-up (Safari-style),
+// so the list gets the full screen while you're moving through it.
+(function(){
+  const hdr=document.querySelector('header');
+  let lastY=window.scrollY, ticking=false, tucked=false;
+  const THRESHOLD=6;   // ignore jitter
+  const TOP_ZONE=80;   // always show near the top
+
+  function onScroll(){
+    const y=Math.max(0,window.scrollY);
+    const dy=y-lastY;
+    if(y<TOP_ZONE){
+      if(tucked){ hdr.classList.remove('tucked'); tucked=false; }
+    } else if(dy>THRESHOLD && !tucked){
+      // don't hide it while a text field is focused — the keyboard is up
+      if(!/INPUT|SELECT/.test(document.activeElement?.tagName||'')){
+        hdr.classList.add('tucked'); tucked=true;
+      }
+    } else if(dy<-THRESHOLD && tucked){
+      hdr.classList.remove('tucked'); tucked=false;
+    }
+    if(Math.abs(dy)>THRESHOLD) lastY=y;
+    ticking=false;
+  }
+  window.addEventListener('scroll',()=>{
+    if(!ticking){ requestAnimationFrame(onScroll); ticking=true; }
+  },{passive:true});
+  // focusing search should always bring the bar back
+  document.getElementById('search').addEventListener('focus',()=>{
+    hdr.classList.remove('tucked'); tucked=false;
+  });
+})();
+
 const filterToggle=document.getElementById('filterToggle'), filterRows=document.getElementById('filterRows');
 try{ if(localStorage.getItem('kanto-filters')==='open'){ filterRows.classList.add('open'); filterToggle.classList.add('open'); } }catch(e){}
 filterToggle.addEventListener('click',()=>{
