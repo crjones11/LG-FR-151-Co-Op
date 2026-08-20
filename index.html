@@ -21,6 +21,12 @@
     --shadow:#c8c8b0;
     --fr:#e03c28;      /* FireRed */
     --lg:#48a038;      /* LeafGreen */
+    /* second shade per version, used when BOTH players pick the same game */
+    --fr2:#8f1f12;
+    --lg2:#1e5c22;
+    /* live player colours — set by applyPlayerColors() from each player's version */
+    --p1c:#48a038; --p1c-dk:#286818; --p1c-lt:#88d878;
+    --p2c:#e03c28; --p2c-dk:#a02818; --p2c-lt:#f89888;
     --gold:#f8b800;
     --hp-green:#58c840;
     --hp-yellow:#f8c030;
@@ -64,6 +70,22 @@
   }
   .sub{font-size:9px;color:#d8e8f8;font-family:'IBM Plex Mono',monospace;text-shadow:1px 1px 0 var(--navy-dk);}
 
+  .setup-summary{
+    display:none;align-items:center;gap:8px;flex-wrap:wrap;
+    background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff;
+    padding:6px 9px;margin-top:9px;cursor:pointer;user-select:none;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--ink-dk);
+  }
+  #setupBox.collapsed .setup-summary{display:flex;}
+  #setupBox.collapsed .players{display:none;}
+  .setup-summary .seg{display:flex;align-items:center;gap:5px;white-space:nowrap;}
+  .setup-summary .sub2{font-weight:600;color:var(--ink);font-size:10px;}
+  .setup-summary .edit{margin-left:auto;color:var(--frame);font-size:10px;font-weight:700;}
+  .setup-done{display:none;margin-top:6px;text-align:center;cursor:pointer;user-select:none;
+    background:var(--parch);border:2px solid var(--navy);border-radius:6px;box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--ink-dk);padding:6px 9px;}
+  #setupBox.can-collapse:not(.collapsed) .setup-done{display:block;}
   .players{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;}
   .pcard{
     display:flex;align-items:center;gap:5px;
@@ -72,7 +94,7 @@
     padding:4px 7px;
   }
   .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--navy);}
-  .dot.p1{background:var(--lg);} .dot.p2{background:var(--fr);}
+  .dot.p1{background:var(--p1c);} .dot.p2{background:var(--p2c);}
   .pcard input{
     background:transparent;border:none;color:var(--ink-dk);
     font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;width:76px;outline:none;
@@ -98,8 +120,8 @@
     flex:1;height:8px;background:var(--parch-3);border:1.5px solid var(--ink-dk);border-radius:4px;overflow:hidden;
   }
   .pbar-fill{height:100%;transition:width .3s ease;border-radius:2px;}
-  .pbar-fill.p1{background:linear-gradient(180deg,#78d858,var(--lg));}
-  .pbar-fill.p2{background:linear-gradient(180deg,#f86850,var(--fr));}
+  .pbar-fill.p1{background:linear-gradient(180deg,var(--p1c-lt),var(--p1c));}
+  .pbar-fill.p2{background:linear-gradient(180deg,var(--p2c-lt),var(--p2c));}
   .pbar-fill.both{background:linear-gradient(180deg,#ffd858,var(--gold));}
   .pbar-num{width:54px;text-align:right;}
 
@@ -237,8 +259,8 @@
     transition:none;user-select:none;
   }
   .check:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff;}
-  .check.p1.on{background:var(--lg);color:#fff;border-color:#286818;box-shadow:inset 0 0 0 1px #88d878, 0 2px 0 #1a4810;}
-  .check.p2.on{background:var(--fr);color:#fff;border-color:#a02818;box-shadow:inset 0 0 0 1px #f89888, 0 2px 0 #701808;}
+  .check.p1.on{background:var(--p1c);color:#fff;border-color:var(--p1c-dk);box-shadow:inset 0 0 0 1px var(--p1c-lt), 0 2px 0 var(--p1c-dk);}
+  .check.p2.on{background:var(--p2c);color:#fff;border-color:var(--p2c-dk);box-shadow:inset 0 0 0 1px var(--p2c-lt), 0 2px 0 var(--p2c-dk);}
   .note-btn{
     width:24px;height:28px;display:flex;align-items:center;justify-content:center;
     cursor:pointer;color:var(--muted);font-size:13px;flex-shrink:0;user-select:none;
@@ -260,8 +282,8 @@
     display:flex;align-items:center;justify-content:center;
   }
   .claim-btn:active{transform:translateY(2px);box-shadow:none;}
-  .claim-btn.p1{background:var(--lg);border-color:#286818;color:#fff;}
-  .claim-btn.p2{background:var(--fr);border-color:#a02818;color:#fff;}
+  .claim-btn.p1{background:var(--p1c);border-color:var(--p1c-dk);color:#fff;}
+  .claim-btn.p2{background:var(--p2c);border-color:var(--p2c-dk);color:#fff;}
   .claim-row{margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .claim-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink);letter-spacing:.3px;font-weight:600;}
 
@@ -276,16 +298,9 @@
   .trade-panel h3{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a87800;margin:0 0 7px;letter-spacing:.5px;}
   .trade-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:var(--ink-dk);}
   .trade-line span{color:var(--muted);}
-  .beast-panel{
-    margin:12px 14px 0;max-width:760px;
-    background:var(--parch);border:3px solid var(--navy);border-radius:9px;
-    box-shadow:inset 0 0 0 2px #b060c0;
-    padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.65;
-    color:var(--ink-dk);display:none;
-  }
-  .beast-panel.open{display:block;}
-  .beast-panel h3{font-size:10.5px;color:#8848a8;margin:0 0 6px;letter-spacing:.5px;}
-  .beast-panel .warn{color:#a02818;margin-top:6px;display:block;}
+  .beast-box{box-shadow:inset 0 0 0 2px #b060c0;}
+  .beast-box .info-head{color:#8848a8;}
+  .info-body .warn{color:#a02818;margin-top:6px;display:block;}
 
   footer{
     max-width:760px;margin:24px auto 0;padding:12px 14px;
@@ -310,7 +325,7 @@
     h1{font-size:10px;}
     .sub{display:none;}
     main{padding:10px 10px 0;}
-    .disclaimer,.trade-panel,.beast-panel{margin-left:10px;margin-right:10px;}
+    .infobox,.trade-panel{margin-left:10px;margin-right:10px;}
     .rows{margin-left:20px;}
     .route-note{margin-left:20px;}
     .route-trail{left:9px;}
@@ -323,9 +338,9 @@
     .chip{font-size:10.5px;padding:7px 10px;}
     .search{font-size:16px;}
     .note-row input{font-size:16px;}
-    .pcard input{font-size:16px;width:auto;flex:1;min-width:0;}
-    .pcard{flex-basis:100%;}
-    .pcard select{font-size:11px;flex-shrink:0;}
+    .pcard{flex-basis:100%;flex-wrap:wrap;row-gap:6px;}
+    .pcard input{font-size:16px;flex:1 1 auto;min-width:90px;width:auto;}
+    .pcard select{font-size:12px;flex:1 1 44%;min-width:0;padding:5px 4px;}
     .controls{gap:5px;}
   }
 
@@ -338,7 +353,9 @@
     <h1>KANTO TRAIL</h1>
     <span class="sub">LEAFGREEN × FIRERED — SHARED DEX LOG</span>
   </div>
-  <div class="players">
+  <div id="setupBox">
+    <div class="setup-summary" id="setupSummary"></div>
+    <div class="players" id="playerCards">
     <div class="pcard">
       <span class="dot p1"></span>
       <input id="p1name" placeholder="Player 1" maxlength="12">
@@ -351,6 +368,8 @@
       <select id="p2ver"><option value="FR">FireRed</option><option value="LG">LeafGreen</option></select>
       <select id="p2starter"><option value="">starter?</option><option value="B">Bulbasaur</option><option value="C">Charmander</option><option value="S">Squirtle</option></select>
     </div>
+    </div>
+    <div class="setup-done" id="setupDone">✓ DONE — COLLAPSE</div>
   </div>
   <div class="progress-wrap">
     <div class="pbar-row"><span class="pbar-label" id="lbl-p1">P1</span><div class="pbar"><div class="pbar-fill p1" id="bar-p1"></div></div><span class="pbar-num" id="num-p1">0/150</span></div>
@@ -379,7 +398,10 @@
   <div class="trade-line" id="tradeContent"></div>
 </div>
 
-<div class="beast-panel" id="beastPanel"></div>
+<div class="infobox beast-box" id="beastPanel">
+  <div class="info-head" data-info="beast"><span class="caret">▶</span> ROAMING LEGENDARY (post-game)</div>
+  <div class="info-body" id="beastBody"></div>
+</div>
 
 <div class="infobox">
   <div class="info-head" data-info="switch"><span class="caret">▶</span> SWITCH TRADING — HOW IT WORKS</div>
@@ -610,22 +632,77 @@ const BEAST_GLITCHY = { B:true, C:false, S:true }; // Entei & Raikou can vanish 
 
 function renderBeastPanel(){
   const panel=document.getElementById('beastPanel');
+  const body=document.getElementById('beastBody');
   const s1=names.p1starter, s2=names.p2starter;
-  if(!s1&&!s2){ panel.classList.remove('open'); return; }
-  panel.classList.add('open');
+  if(!s1&&!s2){ panel.style.display='none'; return; }
+  panel.style.display='';
   const n1=names.p1||'P1', n2=names.p2||'P2';
-  let html='<h3>▸ ROAMING LEGENDARY (post-game)</h3>';
+  let html='';
   if(s1) html+=`<b>${n1}</b> → ${BEAST[s1]}<br>`;
   if(s2) html+=`<b>${n2}</b> → ${BEAST[s2]}<br>`;
+  if(s1&&s2&&s1===s2) html+=`<span class="warn">You both picked the same starter, so you'll both get ${BEAST[s1]} — no trade opportunity here.</span>`;
   const risky=[];
   if(s1&&BEAST_GLITCHY[s1]) risky.push(n1);
   if(s2&&BEAST_GLITCHY[s2]) risky.push(n2);
   if(risky.length){
-    html+=`<span class="warn">On GBA, Entei and Raikou could be permanently lost to the Roar escape glitch — <b>this is fixed in the Switch release</b>, so ${risky.join(' & ')} are safe. Still save first out of habit.</span>`;
+    html+=`<span class="warn">On GBA, Entei and Raikou could be permanently lost to the Roar escape glitch — <b>this is fixed in the Switch release</b>, so ${risky.join(' & ')} are safe.</span>`;
   }
   html+=`<span class="warn">Repel trick: lead with a Lv11–49 Pokémon on Route 2 and spray a Repel — only the beast can spawn. Use Mean Look or Arena Trap to stop it fleeing.</span>`;
-  panel.innerHTML=html;
+  body.innerHTML=html;
 }
+
+// Player colour follows the GAME each person chose. If both picked the same
+// version, the second player gets that version's darker shade so they stay
+// distinguishable without breaking the red=FireRed / green=LeafGreen logic.
+const SHADES = {
+  FR: [{c:'#e03c28',dk:'#a02818',lt:'#f89888'}, {c:'#8f1f12',dk:'#5c1109',lt:'#d97a68'}],
+  LG: [{c:'#48a038',dk:'#286818',lt:'#88d878'}, {c:'#1e5c22',dk:'#0f3a14',lt:'#6fae72'}]
+};
+function applyPlayerColors(){
+  const v1=names.p1ver||'LG', v2=names.p2ver||'FR';
+  const same = v1===v2;
+  const s1 = SHADES[v1][0];
+  const s2 = same ? SHADES[v2][1] : SHADES[v2][0];
+  const r=document.documentElement.style;
+  r.setProperty('--p1c',s1.c); r.setProperty('--p1c-dk',s1.dk); r.setProperty('--p1c-lt',s1.lt);
+  r.setProperty('--p2c',s2.c); r.setProperty('--p2c-dk',s2.dk); r.setProperty('--p2c-lt',s2.lt);
+}
+
+const VER_LABEL={FR:'FireRed',LG:'LeafGreen'};
+const STARTER_LABEL={B:'Bulbasaur',C:'Charmander',S:'Squirtle'};
+let setupManualOpen=false;
+try{ setupManualOpen = localStorage.getItem('kanto-setup')==='open'; }catch(e){}
+
+function setupComplete(){
+  return names.p1 && names.p1!=='Player 1'
+      && names.p2 && names.p2!=='Player 2'
+      && names.p1ver && names.p2ver
+      && names.p1starter && names.p2starter;
+}
+function renderSetup(){
+  const box=document.getElementById('setupBox');
+  const sum=document.getElementById('setupSummary');
+  const done=setupComplete();
+  box.classList.toggle('can-collapse', done);
+  box.classList.toggle('collapsed', done && !setupManualOpen);
+  if(!done) return;
+  sum.innerHTML=
+    `<span class="seg"><span class="dot p1"></span>${names.p1}`+
+    `<span class="sub2">${VER_LABEL[names.p1ver]} · ${STARTER_LABEL[names.p1starter]}</span></span>`+
+    `<span class="seg"><span class="dot p2"></span>${names.p2}`+
+    `<span class="sub2">${VER_LABEL[names.p2ver]} · ${STARTER_LABEL[names.p2starter]}</span></span>`+
+    `<span class="edit">EDIT ▸</span>`;
+}
+document.getElementById('setupDone').addEventListener('click',()=>{
+  setupManualOpen=false;
+  try{ localStorage.setItem('kanto-setup','closed'); }catch(e){}
+  renderSetup();
+});
+document.getElementById('setupSummary').addEventListener('click',()=>{
+  setupManualOpen=true;
+  try{ localStorage.setItem('kanto-setup','open'); }catch(e){}
+  renderSetup();
+});
 
 function verOf(n){ return FR_ONLY.includes(n)?'FR' : LG_ONLY.includes(n)?'LG' : null; }
 
@@ -767,6 +844,8 @@ function render(){
     el.addEventListener('change',()=>saveNote(el.dataset.noteinput,el.value));
   });
 
+  applyPlayerColors();
+  renderSetup();
   renderBars();
   renderTradePanel();
   renderBeastPanel();
@@ -920,7 +999,7 @@ document.getElementById('search').addEventListener('input',e=>{ search=e.target.
   set(namesRef,names).catch(e=>console.error(e));
 }));
 ['p1ver','p2ver','p1starter','p2starter'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
-  names[id]=e.target.value; set(namesRef,names).catch(e=>console.error(e));
+  names[id]=e.target.value; set(namesRef,names).catch(e=>console.error(e)); applyPlayerColors();
 }));
 document.getElementById('resetBtn').addEventListener('click',()=>{
   if(confirm('Reset ALL caught progress, notes and claims for both trainers?')){
