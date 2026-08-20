@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#4878a8">
+<!-- Add to Home Screen -> launches with no Safari toolbars -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kanto Trail">
+<!-- Add to Home Screen launches with no Safari toolbars -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kanto Trail">
 <title>Kanto Trail — LG/FR Dex Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,7 +59,7 @@
     color:var(--ink-dk);
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:60px;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));
   }
 
   /* ---- GBA dialogue frame: dark outer, light inner bevel, parchment fill ---- */
@@ -65,10 +75,15 @@
     background:linear-gradient(180deg,#5890c8 0%, #4878a8 60%, #386890 100%);
     background-color:#4878a8;
     padding:12px 14px 11px;
+    padding-top:calc(12px + env(safe-area-inset-top));
     border-bottom:3px solid var(--navy-dk);
     box-shadow:0 2px 0 rgba(0,0,0,.15);
     transition:transform .22s ease;
     will-change:transform;
+  }
+  /* standalone (Home Screen) has no browser chrome, so clear the status bar ourselves */
+  @media (display-mode:standalone){
+    header{padding-top:calc(12px + env(safe-area-inset-top));}
   }
   /* slides up out of the way when scrolling down, returns on scroll up */
   header.tucked{transform:translateY(-100%);}
@@ -81,6 +96,15 @@
   }
   .sub{font-size:9px;color:#d8e8f8;font-family:'IBM Plex Mono',monospace;text-shadow:1px 1px 0 var(--navy-dk);}
 
+  .install-hint{
+    display:none;margin:10px 14px 0;max-width:760px;
+    background:var(--gold);border:2px solid #a87800;border-radius:7px;
+    box-shadow:inset 0 0 0 1px #ffe8a0;
+    padding:8px 11px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    color:#503800;line-height:1.5;cursor:pointer;
+  }
+  .install-hint.show{display:block;}
+  .install-hint b{color:#2c2000;}
   .setup-summary{
     display:none;align-items:center;gap:8px;flex-wrap:wrap;
     background:var(--parch);border:2px solid var(--navy);border-radius:7px;
@@ -313,11 +337,6 @@
   .beast-box .info-head{color:#8848a8;}
   .info-body .warn{color:#a02818;margin-top:6px;display:block;}
 
-  footer{
-    max-width:760px;margin:24px auto 0;
-    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
-    font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);text-align:center;line-height:1.7;
-  }
   .reset-btn{
     margin-top:10px;background:var(--parch);border:2px solid var(--navy);border-radius:6px;
     box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
@@ -410,6 +429,10 @@
   <div class="trade-line" id="tradeContent"></div>
 </div>
 
+<div class="install-hint" id="installHint">
+  <b>Lose the Safari bars:</b> tap Share <b>⎋</b> → <b>Add to Home Screen</b>. Launches fullscreen with no browser toolbars. <span style="opacity:.7">(tap to dismiss)</span>
+</div>
+
 <div class="infobox beast-box" id="beastPanel">
   <div class="info-head" data-info="beast"><span class="caret">▶</span> ROAMING LEGENDARY (post-game)</div>
   <div class="info-body" id="beastBody"></div>
@@ -425,17 +448,12 @@
 <div class="infobox">
   <div class="info-head" data-info="sources"><span class="caret">▶</span> SOURCES &amp; DATA NOTES</div>
   <div class="info-body">
-    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.
+    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.<br><br><b>How to use:</b> tap P1/P2 to mark caught, ✎ for a note, a route header to collapse it. Everything syncs live between both trainers.<br><br><button class="reset-btn" id="resetBtn">reset all progress</button>
   </div>
 </div>
 
 <main id="main"><div class="loading">connecting…</div></main>
 
-<footer>
-  Tap P1/P2 to mark caught. Tap ✎ for a note. Tap a route header to collapse.
-  <br>Everything syncs live between both trainers.
-  <br><button class="reset-btn" id="resetBtn">reset all progress</button>
-</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
@@ -988,6 +1006,22 @@ function renderTradePanel(){
   // focusing search should always bring the bar back
   document.getElementById('search').addEventListener('focus',()=>{
     hdr.classList.remove('tucked'); tucked=false;
+  });
+})();
+
+// Safari's own toolbars can't be hidden by a page — but Add to Home Screen
+// launches standalone with none of them. Only nudge if not already installed.
+(function(){
+  const hint=document.getElementById('installHint');
+  const standalone = window.navigator.standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches;
+  let dismissed=false;
+  try{ dismissed = localStorage.getItem('kanto-installhint')==='off'; }catch(e){}
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(!standalone && !dismissed && isIOS) hint.classList.add('show');
+  hint.addEventListener('click',()=>{
+    hint.classList.remove('show');
+    try{ localStorage.setItem('kanto-installhint','off'); }catch(e){}
   });
 })();
 
