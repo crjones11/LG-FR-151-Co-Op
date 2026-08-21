@@ -301,6 +301,22 @@
     cursor:pointer;color:var(--muted);font-size:13px;flex-shrink:0;user-select:none;
   }
   .note-btn.has{color:#a87800;}
+  .pname.tappable{cursor:pointer;}
+  .evo-caret{color:var(--frame);font-size:9px;opacity:.7;}
+  .evo-row{
+    margin-top:6px;padding:7px 9px;
+    background:rgba(255,255,255,.6);border:1.5px solid var(--parch-3);border-radius:5px;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.75;
+  }
+  .evo-line{color:var(--ink);}
+  .evo-current .evo-name{font-weight:700;color:var(--ink-dk);text-decoration:underline;}
+  .evo-how{color:var(--frame);font-weight:700;}
+  .evo-name{color:var(--ink-dk);font-weight:600;}
+  .evo-p1{color:var(--p1c);font-weight:700;}
+  .evo-p2{color:var(--p2c);font-weight:700;}
+  .evo-both{color:#a87800;font-weight:700;}
+  .evo-none{color:var(--muted);}
+  .evo-foot{margin-top:4px;padding-top:4px;border-top:1px solid var(--parch-3);color:var(--muted);font-size:9.5px;}
   .note-row{margin-top:5px;display:none;}
   .note-row.open{display:block;}
   .note-row input{
@@ -508,6 +524,61 @@ const FR_ONLY = [23,24,43,44,45,54,55,58,59,90,91,123,125];const LG_ONLY = [27,2
 const TRADE_EVO = [65,68,76,94];
 
 // Route order follows the guide's walkthrough sequence.
+// Evolution methods, taken from the verified full-location list.
+// EVO[n] = [ {to, how}, ... ]  (Eevee branches, hence an array)
+const EVO = {
+  1:[{to:2,how:'Lv16'}], 2:[{to:3,how:'Lv32'}],
+  4:[{to:5,how:'Lv16'}], 5:[{to:6,how:'Lv36'}],
+  7:[{to:8,how:'Lv16'}], 8:[{to:9,how:'Lv36'}],
+  10:[{to:11,how:'Lv7'}], 11:[{to:12,how:'Lv10'}],
+  13:[{to:14,how:'Lv7'}], 14:[{to:15,how:'Lv10'}],
+  16:[{to:17,how:'Lv18'}], 17:[{to:18,how:'Lv36'}],
+  19:[{to:20,how:'Lv20'}], 21:[{to:22,how:'Lv20'}],
+  23:[{to:24,how:'Lv22'}], 25:[{to:26,how:'Thunder Stone'}],
+  27:[{to:28,how:'Lv22'}],
+  29:[{to:30,how:'Lv16'}], 30:[{to:31,how:'Moon Stone'}],
+  32:[{to:33,how:'Lv16'}], 33:[{to:34,how:'Moon Stone'}],
+  35:[{to:36,how:'Moon Stone'}], 37:[{to:38,how:'Fire Stone'}],
+  39:[{to:40,how:'Moon Stone'}], 41:[{to:42,how:'Lv22'}],
+  43:[{to:44,how:'Lv21'}], 44:[{to:45,how:'Leaf Stone'}],
+  46:[{to:47,how:'Lv24'}], 48:[{to:49,how:'Lv31'}],
+  50:[{to:51,how:'Lv26'}], 52:[{to:53,how:'Lv28'}],
+  54:[{to:55,how:'Lv33'}], 56:[{to:57,how:'Lv28'}],
+  58:[{to:59,how:'Fire Stone'}],
+  60:[{to:61,how:'Lv25'}], 61:[{to:62,how:'Water Stone'}],
+  63:[{to:64,how:'Lv16'}], 64:[{to:65,how:'⇄ TRADE'}],
+  66:[{to:67,how:'Lv28'}], 67:[{to:68,how:'⇄ TRADE'}],
+  69:[{to:70,how:'Lv21'}], 70:[{to:71,how:'Leaf Stone'}],
+  72:[{to:73,how:'Lv30'}],
+  74:[{to:75,how:'Lv25'}], 75:[{to:76,how:'⇄ TRADE'}],
+  77:[{to:78,how:'Lv40'}], 79:[{to:80,how:'Lv37'}],
+  81:[{to:82,how:'Lv30'}], 84:[{to:85,how:'Lv31'}],
+  86:[{to:87,how:'Lv34'}], 88:[{to:89,how:'Lv38'}],
+  90:[{to:91,how:'Water Stone'}],
+  92:[{to:93,how:'Lv25'}], 93:[{to:94,how:'⇄ TRADE'}],
+  96:[{to:97,how:'Lv26'}], 98:[{to:99,how:'Lv28'}],
+  100:[{to:101,how:'Lv30'}], 102:[{to:103,how:'Leaf Stone'}],
+  104:[{to:105,how:'Lv28'}], 109:[{to:110,how:'Lv35'}],
+  111:[{to:112,how:'Lv42'}], 116:[{to:117,how:'Lv32'}],
+  118:[{to:119,how:'Lv33'}], 120:[{to:121,how:'Water Stone'}],
+  129:[{to:130,how:'Lv20'}],
+  133:[{to:134,how:'Water Stone'},{to:135,how:'Thunder Stone'},{to:136,how:'Fire Stone'}],
+  138:[{to:139,how:'Lv40'}], 140:[{to:141,how:'Lv40'}],
+  147:[{to:148,how:'Lv30'}], 148:[{to:149,how:'Lv55'}]
+};
+// reverse lookup so any member can find the root of its family
+const PRE = {};
+Object.entries(EVO).forEach(([from,list])=>list.forEach(e=>{ PRE[e.to]={from:+from,how:e.how}; }));
+function rootOf(n){ let c=n,guard=0; while(PRE[c]&&guard++<6) c=PRE[c].from; return c; }
+function familyOf(n){
+  const root=rootOf(n), out=[];
+  (function walk(id,depth){
+    out.push({n:id,depth,how:PRE[id]?PRE[id].how:null});
+    (EVO[id]||[]).forEach(e=>walk(e.to,depth+1));
+  })(root,0);
+  return out;
+}
+
 const ROUTES = [
   { area:"Pallet Town — Starters", note:"You've both already traded for all three.", mons:[
     {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"}
@@ -639,10 +710,12 @@ const ROUTES = [
 ];
 
 const SEEN=new Set(); const ALL=[];
+const NAME={};
+ROUTES.forEach(r=>r.mons.forEach(m=>{ NAME[m.n]=m.name; }));
 ROUTES.forEach(r=>{ if(r.noCount) return; r.mons.forEach(m=>{ if(!SEEN.has(m.n)){SEEN.add(m.n); ALL.push(m);} }); });
 
 let progress={}, notes={}, claims={}, names={p1:"Player 1",p2:"Player 2",p1ver:"LG",p2ver:"FR"};
-let filter='all', search='', hideDone=false, openNotes={};
+let filter='all', search='', hideDone=false, openNotes={}, openEvo={};
 
 // Collapsed state is a per-device view preference, not shared progress —
 // so it lives in localStorage, not Firebase. Keyed by area NAME so that
@@ -709,6 +782,28 @@ function setupComplete(){
       && names.p1ver && names.p2ver
       && names.p1starter && names.p2starter;
 }
+// Family chain for one Pokémon: every stage, how you get there, and who has it.
+function renderFamily(n){
+  const fam=familyOf(n);
+  if(fam.length<2) return '<div class="evo-row"><span class="evo-none">Does not evolve.</span></div>';
+  const n1=names.p1||'P1', n2=names.p2||'P2';
+  let html='<div class="evo-row">';
+  fam.forEach(f=>{
+    const p=progress[String(f.n)]||{};
+    const both=p.p1&&p.p2;
+    const who = both ? '<span class="evo-both">both ✓</span>'
+      : p.p1 ? `<span class="evo-p1">${n1} ✓</span>`
+      : p.p2 ? `<span class="evo-p2">${n2} ✓</span>`
+      : '<span class="evo-none">neither</span>';
+    html+=`<div class="evo-line${f.n===n?' evo-current':''}" style="padding-left:${f.depth*12}px">`+
+      (f.how?`<span class="evo-how">${f.how} →</span> `:'')+
+      `<span class="evo-name">${NAME[f.n]||('#'+f.n)}</span> ${who}</div>`;
+  });
+  const missing=fam.filter(f=>{const p=progress[String(f.n)]||{};return !(p.p1&&p.p2);}).length;
+  html+=`<div class="evo-foot">${missing?missing+' of '+fam.length+' still needed by someone':'family complete for both ✓'}</div>`;
+  return html+'</div>';
+}
+
 function renderSetup(){
   const box=document.getElementById('setupBox');
   const sum=document.getElementById('setupSummary');
@@ -840,12 +935,13 @@ function render(){
       row.innerHTML=`
         <div class="row-main">
           <span class="dexnum">#${String(m.n).padStart(3,'0')}</span>
-          <span class="pname">${m.name}</span>
+          <span class="pname tappable" data-evo="${m.n}">${m.name}${(EVO[m.n]||PRE[m.n])?' <span class="evo-caret">▾</span>':''}</span>
           <div class="tags">${tags.join('')}</div>
           <div class="note-btn ${note?'has':''}" data-note="${m.n}">✎</div>
           <div class="check p1 ${p.p1?'on':''}" data-num="${m.n}" data-player="p1">${p.p1?'✓':'P1'}</div>
           <div class="check p2 ${p.p2?'on':''}" data-num="${m.n}" data-player="p2">${p.p2?'✓':'P2'}</div>
         </div>
+        ${openEvo[m.n]?renderFamily(m.n):''}
         ${claimHtml}
         <div class="note-row ${openNotes[m.n]?'open':''}">
           <input type="text" placeholder="note — e.g. traded 8/16, Box 3" value="${note.replace(/"/g,'&quot;')}" data-noteinput="${m.n}">
@@ -867,6 +963,9 @@ function render(){
     const n=el.dataset.note; openNotes[n]=!openNotes[n]; render();
     const inp=document.querySelector(`[data-noteinput="${n}"]`); if(inp&&openNotes[n]) inp.focus();
   }));
+  main.querySelectorAll('[data-evo]').forEach(el=>{
+    el.addEventListener('click',()=>{ const n=el.dataset.evo; openEvo[n]=!openEvo[n]; render(); });
+  });
   main.querySelectorAll('[data-claim]').forEach(el=>{
     el.addEventListener('click',()=>toggleClaim(el.dataset.claim, el.dataset.who));
   });
