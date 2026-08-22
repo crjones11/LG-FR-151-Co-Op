@@ -391,6 +391,63 @@
     .controls{gap:5px;}
   }
 
+
+  /* ---------- multi-player additions ---------- */
+  .pcard{position:relative;}
+  .pcard .remove{
+    position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;
+    background:var(--fr);color:#fff;border:2px solid var(--navy);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;
+  }
+  .add-player{
+    background:var(--parch);border:2px dashed var(--navy);border-radius:7px;
+    padding:7px 11px;cursor:pointer;user-select:none;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .add-player:active{background:var(--parch-2);}
+
+  /* badge pips */
+  .badges{display:flex;gap:3px;align-items:center;flex-wrap:nowrap;}
+  .badge{
+    width:15px;height:15px;border-radius:50%;
+    border:1.5px solid var(--ink);background:var(--parch-3);
+    cursor:pointer;flex-shrink:0;
+  }
+  .badge.earned{border-color:var(--navy-dk);box-shadow:inset 0 0 0 1px #fff;}
+  .badge-count{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
+  .badge-row{display:flex;align-items:center;gap:6px;flex-basis:100%;margin-top:2px;flex-wrap:wrap;}
+  .badge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);font-weight:600;}
+
+  /* checks scale down as players are added so rows still fit */
+  .checks{display:flex;gap:4px;flex-shrink:0;}
+  .checks[data-n="3"] .check{width:34px;font-size:9.5px;}
+  .checks[data-n="4"] .check{width:29px;font-size:9px;}
+  .checks[data-n="5"] .check{width:26px;font-size:8.5px;}
+  .checks[data-n="6"] .check{width:24px;font-size:8px;}
+
+  .viewas{
+    display:flex;align-items:center;gap:6px;margin-top:9px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;color:#d8e8f8;font-weight:600;
+  }
+  .viewas select{
+    background:var(--parch);border:2px solid var(--navy);border-radius:5px;
+    color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;
+    padding:3px 5px;outline:none;
+  }
+
+  .setup-summary .seg{align-items:center;}
+  .sum-badges{font-size:9px;color:#a87800;font-weight:700;}
+
+  @media (max-width:640px){
+    .badge{width:18px;height:18px;}
+    .checks[data-n="3"] .check{width:36px;height:34px;}
+    .checks[data-n="4"] .check{width:31px;height:34px;}
+    .checks[data-n="5"] .check{width:27px;height:34px;}
+    .checks[data-n="6"] .check{width:24px;height:34px;}
+  }
+
 </style>
 </head>
 <body>
@@ -402,27 +459,11 @@
   </div>
   <div id="setupBox">
     <div class="setup-summary" id="setupSummary"></div>
-    <div class="players" id="playerCards">
-    <div class="pcard">
-      <span class="dot p1"></span>
-      <input id="p1name" placeholder="Player 1" maxlength="12">
-      <select id="p1ver"><option value="LG">LeafGreen</option><option value="FR">FireRed</option></select>
-      <select id="p1starter"><option value="">starter?</option><option value="B">Bulbasaur</option><option value="C">Charmander</option><option value="S">Squirtle</option></select>
-    </div>
-    <div class="pcard">
-      <span class="dot p2"></span>
-      <input id="p2name" placeholder="Player 2" maxlength="12">
-      <select id="p2ver"><option value="FR">FireRed</option><option value="LG">LeafGreen</option></select>
-      <select id="p2starter"><option value="">starter?</option><option value="B">Bulbasaur</option><option value="C">Charmander</option><option value="S">Squirtle</option></select>
-    </div>
-    </div>
+    <div class="players" id="playerCards"></div>
     <div class="setup-done" id="setupDone">✓ DONE — COLLAPSE</div>
   </div>
-  <div class="progress-wrap">
-    <div class="pbar-row"><span class="pbar-label" id="lbl-p1">P1</span><div class="pbar"><div class="pbar-fill p1" id="bar-p1"></div></div><span class="pbar-num" id="num-p1">0/150</span></div>
-    <div class="pbar-row"><span class="pbar-label" id="lbl-p2">P2</span><div class="pbar"><div class="pbar-fill p2" id="bar-p2"></div></div><span class="pbar-num" id="num-p2">0/150</span></div>
-    <div class="pbar-row"><span class="pbar-label">BOTH ✓</span><div class="pbar"><div class="pbar-fill both" id="bar-both"></div></div><span class="pbar-num" id="num-both">0/150</span></div>
-  </div>
+  <div class="progress-wrap" id="barsWrap"></div>
+  <div class="viewas">I AM: <select id="viewAsSel"></select></div>
   <div class="controls">
     <input class="search" id="search" placeholder="search name or #num…">
     <div class="chip" id="filterToggle"><span class="caret">▶</span> FILTERS</div>
@@ -490,6 +531,7 @@ const progressRef = ref(db,'kanto-trail/progress');
 const namesRef    = ref(db,'kanto-trail/names');
 const notesRef    = ref(db,'kanto-trail/notes');
 const claimsRef   = ref(db,'kanto-trail/claims');
+const playersRef  = ref(db,'kanto-trail/players');
 
 // One-shot / must-choose. Each entry explains WHY it's limited.
 // MUST COORDINATE: a single game forces an either/or, so you two must take
@@ -709,99 +751,190 @@ const ROUTES = [
   ]}
 ];
 
+
 const SEEN=new Set(); const ALL=[];
 const NAME={};
 ROUTES.forEach(r=>r.mons.forEach(m=>{ NAME[m.n]=m.name; }));
 ROUTES.forEach(r=>{ if(r.noCount) return; r.mons.forEach(m=>{ if(!SEEN.has(m.n)){SEEN.add(m.n); ALL.push(m);} }); });
 
-let progress={}, notes={}, claims={}, names={p1:"Player 1",p2:"Player 2",p1ver:"LG",p2ver:"FR"};
-let filter='all', search='', hideDone=false, openNotes={}, openEvo={};
+let collapsed = (()=>{ try{ return JSON.parse(localStorage.getItem('kanto-collapsed')||'{}'); }catch(e){ return {}; } })();
+function saveCollapsed(){ try{ localStorage.setItem('kanto-collapsed', JSON.stringify(collapsed)); }catch(e){} }
 
-// Collapsed state is a per-device view preference, not shared progress —
-// so it lives in localStorage, not Firebase. Keyed by area NAME so that
-// adding or reordering sections later doesn't scramble which ones are shut.
-let collapsed = (()=>{
-  try{ return JSON.parse(localStorage.getItem('kanto-collapsed')||'{}'); }
-  catch(e){ return {}; }
-})();
-function saveCollapsed(){
-  try{ localStorage.setItem('kanto-collapsed', JSON.stringify(collapsed)); }
-  catch(e){ /* private mode or storage blocked — collapse still works, just won't persist */ }
-}
-
-// Starter determines which roaming Johto beast appears post-game (it gets a type advantage on you)
-const BEAST = { B:"Entei (Fire)", C:"Suicune (Water)", S:"Raikou (Electric)" };
-const BEAST_GLITCHY = { B:true, C:false, S:true }; // Entei & Raikou can vanish via the Roar bug
-
-function renderBeastPanel(){
-  const panel=document.getElementById('beastPanel');
-  const body=document.getElementById('beastBody');
-  const s1=names.p1starter, s2=names.p2starter;
-  if(!s1&&!s2){ panel.style.display='none'; return; }
-  panel.style.display='';
-  const n1=names.p1||'P1', n2=names.p2||'P2';
-  let html='';
-  if(s1) html+=`<b>${n1}</b> → ${BEAST[s1]}<br>`;
-  if(s2) html+=`<b>${n2}</b> → ${BEAST[s2]}<br>`;
-  if(s1&&s2&&s1===s2) html+=`<span class="warn">You both picked the same starter, so you'll both get ${BEAST[s1]} — no trade opportunity here.</span>`;
-  const risky=[];
-  if(s1&&BEAST_GLITCHY[s1]) risky.push(n1);
-  if(s2&&BEAST_GLITCHY[s2]) risky.push(n2);
-  if(risky.length){
-    html+=`<span class="warn">On GBA, Entei and Raikou could be permanently lost to the Roar escape glitch — <b>this is fixed in the Switch release</b>, so ${risky.join(' & ')} are safe.</span>`;
-  }
-  html+=`<span class="warn">Repel trick: lead with a Lv11–49 Pokémon on Route 2 and spray a Repel — only the beast can spawn. Use Mean Look or Arena Trap to stop it fleeing.</span>`;
-  body.innerHTML=html;
-}
-
-// Player colour follows the GAME each person chose. If both picked the same
-// version, the second player gets that version's darker shade so they stay
-// distinguishable without breaking the red=FireRed / green=LeafGreen logic.
-const SHADES = {
-  FR: [{c:'#e03c28',dk:'#a02818',lt:'#f89888'}, {c:'#8f1f12',dk:'#5c1109',lt:'#d97a68'}],
-  LG: [{c:'#48a038',dk:'#286818',lt:'#88d878'}, {c:'#1e5c22',dk:'#0f3a14',lt:'#6fae72'}]
-};
-function applyPlayerColors(){
-  const v1=names.p1ver||'LG', v2=names.p2ver||'FR';
-  const same = v1===v2;
-  const s1 = SHADES[v1][0];
-  const s2 = same ? SHADES[v2][1] : SHADES[v2][0];
-  const r=document.documentElement.style;
-  r.setProperty('--p1c',s1.c); r.setProperty('--p1c-dk',s1.dk); r.setProperty('--p1c-lt',s1.lt);
-  r.setProperty('--p2c',s2.c); r.setProperty('--p2c-dk',s2.dk); r.setProperty('--p2c-lt',s2.lt);
-}
-
+// ============ PLAYERS ============
+// Player IDs p1/p2 are preserved so existing Firebase progress keeps working.
+const MAX_PLAYERS = 6;
+const GYMS = ['Boulder','Cascade','Thunder','Rainbow','Soul','Marsh','Volcano','Earth'];
 const VER_LABEL={FR:'FireRed',LG:'LeafGreen'};
 const STARTER_LABEL={B:'Bulbasaur',C:'Charmander',S:'Squirtle'};
+
+// three shades per version, so several people can share a game and stay distinct
+const SHADES = {
+  FR:[{c:'#e03c28',dk:'#a02818',lt:'#f89888'},
+      {c:'#8f1f12',dk:'#5c1109',lt:'#d97a68'},
+      {c:'#f2793c',dk:'#b04c18',lt:'#ffc09a'}],
+  LG:[{c:'#48a038',dk:'#286818',lt:'#88d878'},
+      {c:'#1e5c22',dk:'#0f3a14',lt:'#6fae72'},
+      {c:'#7cc93f',dk:'#4f8a1c',lt:'#c2e89a'}]
+};
+
+let players = [];
+let progress={}, notes={}, claims={};
+let filter='all', search='', hideDone=false, openNotes={}, openEvo={};
+let viewAs='p1';
+try{ viewAs = localStorage.getItem('kanto-viewas') || 'p1'; }catch(e){}
+
+function defaultPlayers(){
+  return [
+    {id:'p1',name:'Player 1',ver:'LG',starter:'',badges:0},
+    {id:'p2',name:'Player 2',ver:'FR',starter:'',badges:0}
+  ];
+}
+function nextPlayerId(){
+  for(let i=1;i<=MAX_PLAYERS;i++){ if(!players.some(p=>p.id==='p'+i)) return 'p'+i; }
+  return null;
+}
+function playerById(id){ return players.find(p=>p.id===id) || players[0]; }
+function shadeFor(p){
+  const idx = players.filter(q=>q.ver===p.ver).indexOf(p);
+  const list = SHADES[p.ver] || SHADES.LG;
+  return list[Math.max(0, Math.min(idx, list.length-1))];
+}
+function initials(p){
+  const parts=(p.name||'').trim().split(/\s+/);
+  if(!parts[0]) return p.id.toUpperCase();
+  return (parts.length>1 ? parts[0][0]+parts[1][0] : parts[0].slice(0,2)).toUpperCase();
+}
+
+function applyPlayerColors(){
+  const r=document.documentElement.style;
+  players.forEach(p=>{
+    const s=shadeFor(p);
+    r.setProperty('--'+p.id+'c',s.c);
+    r.setProperty('--'+p.id+'c-dk',s.dk);
+    r.setProperty('--'+p.id+'c-lt',s.lt);
+  });
+  // inject per-player rules once per render (cheap, and handles added players)
+  let css='';
+  players.forEach(p=>{
+    css+=`.dot.${p.id}{background:var(--${p.id}c);}`+
+         `.pbar-fill.${p.id}{background:linear-gradient(180deg,var(--${p.id}c-lt),var(--${p.id}c));}`+
+         `.check.${p.id}.on{background:var(--${p.id}c);color:#fff;border-color:var(--${p.id}c-dk);`+
+           `box-shadow:inset 0 0 0 1px var(--${p.id}c-lt), 0 2px 0 var(--${p.id}c-dk);}`+
+         `.claim-btn.${p.id}{background:var(--${p.id}c);border-color:var(--${p.id}c-dk);color:#fff;}`+
+         `.evo-${p.id}{color:var(--${p.id}c);font-weight:700;}`+
+         `.badge.earned.${p.id}{background:var(--${p.id}c);}`;
+  });
+  let tag=document.getElementById('playerColors');
+  if(!tag){ tag=document.createElement('style'); tag.id='playerColors'; document.head.appendChild(tag); }
+  tag.textContent=css;
+}
+
+function savePlayers(){ set(playersRef,players).catch(e=>console.error(e)); }
+
+// ============ ROW HELPERS ============
+function caughtBy(n,id){ const p=progress[String(n)]; return !!(p&&p[id]); }
+function caughtCount(n){ return players.filter(p=>caughtBy(n,p.id)).length; }
+function allHave(n){ return players.length>0 && caughtCount(n)===players.length; }
+function needsTrade(n){ const c=caughtCount(n); return c>0 && c<players.length; }
+function verOf(n){ return FR_ONLY.includes(n)?'FR' : LG_ONLY.includes(n)?'LG' : null; }
+function cantCatch(n){
+  const v=verOf(n); if(!v) return false;
+  return v !== (playerById(viewAs).ver||'LG');
+}
+
+function toggle(num,id){
+  const k=String(num);
+  if(!progress[k]) progress[k]={};
+  progress[k][id]=!progress[k][id];
+  if(!progress[k][id]) delete progress[k][id];
+  set(progressRef,progress).catch(e=>console.error(e));
+}
+function saveNote(num,val){
+  const k=String(num);
+  if(val.trim()) notes[k]=val.trim(); else delete notes[k];
+  set(notesRef,notes).catch(e=>console.error(e));
+}
+function toggleClaim(num,id){
+  const k=String(num);
+  if(claims[k]===id) delete claims[k]; else claims[k]=id;
+  set(claimsRef,claims).catch(e=>console.error(e));
+}
+
+// ============ SETUP / PLAYER CARDS ============
 let setupManualOpen=false;
 try{ setupManualOpen = localStorage.getItem('kanto-setup')==='open'; }catch(e){}
-
 function setupComplete(){
-  return names.p1 && names.p1!=='Player 1'
-      && names.p2 && names.p2!=='Player 2'
-      && names.p1ver && names.p2ver
-      && names.p1starter && names.p2starter;
+  return players.length>=2 && players.every(p=>
+    p.name && !/^Player \d$/.test(p.name) && p.ver && p.starter);
 }
-// Family chain for one Pokémon: every stage, how you get there, and who has it.
-function renderFamily(n){
-  const fam=familyOf(n);
-  if(fam.length<2) return '<div class="evo-row"><span class="evo-none">Does not evolve.</span></div>';
-  const n1=names.p1||'P1', n2=names.p2||'P2';
-  let html='<div class="evo-row">';
-  fam.forEach(f=>{
-    const p=progress[String(f.n)]||{};
-    const both=p.p1&&p.p2;
-    const who = both ? '<span class="evo-both">both ✓</span>'
-      : p.p1 ? `<span class="evo-p1">${n1} ✓</span>`
-      : p.p2 ? `<span class="evo-p2">${n2} ✓</span>`
-      : '<span class="evo-none">neither</span>';
-    html+=`<div class="evo-line${f.n===n?' evo-current':''}" style="padding-left:${f.depth*12}px">`+
-      (f.how?`<span class="evo-how">${f.how} →</span> `:'')+
-      `<span class="evo-name">${NAME[f.n]||('#'+f.n)}</span> ${who}</div>`;
+
+function renderPlayerCards(){
+  const wrap=document.getElementById('playerCards');
+  wrap.innerHTML='';
+  players.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='pcard';
+    card.innerHTML=`
+      ${players.length>2?`<div class="remove" data-remove="${p.id}" title="remove">×</div>`:''}
+      <span class="dot ${p.id}"></span>
+      <input data-field="name" data-pid="${p.id}" placeholder="Player ${i+1}" maxlength="12"
+             value="${(/^Player \d$/.test(p.name)?'':p.name).replace(/"/g,'&quot;')}">
+      <select data-field="ver" data-pid="${p.id}">
+        <option value="LG"${p.ver==='LG'?' selected':''}>LeafGreen</option>
+        <option value="FR"${p.ver==='FR'?' selected':''}>FireRed</option>
+      </select>
+      <select data-field="starter" data-pid="${p.id}">
+        <option value=""${!p.starter?' selected':''}>starter?</option>
+        <option value="B"${p.starter==='B'?' selected':''}>Bulbasaur</option>
+        <option value="C"${p.starter==='C'?' selected':''}>Charmander</option>
+        <option value="S"${p.starter==='S'?' selected':''}>Squirtle</option>
+      </select>
+      <div class="badge-row">
+        <span class="badge-label">BADGES</span>
+        <div class="badges">${GYMS.map((g,gi)=>
+          `<div class="badge ${gi<p.badges?'earned '+p.id:''}" data-badge="${p.id}" data-lvl="${gi+1}" title="${g}"></div>`
+        ).join('')}</div>
+        <span class="badge-count">${p.badges}/8</span>
+      </div>`;
+    wrap.appendChild(card);
   });
-  const missing=fam.filter(f=>{const p=progress[String(f.n)]||{};return !(p.p1&&p.p2);}).length;
-  html+=`<div class="evo-foot">${missing?missing+' of '+fam.length+' still needed by someone':'family complete for both ✓'}</div>`;
-  return html+'</div>';
+  if(players.length<MAX_PLAYERS){
+    const add=document.createElement('div');
+    add.className='add-player'; add.id='addPlayer';
+    add.textContent='+ ADD PLAYER';
+    wrap.appendChild(add);
+  }
+
+  wrap.querySelectorAll('[data-field]').forEach(el=>{
+    el.addEventListener('change',()=>{
+      const p=playerById(el.dataset.pid), f=el.dataset.field;
+      p[f] = f==='name' ? (el.value.trim()||('Player '+(players.indexOf(p)+1))) : el.value;
+      savePlayers();
+    });
+  });
+  wrap.querySelectorAll('[data-badge]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const p=playerById(el.dataset.badge), lvl=+el.dataset.lvl;
+      p.badges = (p.badges===lvl) ? lvl-1 : lvl;   // tap the current one to un-earn it
+      savePlayers();
+    });
+  });
+  wrap.querySelectorAll('[data-remove]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const p=playerById(el.dataset.remove);
+      if(!confirm('Remove '+p.name+'? Their caught marks stay in the database but stop showing.')) return;
+      players=players.filter(q=>q.id!==p.id);
+      if(viewAs===p.id){ viewAs=players[0].id; try{localStorage.setItem('kanto-viewas',viewAs);}catch(e){} }
+      savePlayers();
+    });
+  });
+  const addBtn=document.getElementById('addPlayer');
+  if(addBtn) addBtn.addEventListener('click',()=>{
+    const id=nextPlayerId(); if(!id) return;
+    players.push({id,name:'Player '+(players.length+1),ver:'LG',starter:'',badges:0});
+    setupManualOpen=true; try{localStorage.setItem('kanto-setup','open');}catch(e){}
+    savePlayers();
+  });
 }
 
 function renderSetup(){
@@ -810,48 +943,66 @@ function renderSetup(){
   const done=setupComplete();
   box.classList.toggle('can-collapse', done);
   box.classList.toggle('collapsed', done && !setupManualOpen);
-  if(!done) return;
-  sum.innerHTML=
-    `<span class="seg"><span class="dot p1"></span>${names.p1}`+
-    `<span class="sub2">${VER_LABEL[names.p1ver]} · ${STARTER_LABEL[names.p1starter]}</span></span>`+
-    `<span class="seg"><span class="dot p2"></span>${names.p2}`+
-    `<span class="sub2">${VER_LABEL[names.p2ver]} · ${STARTER_LABEL[names.p2starter]}</span></span>`+
-    `<span class="edit">EDIT ▸</span>`;
-}
-document.getElementById('setupDone').addEventListener('click',()=>{
-  setupManualOpen=false;
-  try{ localStorage.setItem('kanto-setup','closed'); }catch(e){}
-  renderSetup();
-});
-document.getElementById('setupSummary').addEventListener('click',()=>{
-  setupManualOpen=true;
-  try{ localStorage.setItem('kanto-setup','open'); }catch(e){}
-  renderSetup();
-});
-
-function verOf(n){ return FR_ONLY.includes(n)?'FR' : LG_ONLY.includes(n)?'LG' : null; }
-
-function needsTrade(n){
-  const p=progress[String(n)];
-  if(!p) return false;
-  return (p.p1&&!p.p2)||(p.p2&&!p.p1);
-}
-// "I can't catch" = exclusive to the OTHER player's version, from P1's seat
-function cantCatch(n){
-  const v=verOf(n);
-  if(!v) return false;
-  return v !== (names.p1ver||'LG');
+  if(!done){ sum.innerHTML=''; return; }
+  sum.innerHTML = players.map(p=>
+    `<span class="seg"><span class="dot ${p.id}"></span>${p.name}`+
+    `<span class="sub2">${VER_LABEL[p.ver]} · ${STARTER_LABEL[p.starter]}</span>`+
+    `<span class="sum-badges">${p.badges}/8</span></span>`
+  ).join('') + '<span class="edit">EDIT ▸</span>';
 }
 
+function renderViewAs(){
+  const sel=document.getElementById('viewAsSel');
+  sel.innerHTML=players.map(p=>
+    `<option value="${p.id}"${p.id===viewAs?' selected':''}>${p.name}</option>`).join('');
+}
+
+// ============ PROGRESS BARS ============
+function renderBars(){
+  const wrap=document.getElementById('barsWrap');
+  const total=ALL.length;
+  let html='';
+  players.forEach(p=>{
+    const c=ALL.filter(m=>caughtBy(m.n,p.id)).length;
+    html+=`<div class="pbar-row"><span class="pbar-label">${p.name}</span>`+
+      `<div class="pbar"><div class="pbar-fill ${p.id}" style="width:${c/total*100}%"></div></div>`+
+      `<span class="pbar-num">${c}/${total}</span></div>`;
+  });
+  const cb=ALL.filter(m=>allHave(m.n)).length;
+  html+=`<div class="pbar-row"><span class="pbar-label">ALL ✓</span>`+
+    `<div class="pbar"><div class="pbar-fill both" style="width:${cb/total*100}%"></div></div>`+
+    `<span class="pbar-num">${cb}/${total}</span></div>`;
+  wrap.innerHTML=html;
+}
+
+// ============ EVOLUTION FAMILY ============
+function renderFamily(n){
+  const fam=familyOf(n);
+  if(fam.length<2) return '<div class="evo-row"><span class="evo-none">Does not evolve.</span></div>';
+  let html='<div class="evo-row">';
+  fam.forEach(f=>{
+    const holders=players.filter(p=>caughtBy(f.n,p.id));
+    const who = holders.length===players.length ? '<span class="evo-both">all ✓</span>'
+      : holders.length ? holders.map(p=>`<span class="evo-${p.id}">${p.name} ✓</span>`).join(' ')
+      : '<span class="evo-none">nobody</span>';
+    html+=`<div class="evo-line${f.n===n?' evo-current':''}" style="padding-left:${f.depth*12}px">`+
+      (f.how?`<span class="evo-how">${f.how} →</span> `:'')+
+      `<span class="evo-name">${NAME[f.n]||('#'+f.n)}</span> ${who}</div>`;
+  });
+  const missing=fam.filter(f=>!allHave(f.n)).length;
+  html+=`<div class="evo-foot">${missing?missing+' of '+fam.length+' still needed by someone':'family complete for everyone ✓'}</div>`;
+  return html+'</div>';
+}
+
+// ============ FILTERS ============
 function matches(m){
-  const p=progress[String(m.n)]||{};
-  if(hideDone&&p.p1&&p.p2) return false;
+  if(hideDone && allHave(m.n)) return false;
   if(search){
     const q=search.toLowerCase();
-    if(!m.name.toLowerCase().includes(q)&&!String(m.n).includes(q)) return false;
+    if(!m.name.toLowerCase().includes(q) && !String(m.n).includes(q)) return false;
   }
   if(filter==='trade')    return needsTrade(m.n);
-  if(filter==='uncaught') return !(p.p1&&p.p2);
+  if(filter==='uncaught') return !allHave(m.n);
   if(filter==='tradeevo') return TRADE_EVO.includes(m.n);
   if(filter==='coord')    return !!COORDINATE[m.n];
   if(filter==='perGame')  return !!ONE_PER_GAME[m.n];
@@ -859,33 +1010,32 @@ function matches(m){
   return true;
 }
 
+// ============ MAIN RENDER ============
 function render(){
+  applyPlayerColors();
+  renderPlayerCards();
+  renderSetup();
+  renderViewAs();
+
   const main=document.getElementById('main');
   main.innerHTML='';
-  document.getElementById('p1name').value = names.p1==='Player 1'?'':names.p1;
-  document.getElementById('p2name').value = names.p2==='Player 2'?'':names.p2;
-  document.getElementById('p1ver').value = names.p1ver||'LG';
-  document.getElementById('p2ver').value = names.p2ver||'FR';
-  document.getElementById('p1starter').value = names.p1starter||'';
-  document.getElementById('p2starter').value = names.p2starter||'';
-  document.getElementById('lbl-p1').textContent = names.p1||'P1';
-  document.getElementById('lbl-p2').textContent = names.p2||'P2';
-
   let anyShown=false;
-  ROUTES.forEach((section,idx)=>{
+
+  ROUTES.forEach((section)=>{
     const visible=section.mons.filter(matches);
     if(!visible.length) return;
     anyShown=true;
-    const caught=section.mons.filter(m=>{const p=progress[String(m.n)];return p&&p.p1&&p.p2;}).length;
+    const caught=section.mons.filter(m=>allHave(m.n)).length;
     const done=caught===section.mons.length;
     const isCol=collapsed[section.area];
+    const idx=ROUTES.indexOf(section)+1;
 
     const sec=document.createElement('div');
     sec.className='route-section';
     sec.innerHTML=`
       <div class="route-trail"></div>
       <div class="route-head" data-area="${section.area.replace(/"/g,'&quot;')}">
-        <div class="route-marker ${done?'done':''}">${done?'✓':idx+1}</div>
+        <div class="route-marker ${done?'done':''}">${done?'✓':idx}</div>
         <div class="route-title">${section.area}</div>
         <div class="route-count">${caught}/${section.mons.length} ${isCol?'▸':'▾'}</div>
       </div>
@@ -894,17 +1044,14 @@ function render(){
     const wrap=sec.querySelector('.rows');
 
     visible.forEach(m=>{
-      const p=progress[String(m.n)]||{};
-      const ver=verOf(m.n);
-      const note=notes[String(m.n)]||'';
+      const ver=verOf(m.n), note=notes[String(m.n)]||'';
       const tags=[];
       if(ver==='FR') tags.push('<span class="tag fr">FR ONLY</span>');
       if(ver==='LG') tags.push('<span class="tag lg">LG ONLY</span>');
-      // m.v = version split for THIS LOCATION only (species itself exists in both games)
-      if(m.v==='FR' && ver!=='FR') tags.push('<span class="tag frhere">FR HERE</span>');
-      if(m.v==='LG' && ver!=='LG') tags.push('<span class="tag lghere">LG HERE</span>');
+      if(m.v==='FR'&&ver!=='FR') tags.push('<span class="tag frhere">FR HERE</span>');
+      if(m.v==='LG'&&ver!=='LG') tags.push('<span class="tag lghere">LG HERE</span>');
       if(m.t){
-        let cls='info'; // default so nothing renders unstyled
+        let cls='info';
         if(m.t.includes('TRADE')||m.t.includes('give')||m.t.includes('trade')||m.t.includes('swap')) cls='trade';
         else if(m.t.includes('legendary')||m.t.includes('event')||m.t.includes('not required')) cls='special';
         else if(m.t.includes('rare')) cls='rare';
@@ -913,33 +1060,33 @@ function render(){
         else if(m.t.includes('Fossil')||m.t.includes('Amber')||m.t.includes('pick one')||m.t.includes('gift')||m.t.includes('coins')||m.t.includes('prize')) cls='item';
         tags.push(`<span class="tag ${cls}">${m.t}</span>`);
       }
-      const row=document.createElement('div');
-      const isCoord=!!COORDINATE[m.n];
-      const isPerGame=!!ONE_PER_GAME[m.n];
+
+      const isCoord=!!COORDINATE[m.n], isPerGame=!!ONE_PER_GAME[m.n];
       const claim=claims[String(m.n)]||null;
-      row.className='row'+((p.p1&&p.p2)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'')
-        +(isCoord?' coord':'')+(isPerGame?' pergame':'');
-      const n1=names.p1||'P1', n2=names.p2||'P2';
       let claimHtml='';
       if(isCoord){
-        claimHtml=`
-        <div class="claim-row"><span class="claim-label coord-label">⚠ ${COORDINATE[m.n]}</span></div>
-        <div class="claim-row">
-          <span class="claim-label">WHO TAKES IT:</span>
-          <div class="claim-btn ${claim==='p1'?'p1':''}" data-claim="${m.n}" data-who="p1">${n1}</div>
-          <div class="claim-btn ${claim==='p2'?'p2':''}" data-claim="${m.n}" data-who="p2">${n2}</div>
-        </div>`;
+        claimHtml=`<div class="claim-row"><span class="claim-label coord-label">⚠ ${COORDINATE[m.n]}</span></div>
+        <div class="claim-row"><span class="claim-label">WHO TAKES IT:</span>`+
+          players.map(p=>`<div class="claim-btn ${claim===p.id?p.id:''}" data-claim="${m.n}" data-who="${p.id}">${p.name}</div>`).join('')+
+        `</div>`;
       } else if(isPerGame){
         claimHtml=`<div class="claim-row"><span class="claim-label">${ONE_PER_GAME[m.n]}</span></div>`;
       }
+
+      const checks=players.map(p=>
+        `<div class="check ${p.id} ${caughtBy(m.n,p.id)?'on':''}" data-num="${m.n}" data-player="${p.id}" title="${p.name}">`+
+        `${caughtBy(m.n,p.id)?'✓':initials(p)}</div>`).join('');
+
+      const row=document.createElement('div');
+      row.className='row'+(allHave(m.n)?' caught-both':'')+(needsTrade(m.n)?' trade-alert':'')
+        +(isCoord?' coord':'')+(isPerGame?' pergame':'');
       row.innerHTML=`
         <div class="row-main">
           <span class="dexnum">#${String(m.n).padStart(3,'0')}</span>
           <span class="pname tappable" data-evo="${m.n}">${m.name}${(EVO[m.n]||PRE[m.n])?' <span class="evo-caret">▾</span>':''}</span>
           <div class="tags">${tags.join('')}</div>
           <div class="note-btn ${note?'has':''}" data-note="${m.n}">✎</div>
-          <div class="check p1 ${p.p1?'on':''}" data-num="${m.n}" data-player="p1">${p.p1?'✓':'P1'}</div>
-          <div class="check p2 ${p.p2?'on':''}" data-num="${m.n}" data-player="p2">${p.p2?'✓':'P2'}</div>
+          <div class="checks" data-n="${players.length}">${checks}</div>
         </div>
         ${openEvo[m.n]?renderFamily(m.n):''}
         ${claimHtml}
@@ -959,171 +1106,96 @@ function render(){
     if(collapsed[a]) delete collapsed[a]; else collapsed[a]=true;
     saveCollapsed(); render();
   }));
+  main.querySelectorAll('[data-evo]').forEach(el=>el.addEventListener('click',()=>{
+    const n=el.dataset.evo; openEvo[n]=!openEvo[n]; render();
+  }));
   main.querySelectorAll('.note-btn').forEach(el=>el.addEventListener('click',()=>{
     const n=el.dataset.note; openNotes[n]=!openNotes[n]; render();
     const inp=document.querySelector(`[data-noteinput="${n}"]`); if(inp&&openNotes[n]) inp.focus();
   }));
-  main.querySelectorAll('[data-evo]').forEach(el=>{
-    el.addEventListener('click',()=>{ const n=el.dataset.evo; openEvo[n]=!openEvo[n]; render(); });
-  });
-  main.querySelectorAll('[data-claim]').forEach(el=>{
-    el.addEventListener('click',()=>toggleClaim(el.dataset.claim, el.dataset.who));
-  });
-  main.querySelectorAll('[data-noteinput]').forEach(el=>{
-    el.addEventListener('change',()=>saveNote(el.dataset.noteinput,el.value));
-  });
+  main.querySelectorAll('[data-claim]').forEach(el=>el.addEventListener('click',()=>toggleClaim(el.dataset.claim,el.dataset.who)));
+  main.querySelectorAll('[data-noteinput]').forEach(el=>el.addEventListener('change',()=>saveNote(el.dataset.noteinput,el.value)));
 
-  applyPlayerColors();
-  renderSetup();
   renderBars();
   renderTradePanel();
   renderBeastPanel();
 }
 
-function toggle(num,player){
-  const k=String(num);
-  if(!progress[k]) progress[k]={p1:false,p2:false};
-  progress[k][player]=!progress[k][player];
-  set(progressRef,progress).catch(e=>console.error(e));
-}
-function saveNote(num,val){
-  const k=String(num);
-  if(val.trim()) notes[k]=val.trim(); else delete notes[k];
-  set(notesRef,notes).catch(e=>console.error(e));
-}
-// Tapping the player who already holds the claim releases it.
-function toggleClaim(num,who){
-  const k=String(num);
-  if(claims[k]===who) delete claims[k]; else claims[k]=who;
-  set(claimsRef,claims).catch(e=>console.error(e));
-}
-
-function renderBars(){
-  const total=ALL.length;
-  let c1=0,c2=0,cb=0;
-  ALL.forEach(m=>{const p=progress[String(m.n)];if(p&&p.p1)c1++;if(p&&p.p2)c2++;if(p&&p.p1&&p.p2)cb++;});
-  document.getElementById('bar-p1').style.width=(c1/total*100)+'%';
-  document.getElementById('bar-p2').style.width=(c2/total*100)+'%';
-  document.getElementById('bar-both').style.width=(cb/total*100)+'%';
-  document.getElementById('num-p1').textContent=c1+'/'+total;
-  document.getElementById('num-p2').textContent=c2+'/'+total;
-  document.getElementById('num-both').textContent=cb+'/'+total;
-}
-
+// ============ PANELS ============
 function renderTradePanel(){
   const panel=document.getElementById('tradePanel');
-  if(filter!=='trade'&&filter!=='mine'&&filter!=='coord'&&filter!=='perGame'){ panel.classList.remove('open'); return; }
+  if(!['trade','mine','coord','perGame'].includes(filter)){ panel.classList.remove('open'); return; }
   panel.classList.add('open');
-  const n1=names.p1||'P1', n2=names.p2||'P2';
+  const box=document.getElementById('tradeContent');
 
   if(filter==='coord'){
     const pairs=[
       {label:'Mt. Moon fossil', a:{n:138,name:'Omanyte (Helix)'}, b:{n:140,name:'Kabuto (Dome)'}},
       {label:'Fighting Dojo',   a:{n:106,name:'Hitmonlee'},       b:{n:107,name:'Hitmonchan'}}
     ];
+    const who=id=>id?playerById(id).name:null;
     let html='';
     pairs.forEach(pr=>{
       const ca=claims[String(pr.a.n)], cb=claims[String(pr.b.n)];
-      const who=x=>x==='p1'?n1:x==='p2'?n2:null;
       let status;
       if(!ca&&!cb) status='<span>undecided</span>';
-      else if(ca&&cb&&ca===cb) status='<b style="color:#a02818">⚠ CONFLICT — both assigned to '+who(ca)+'</b>';
-      else if(ca&&cb) status=`${pr.a.name} → ${who(ca)} &nbsp;/&nbsp; ${pr.b.name} → ${who(cb)} ✓`;
+      else if(ca&&cb&&ca===cb) status=`<b style="color:#a02818">⚠ CONFLICT — both to ${who(ca)}</b>`;
+      else if(ca&&cb) status=`${pr.a.name} → ${who(ca)} / ${pr.b.name} → ${who(cb)} ✓`;
       else if(ca) status=`${pr.a.name} → ${who(ca)}; <span>${pr.b.name} unassigned</span>`;
       else status=`${pr.b.name} → ${who(cb)}; <span>${pr.a.name} unassigned</span>`;
       html+=`<b>${pr.label}:</b> ${status}<br>`;
     });
-    html+='<br><b>Eevee line:</b> ';
     const eev=[[134,'Vaporeon'],[135,'Jolteon'],[136,'Flareon']];
-    const assigned=eev.filter(([n])=>claims[String(n)]);
-    if(!assigned.length){
-      html+='<span>unsplit — each of you would need 3 Eevees</span>';
-    } else {
-      html+=eev.map(([n,nm])=>{
-        const c=claims[String(n)];
-        return nm+' → '+(c==='p1'?n1:c==='p2'?n2:'<span>?</span>');
-      }).join(', ');
-      const c1=eev.filter(([n])=>claims[String(n)]==='p1').length;
-      const c2=eev.filter(([n])=>claims[String(n)]==='p2').length;
-      if(assigned.length===3) html+=`<br><span>Breeding needed: ${n1} ${Math.max(0,c1-1)} extra Eevee, ${n2} ${Math.max(0,c2-1)} extra. Trade each evolved form over and back to register it in both dexes.</span>`;
-    }
-    html+='<br><span>Everything else is one-per-game — you each get your own.</span>';
-    document.getElementById('tradeContent').innerHTML=html;
-    return;
+    html+='<br><b>Eevee line:</b> ';
+    if(!eev.some(([n])=>claims[String(n)])) html+='<span>unsplit — each player would need 3 Eevees</span>';
+    else html+=eev.map(([n,nm])=>nm+' → '+(who(claims[String(n)])||'<span>?</span>')).join(', ');
+    html+=`<br><span>With ${players.length} players, each one-shot pair only covers 2 people — a third player needs a trade from one of the other two.</span>`;
+    box.innerHTML=html; return;
   }
   if(filter==='perGame'){
-    document.getElementById('tradeContent').innerHTML=
-      '<b>No coordination needed on these.</b> Each of you obtains them in your own save. '+
-      'Listed here so you don\'t lose a one-time chance <span>within your own game</span>.';
+    box.innerHTML='<b>No coordination needed.</b> Every player obtains these in their own save. '+
+      'Listed so nobody loses a one-time chance <span>within their own game</span>.';
     return;
   }
   if(filter==='mine'){
+    const me=playerById(viewAs);
     const list=ALL.filter(m=>cantCatch(m.n)).map(m=>m.name);
-    document.getElementById('tradeContent').innerHTML=
-      `<b>${n1} must trade for these ${list.length}:</b><br>${list.join(', ')}`;
+    const suppliers=players.filter(p=>p.id!==me.id && p.ver!==me.ver).map(p=>p.name);
+    box.innerHTML=`<b>${me.name} (${VER_LABEL[me.ver]}) must trade for these ${list.length}:</b><br>${list.join(', ')}`+
+      `<br><br><b>Can supply:</b> ${suppliers.length?suppliers.join(', '):'<span>nobody — everyone is on the same version!</span>'}`;
     return;
   }
-  const p1owes=[],p2owes=[];
-  ALL.forEach(m=>{
-    const p=progress[String(m.n)]||{};
-    if(p.p1&&!p.p2) p1owes.push(m.name);
-    if(p.p2&&!p.p1) p2owes.push(m.name);
+  // filter === 'trade' : who is missing what, and who has it
+  let html='';
+  players.forEach(p=>{
+    const missing=ALL.filter(m=>!caughtBy(m.n,p.id) && caughtCount(m.n)>0);
+    if(!missing.length) return;
+    html+=`<b>${p.name} needs:</b> `+missing.slice(0,40).map(m=>{
+      const holders=players.filter(q=>caughtBy(m.n,q.id)).map(q=>q.name).join('/');
+      return `${m.name} <span>(${holders})</span>`;
+    }).join(', ')+(missing.length>40?` <span>…+${missing.length-40} more</span>`:'')+'<br><br>';
   });
-  document.getElementById('tradeContent').innerHTML=
-    `<b>${n1} → ${n2}:</b> ${p1owes.length?p1owes.join(', '):'<span>nothing yet</span>'}<br>`+
-    `<b>${n2} → ${n1}:</b> ${p2owes.length?p2owes.join(', '):'<span>nothing yet</span>'}`;
+  box.innerHTML = html || '<span>Nothing to trade yet — nobody has something another player is missing.</span>';
 }
 
-// Filter row collapses by default to save vertical space on mobile.
-// Header tucks away on scroll-down and returns on scroll-up (Safari-style),
-// so the list gets the full screen while you're moving through it.
-(function(){
-  const hdr=document.querySelector('header');
-  let lastY=window.scrollY, ticking=false, tucked=false;
-  const THRESHOLD=6;   // ignore jitter
-  const TOP_ZONE=80;   // always show near the top
+const BEAST = { B:'Entei (Fire)', C:'Suicune (Water)', S:'Raikou (Electric)' };
+function renderBeastPanel(){
+  const panel=document.getElementById('beastPanel');
+  const body=document.getElementById('beastBody');
+  const set_=players.filter(p=>p.starter);
+  if(!set_.length){ panel.style.display='none'; return; }
+  panel.style.display='';
+  let html='';
+  set_.forEach(p=>{ html+=`<b>${p.name}</b> → ${BEAST[p.starter]}<br>`; });
+  const uniq=new Set(set_.map(p=>p.starter));
+  if(uniq.size<set_.length) html+=`<span class="warn">Some of you picked the same starter, so you'll get duplicate beasts — fewer unique trades.</span>`;
+  html+=`<span class="warn">On GBA, Entei and Raikou could be lost to the Roar escape glitch — <b>fixed in the Switch release</b>.</span>`;
+  html+=`<span class="warn">Repel trick: lead with a Lv11–49 Pokémon on Route 2 and spray a Repel — only the beast can spawn.</span>`;
+  body.innerHTML=html;
+}
 
-  function onScroll(){
-    const y=Math.max(0,window.scrollY);
-    const dy=y-lastY;
-    if(y<TOP_ZONE){
-      if(tucked){ hdr.classList.remove('tucked'); tucked=false; }
-    } else if(dy>THRESHOLD && !tucked){
-      // don't hide it while a text field is focused — the keyboard is up
-      if(!/INPUT|SELECT/.test(document.activeElement?.tagName||'')){
-        hdr.classList.add('tucked'); tucked=true;
-      }
-    } else if(dy<-THRESHOLD && tucked){
-      hdr.classList.remove('tucked'); tucked=false;
-    }
-    if(Math.abs(dy)>THRESHOLD) lastY=y;
-    ticking=false;
-  }
-  window.addEventListener('scroll',()=>{
-    if(!ticking){ requestAnimationFrame(onScroll); ticking=true; }
-  },{passive:true});
-  // focusing search should always bring the bar back
-  document.getElementById('search').addEventListener('focus',()=>{
-    hdr.classList.remove('tucked'); tucked=false;
-  });
-})();
-
-// Safari's own toolbars can't be hidden by a page — but Add to Home Screen
-// launches standalone with none of them. Only nudge if not already installed.
-(function(){
-  const hint=document.getElementById('installHint');
-  const standalone = window.navigator.standalone === true
-    || window.matchMedia('(display-mode: standalone)').matches;
-  let dismissed=false;
-  try{ dismissed = localStorage.getItem('kanto-installhint')==='off'; }catch(e){}
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  if(!standalone && !dismissed && isIOS) hint.classList.add('show');
-  hint.addEventListener('click',()=>{
-    hint.classList.remove('show');
-    try{ localStorage.setItem('kanto-installhint','off'); }catch(e){}
-  });
-})();
-
+// ============ RESTORED SUBSYSTEMS (dropped in the multi-player splice) ============
+// Filter row toggle
 const filterToggle=document.getElementById('filterToggle'), filterRows=document.getElementById('filterRows');
 try{ if(localStorage.getItem('kanto-filters')==='open'){ filterRows.classList.add('open'); filterToggle.classList.add('open'); } }catch(e){}
 filterToggle.addEventListener('click',()=>{
@@ -1131,7 +1203,6 @@ filterToggle.addEventListener('click',()=>{
   filterToggle.classList.toggle('open',open);
   try{ localStorage.setItem('kanto-filters', open?'open':'closed'); }catch(e){}
 });
-// Show which filter is live even when the row is shut
 function updateFilterLabel(){
   const active=document.querySelector('.chip[data-filter].on');
   const isDefault = filter==='all' && !hideDone;
@@ -1141,14 +1212,7 @@ function updateFilterLabel(){
   filterToggle.classList.toggle('open', filterRows.classList.contains('open'));
 }
 
-document.querySelectorAll('.chip[data-filter]').forEach(c=>c.addEventListener('click',()=>{
-  document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('on'));
-  c.classList.add('on'); filter=c.dataset.filter; render(); updateFilterLabel();
-}));
-document.getElementById('hideDone').addEventListener('click',function(){
-  hideDone=!hideDone; this.classList.toggle('on',hideDone); render(); updateFilterLabel();
-});
-// Info panels: closed by default, state remembered per-device.
+// Collapsible info panels (Switch Trading / Sources / Roaming Legendary)
 (function(){
   let open={};
   try{ open=JSON.parse(localStorage.getItem('kanto-info')||'{}'); }catch(e){}
@@ -1163,8 +1227,74 @@ document.getElementById('hideDone').addEventListener('click',function(){
   });
 })();
 
+// Header tucks away on scroll-down, returns on scroll-up
+(function(){
+  const hdr=document.querySelector('header');
+  let lastY=window.scrollY, ticking=false, tucked=false;
+  const THRESHOLD=6, TOP_ZONE=80;
+  function onScroll(){
+    const y=Math.max(0,window.scrollY);
+    const dy=y-lastY;
+    if(y<TOP_ZONE){
+      if(tucked){ hdr.classList.remove('tucked'); tucked=false; }
+    } else if(dy>THRESHOLD && !tucked){
+      if(!/INPUT|SELECT/.test(document.activeElement?.tagName||'')){
+        hdr.classList.add('tucked'); tucked=true;
+      }
+    } else if(dy<-THRESHOLD && tucked){
+      hdr.classList.remove('tucked'); tucked=false;
+    }
+    if(Math.abs(dy)>THRESHOLD) lastY=y;
+    ticking=false;
+  }
+  window.addEventListener('scroll',()=>{
+    if(!ticking){ requestAnimationFrame(onScroll); ticking=true; }
+  },{passive:true});
+  document.getElementById('search').addEventListener('focus',()=>{
+    hdr.classList.remove('tucked'); tucked=false;
+  });
+})();
+
+// Add-to-Home-Screen hint (iOS Safari only, dismissible, hidden when standalone)
+(function(){
+  const hint=document.getElementById('installHint');
+  const standalone = window.navigator.standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches;
+  let dismissed=false;
+  try{ dismissed = localStorage.getItem('kanto-installhint')==='off'; }catch(e){}
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(!standalone && !dismissed && isIOS) hint.classList.add('show');
+  hint.addEventListener('click',()=>{
+    hint.classList.remove('show');
+    try{ localStorage.setItem('kanto-installhint','off'); }catch(e){}
+  });
+})();
+updateFilterLabel();
+
+// ============ CONTROLS ============
+document.getElementById('setupDone').addEventListener('click',()=>{
+  setupManualOpen=false;
+  try{ localStorage.setItem('kanto-setup','closed'); }catch(e){}
+  renderSetup();
+});
+document.getElementById('setupSummary').addEventListener('click',()=>{
+  setupManualOpen=true;
+  try{ localStorage.setItem('kanto-setup','open'); }catch(e){}
+  renderSetup();
+});
+document.getElementById('viewAsSel').addEventListener('change',e=>{
+  viewAs=e.target.value;
+  try{ localStorage.setItem('kanto-viewas',viewAs); }catch(e){}
+  render();
+});
+document.querySelectorAll('.chip[data-filter]').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); filter=c.dataset.filter; render(); updateFilterLabel();
+}));
+document.getElementById('hideDone').addEventListener('click',function(){
+  hideDone=!hideDone; this.classList.toggle('on',hideDone); render(); updateFilterLabel();
+});
 document.getElementById('collapseAll').addEventListener('click',function(){
-  // if anything is open, shut everything; otherwise open everything
   const anyOpen = ROUTES.some(r=>!collapsed[r.area]);
   collapsed = {};
   if(anyOpen) ROUTES.forEach(r=>{ collapsed[r.area]=true; });
@@ -1172,25 +1302,37 @@ document.getElementById('collapseAll').addEventListener('click',function(){
   this.textContent = anyOpen ? '⊞ ALL' : '⊟ ALL';
 });
 document.getElementById('search').addEventListener('input',e=>{ search=e.target.value; render(); });
-['p1name','p2name'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
-  names[id==='p1name'?'p1':'p2']=e.target.value||(id==='p1name'?'Player 1':'Player 2');
-  set(namesRef,names).catch(e=>console.error(e));
-}));
-['p1ver','p2ver','p1starter','p2starter'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
-  names[id]=e.target.value; set(namesRef,names).catch(e=>console.error(e)); applyPlayerColors();
-}));
 document.getElementById('resetBtn').addEventListener('click',()=>{
-  if(confirm('Reset ALL caught progress, notes and claims for both trainers?')){
+  if(confirm('Reset ALL caught progress, notes and claims for every player?')){
     progress={}; notes={}; claims={};
     set(progressRef,progress); set(notesRef,notes); set(claimsRef,claims);
   }
 });
 
-updateFilterLabel();
+// ============ LIVE SYNC ============
+onValue(playersRef, s=>{
+  const v=s.val();
+  if(Array.isArray(v) && v.length){ players=v.filter(Boolean); }
+  else if(!players.length){ players=defaultPlayers(); }
+  if(!players.some(p=>p.id===viewAs)) viewAs=players[0].id;
+  players.forEach(p=>{ if(typeof p.badges!=='number') p.badges=0; });
+  render();
+});
 onValue(progressRef,s=>{ progress=s.val()||{}; render(); });
-onValue(namesRef,s=>{ const v=s.val(); if(v) names={...names,...v}; render(); });
 onValue(notesRef,s=>{ notes=s.val()||{}; render(); });
 onValue(claimsRef,s=>{ claims=s.val()||{}; render(); });
+
+// one-time migration from the old two-player `names` node
+onValue(namesRef, s=>{
+  const v=s.val();
+  if(!v) return;
+  if(players.length && players.some(p=>!/^Player \d$/.test(p.name))) return; // already set up
+  const migrated=[
+    {id:'p1',name:v.p1||'Player 1',ver:v.p1ver||'LG',starter:v.p1starter||'',badges:0},
+    {id:'p2',name:v.p2||'Player 2',ver:v.p2ver||'FR',starter:v.p2starter||'',badges:0}
+  ];
+  if(migrated.some(p=>!/^Player \d$/.test(p.name))){ players=migrated; savePlayers(); render(); }
+});
 </script>
 </body>
 </html>
