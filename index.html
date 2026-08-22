@@ -411,11 +411,16 @@
   /* badge pips */
   .badges{display:flex;gap:3px;align-items:center;flex-wrap:nowrap;}
   .badge{
-    width:15px;height:15px;border-radius:50%;
-    border:1.5px solid var(--ink);background:var(--parch-3);
-    cursor:pointer;flex-shrink:0;
+    width:22px;height:22px;flex-shrink:0;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    border:none;background:none;padding:0;
+    filter:grayscale(1) opacity(.32);
+    transition:filter .15s ease, transform .12s ease;
   }
-  .badge.earned{border-color:var(--navy-dk);box-shadow:inset 0 0 0 1px #fff;}
+  .badge svg, .badge img{width:100%;height:100%;display:block;object-fit:contain;}
+  .badge.earned{filter:none;}
+  .badge.earned svg, .badge.earned img{filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));}
+  .badge:active{transform:scale(.88);}
   .badge-count{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--ink);white-space:nowrap;}
   .badge-row{display:flex;align-items:center;gap:6px;flex-basis:100%;margin-top:2px;flex-wrap:wrap;}
   .badge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);font-weight:600;}
@@ -441,7 +446,7 @@
   .sum-badges{font-size:9px;color:#a87800;font-weight:700;}
 
   @media (max-width:640px){
-    .badge{width:18px;height:18px;}
+    .badge{width:26px;height:26px;}
     .checks[data-n="3"] .check{width:36px;height:34px;}
     .checks[data-n="4"] .check{width:31px;height:34px;}
     .checks[data-n="5"] .check{width:27px;height:34px;}
@@ -764,6 +769,42 @@ function saveCollapsed(){ try{ localStorage.setItem('kanto-collapsed', JSON.stri
 // Player IDs p1/p2 are preserved so existing Firebase progress keeps working.
 const MAX_PLAYERS = 6;
 const GYMS = ['Boulder','Cascade','Thunder','Rainbow','Soul','Marsh','Volcano','Earth'];
+const GYM_CITY = ['Pewter','Cerulean','Vermilion','Celadon','Fuchsia','Saffron','Cinnabar','Viridian'];
+// ---- BADGE ART ----------------------------------------------------------
+// Drop your own PNGs into a /badges folder in the repo and flip this to true.
+// Expected filenames: boulder.png cascade.png thunder.png rainbow.png
+//                     soul.png marsh.png volcano.png earth.png
+const USE_BADGE_IMAGES = false;
+const BADGE_FILES = ['boulder','cascade','thunder','rainbow','soul','marsh','volcano','earth'];
+
+function badgeArt(gi){
+  if(USE_BADGE_IMAGES){
+    return `<img src="badges/${BADGE_FILES[gi]}.png" alt="" `+
+           `onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\'>'+BADGE_FALLBACK[${gi}]+'</svg>'">`;
+  }
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${BADGE_FALLBACK[gi]}</svg>`;
+}
+
+// Original simplified shapes — used as the default, and as a fallback if an
+// image file is missing. Nothing copyrighted is embedded here.
+const BADGE_FALLBACK = [
+  // Boulder — angular grey stone
+  '<polygon points="12,3 20,9 17,20 7,20 4,9" fill="#8d8477" stroke="#5c554a" stroke-width="1.5"/>',
+  // Cascade — blue droplet
+  '<path d="M12 3 C7 10 5 13 5 16 a7 7 0 0 0 14 0 C19 13 17 10 12 3z" fill="#3d9be0" stroke="#1f6394" stroke-width="1.5"/>',
+  // Thunder — yellow bolt
+  '<polygon points="13,2 5,13 11,13 9,22 19,10 13,10" fill="#f5c518" stroke="#a37f00" stroke-width="1.5"/>',
+  // Rainbow — four petals
+  '<g stroke="#7a5a20" stroke-width="1.2"><circle cx="12" cy="6.5" r="4" fill="#e0574c"/><circle cx="17.5" cy="12" r="4" fill="#f0c419"/><circle cx="12" cy="17.5" r="4" fill="#4caf50"/><circle cx="6.5" cy="12" r="4" fill="#5b8fd6"/><circle cx="12" cy="12" r="2.4" fill="#fff3c4"/></g>',
+  // Soul — pink heart
+  '<path d="M12 21 C4 14.5 3 10.5 5.5 7.8 A4.6 4.6 0 0 1 12 8 a4.6 4.6 0 0 1 6.5-.2 C21 10.5 20 14.5 12 21z" fill="#e874a8" stroke="#a83f74" stroke-width="1.5"/>',
+  // Marsh — gold disc with inner ring
+  '<g><circle cx="12" cy="12" r="9" fill="#e0a91c" stroke="#8f6a00" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="#fff0b8" stroke="#8f6a00" stroke-width="1.2"/></g>',
+  // Volcano — red flame
+  '<path d="M12 2 C13 7 17 8 17 13 a5 5 0 0 1-10 0 C7 10 9 9 9.5 6 C11 8 11 9 12 2z" fill="#e0472c" stroke="#8f2412" stroke-width="1.5"/>',
+  // Earth — green leaf
+  '<path d="M20 4 C10 4 4 9 4 15 a5 5 0 0 0 5 5 C15 20 20 13 20 4z" fill="#4f9c3a" stroke="#2c6320" stroke-width="1.5"/><path d="M18 6 C13 9 10 13 8.5 18" stroke="#2c6320" stroke-width="1.2" fill="none"/>'
+];
 const VER_LABEL={FR:'FireRed',LG:'LeafGreen'};
 const STARTER_LABEL={B:'Bulbasaur',C:'Charmander',S:'Squirtle'};
 
@@ -821,8 +862,7 @@ function applyPlayerColors(){
          `.check.${p.id}.on{background:var(--${p.id}c);color:#fff;border-color:var(--${p.id}c-dk);`+
            `box-shadow:inset 0 0 0 1px var(--${p.id}c-lt), 0 2px 0 var(--${p.id}c-dk);}`+
          `.claim-btn.${p.id}{background:var(--${p.id}c);border-color:var(--${p.id}c-dk);color:#fff;}`+
-         `.evo-${p.id}{color:var(--${p.id}c);font-weight:700;}`+
-         `.badge.earned.${p.id}{background:var(--${p.id}c);}`;
+         `.evo-${p.id}{color:var(--${p.id}c);font-weight:700;}`;
   });
   let tag=document.getElementById('playerColors');
   if(!tag){ tag=document.createElement('style'); tag.id='playerColors'; document.head.appendChild(tag); }
@@ -890,11 +930,12 @@ function renderPlayerCards(){
         <option value="S"${p.starter==='S'?' selected':''}>Squirtle</option>
       </select>
       <div class="badge-row">
-        <span class="badge-label">BADGES</span>
+        <span class="badge-label">GYM BADGES</span>
         <div class="badges">${GYMS.map((g,gi)=>
-          `<div class="badge ${gi<p.badges?'earned '+p.id:''}" data-badge="${p.id}" data-lvl="${gi+1}" title="${g}"></div>`
+          `<div class="badge ${gi<p.badges?'earned':''}" data-badge="${p.id}" data-lvl="${gi+1}" title="${g} Badge — ${GYM_CITY[gi]} Gym">`+
+          badgeArt(gi)+`</div>`
         ).join('')}</div>
-        <span class="badge-count">${p.badges}/8</span>
+        <span class="badge-count">${p.badges}/8${p.badges?' — '+GYMS[p.badges-1]:''}</span>
       </div>`;
     wrap.appendChild(card);
   });
@@ -947,7 +988,7 @@ function renderSetup(){
   sum.innerHTML = players.map(p=>
     `<span class="seg"><span class="dot ${p.id}"></span>${p.name}`+
     `<span class="sub2">${VER_LABEL[p.ver]} · ${STARTER_LABEL[p.starter]}</span>`+
-    `<span class="sum-badges">${p.badges}/8</span></span>`
+    `<span class="sum-badges">${p.badges}/8 badges</span></span>`
   ).join('') + '<span class="edit">EDIT ▸</span>';
 }
 
