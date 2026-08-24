@@ -45,17 +45,30 @@
   }
   *{box-sizing:border-box;}
   html{
-    background:
-      repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 4px),
-      linear-gradient(180deg,#78a8d8 0%, #a8d0e8 100%);
-    background-attachment:fixed;
-    background-color:#a8d0e8;
+    background:#a8d0e8;
     min-height:100%;
+  }
+  /* The striped backdrop lives on its own fixed, composited layer.
+     Using background-attachment:fixed here instead forces a full-screen
+     repaint on every scroll frame in iOS Safari — that's what caused the jank. */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 3px, transparent 3px 6px),
+      linear-gradient(180deg,#78a8d8 0%, #a8d0e8 100%);
+    transform:translateZ(0);
+    will-change:transform;
+    pointer-events:none;
   }
   body{
     margin:0;
     background:transparent;
-    min-height:100dvh;
+    /* No min-height here: 100dvh changes value as Safari's bars collapse,
+       which reflows the whole page mid-scroll. The fixed ::before already
+       covers the viewport, so nothing is gained by it. */
     color:var(--ink-dk);
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
@@ -80,13 +93,16 @@
     box-shadow:0 2px 0 rgba(0,0,0,.15);
     transition:transform .22s ease;
     will-change:transform;
+    transform:translateZ(0);
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
   }
   /* standalone (Home Screen) has no browser chrome, so clear the status bar ourselves */
   @media (display-mode:standalone){
     header{padding-top:calc(12px + env(safe-area-inset-top));}
   }
   /* slides up out of the way when scrolling down, returns on scroll up */
-  header.tucked{transform:translateY(-100%);}
+  header.tucked{transform:translate3d(0,-100%,0);}
   .title-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
   h1{
     font-family:'Press Start 2P',monospace;font-size:12px;margin:0;
@@ -317,6 +333,29 @@
   .evo-both{color:#a87800;font-weight:700;}
   .evo-none{color:var(--muted);}
   .evo-foot{margin-top:4px;padding-top:4px;border-top:1px solid var(--parch-3);color:var(--muted);font-size:9.5px;}
+  .tag.ease-common{color:#255c1a;background:#dff2d2;border-color:#4f9c3a;}
+  .tag.ease-uncommon{color:#2c4f6b;background:#daeaf6;border-color:#4878a8;}
+  .tag.ease-scarce{color:#7a4a00;background:#fbe8c4;border-color:#c08a1e;}
+  .tag.ease-grind{color:#fff;background:#a02818;border-color:#6b1a0f;}
+  .enc-head{
+    font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.6px;
+    color:var(--muted);margin:5px 0 3px;padding-top:4px;border-top:1px solid var(--parch-3);
+  }
+  .enc-head:first-child{border-top:none;padding-top:0;margin-top:0;}
+  .enc-line{display:flex;gap:6px;align-items:baseline;font-size:10.5px;line-height:1.6;flex-wrap:wrap;}
+  .enc-rate{
+    font-weight:700;min-width:38px;text-align:right;font-size:10px;
+    padding:0 4px;border-radius:3px;flex-shrink:0;
+  }
+  .enc-rate.common{color:#255c1a;background:#dff2d2;}
+  .enc-rate.uncommon{color:#2c4f6b;background:#daeaf6;}
+  .enc-rate.scarce{color:#7a4a00;background:#fbe8c4;}
+  .enc-rate.grind{color:#fff;background:#a02818;}
+  .enc-rate.item{color:#583c00;background:#f8e8b8;}
+  .enc-area{color:var(--ink-dk);font-weight:600;}
+  .enc-lv{color:var(--muted);font-size:9.5px;}
+  .enc-tip{font-size:9.5px;color:#7a4a00;margin:3px 0 2px;line-height:1.5;}
+  .enc-tip.good{color:#255c1a;}
   .note-row{margin-top:5px;display:none;}
   .note-row.open{display:block;}
   .note-row input{
@@ -626,6 +665,44 @@ function familyOf(n){
   return out;
 }
 
+const ENC = {"16":[["Route 1","FRLG",50.0,2,5],["Route 2","FRLG",45.0,2,5],["Route 5","FRLG",40.0,13,16],["Route 3","FRLG",30.0,6,7]],"19":[["Route 1","FRLG",50.0,2,4],["Route 22","FRLG",45.0,2,5],["Route 2","FRLG",45.0,2,5],["Route 9","FRLG",40.0,14,17]],"56":[["Route 22","FRLG",45.0,2,5],["Route 10 (Rock Tunnel) 1F","FRLG",15.0,16,17],["Route 10 (Rock Tunnel) B1F","FRLG",15.0,16,17],["Route 3","FRLG",10.0,7,7]],"21":[["Route 3","FRLG",35.0,6,8],["Route 4","FRLG",35.0,8,12],["Route 11","FRLG",35.0,13,17],["Route 9","FRLG",35.0,13,17],["Mt. Ember","FR",15.0,30,32],["Mt. Ember","LG",10.0,32,32]],"10":[["Viridian Forest","FRLG",40.0,3,5],["Route 24","FRLG",20.0,7,7],["Route 2","FRLG",5.0,4,5]],"13":[["Viridian Forest","FRLG",40.0,3,5],["Route 24","FRLG",20.0,7,7],["Route 2","FRLG",5.0,4,5]],"11":[["Viridian Forest","LG",10.0,4,6],["Viridian Forest","FR",5.0,5,5],["Route 24","LG",4.0,8,8],["Route 24","FR",1.0,8,8]],"14":[["Viridian Forest","FR",10.0,4,6],["Viridian Forest","LG",5.0,5,5],["Route 24","FR",4.0,8,8],["Route 24","LG",1.0,8,8]],"25":[["Viridian Forest","FRLG",5.0,3,5]],"32":[["Safari Zone (Center Area)","FR",20.0,22,22],["Safari Zone (Area 1)","FR",20.0,24,24],["Safari Zone (Area 2)","FR",20.0,30,30],["Safari Zone (Area 3)","FR",20.0,22,22],["Safari Zone (Area 1)","LG",5.0,24,24],["Safari Zone (Area 3)","LG",5.0,30,30],["Route 3","LG",1.0,6,6]],"29":[["Safari Zone (Center Area)","LG",20.0,22,22],["Safari Zone (Area 1)","LG",20.0,24,24],["Safari Zone (Area 2)","LG",20.0,30,30],["Safari Zone (Area 3)","LG",20.0,22,22],["Safari Zone (Area 1)","FR",5.0,24,24],["Safari Zone (Area 3)","FR",5.0,30,30],["Route 3","FR",1.0,6,6]],"39":[["Route 3","FRLG",10.0,3,7]],"41":[["Mt. Moon 1F","FRLG",69.0,7,10],["Mt. Moon B2F","FRLG",49.0,8,11],["Seafoam Islands 1F","FRLG",34.0,22,26],["Seafoam Islands B1F","FRLG",34.0,22,26]],"74":[["Kindle Road","FRLG",95.0,5,30],["Route 10 (Rock Tunnel) 1F","FRLG",35.0,15,17],["Route 10 (Rock Tunnel) B1F","FRLG",35.0,15,17],["Mt. Moon B2F","FRLG",30.0,9,10]],"46":[["Mt. Moon B1F","FRLG",100.0,5,10],["Mt. Moon B2F","FRLG",15.0,10,12],["Safari Zone (Area 1)","FRLG",15.0,22,22],["Safari Zone (Area 2)","FRLG",15.0,23,23]],"35":[["Mt. Moon B2F","FRLG",6.0,10,12],["Mt. Moon 1F","FRLG",1.0,8,8]],"23":[["Route 11","FR",40.0,12,15],["Route 4","FR",25.0,6,12],["Route 9","FR",25.0,11,17],["Route 10 (North)","FR",25.0,11,17]],"27":[["Route 11","LG",40.0,12,15],["Route 4","LG",25.0,6,12],["Route 9","LG",25.0,11,17],["Route 10 (North)","LG",25.0,11,17]],"43":[["Route 12","FR",35.0,22,26],["Route 13","FR",35.0,22,26],["Route 14","FR",35.0,22,26],["Route 15","FR",35.0,22,26]],"69":[["Route 12","LG",35.0,22,26],["Route 13","LG",35.0,22,26],["Route 14","LG",35.0,22,26],["Route 15","LG",35.0,22,26]],"63":[["Route 24","FRLG",15.0,8,12]],"52":[["Route 7","FRLG",40.0,17,20],["Route 5","FRLG",35.0,10,16],["Route 8","FRLG",30.0,18,20],["Treasure Beach","FRLG",10.0,31,31]],"129":[["Vermilion City","FRLG",100.0,0,0],["Vermilion Harbor","FRLG",100.0,5,5],["Route 11","FRLG",100.0,5,5],["Route 10 (North)","FRLG",100.0,5,5]],"96":[["Route 11","FRLG",25.0,11,15]],"100":[["Route 10 (North)","FRLG",40.0,14,17]],"66":[["Route 10 (Rock Tunnel) 1F","FRLG",15.0,16,17],["Route 10 (Rock Tunnel) B1F","FRLG",10.0,17,17],["Mt. Ember","FRLG",10.0,35,35]],"95":[["Route 10 (Rock Tunnel) B1F","FRLG",10.0,13,17],["Route 10 (Rock Tunnel) 1F","FRLG",5.0,13,15]],"37":[["Route 8","LG",20.0,15,18],["Pokemon Mansion 1F-3F","LG",15.0,30,32],["Pokemon Mansion B1F","LG",15.0,30,32],["Route 7","LG",10.0,18,20]],"58":[["Route 8","FR",20.0,15,18],["Pokemon Mansion 1F-3F","FR",15.0,30,32],["Pokemon Mansion B1F","FR",15.0,30,32],["Route 7","FR",10.0,18,20]],"92":[["Pokemon Tower 3F","FRLG",90.0,13,19],["Pokemon Tower 4F-5F","FRLG",86.0,13,19],["Pokemon Tower 6F","FRLG",85.0,14,19],["Pokemon Tower 7F","FRLG",75.0,15,19]],"104":[["Pokemon Tower 7F","FRLG",10.0,17,19],["Pokemon Tower 3F","FRLG",9.0,15,17],["Pokemon Tower 4F-5F","FRLG",9.0,15,17],["Pokemon Tower 6F","FRLG",9.0,17,19]],"93":[["Pokemon Tower 7F","FRLG",15.0,23,25],["Pokemon Tower 6F","FRLG",6.0,21,23],["Pokemon Tower 4F-5F","FRLG",5.0,20,20],["Pokemon Tower 3F","FRLG",1.0,20,20]],"105":[["Pokemon Tower 6F","FRLG",100.0,30,30]],"48":[["Route 12","FRLG",30.0,24,26],["Route 13","FRLG",30.0,24,26],["Route 14","FRLG",30.0,24,26],["Route 15","FRLG",30.0,24,26]],"44":[["Route 12","FR",5.0,28,30],["Route 13","FR",5.0,28,30],["Route 14","FR",5.0,30,30],["Route 15","FR",5.0,28,30]],"70":[["Route 12","LG",5.0,28,30],["Route 13","LG",5.0,28,30],["Route 14","LG",5.0,30,30],["Route 15","LG",5.0,28,30]],"72":[["Route 12","FRLG",100.0,5,40],["Route 13","FRLG",100.0,5,40],["Route 19","FRLG",100.0,5,40],["Cinnabar Island","FRLG",100.0,5,40]],"98":[["Route 12","LG",84.0,15,35],["Route 13","LG",84.0,15,35],["Route 19","LG",80.0,15,25],["Seafoam Islands (Surf or Fish)","LG",80.0,15,30],["Route 12","FR",20.0,5,15],["Route 13","FR",20.0,5,15],["Route 19","FR",20.0,5,15],["Seafoam Islands (Surf or Fish)","FR",20.0,5,15]],"116":[["Route 12","FR",84.0,15,35],["Route 13","FR",84.0,15,35],["Route 19","FR",80.0,15,25],["Seafoam Islands (Surf or Fish)","FR",80.0,15,30],["Route 12","LG",20.0,5,15],["Route 13","LG",20.0,5,15],["Route 19","LG",20.0,5,15],["Seafoam Islands (Surf or Fish)","LG",20.0,5,15]],"130":[["Seafoam Islands (Surf or Fish)","FRLG",16.0,15,35],["Route 12","FRLG",15.0,15,25],["Route 13","FRLG",15.0,15,25],["Fuchsia City","FRLG",15.0,15,25]],"54":[["Fuchsia City","FR",100.0,20,40],["Seafoam Islands 1F","FR",55.0,26,33],["Seafoam Islands B1F","FR",40.0,29,31],["Seafoam Islands B2F","FR",40.0,30,32]],"79":[["Fuchsia City","LG",100.0,20,40],["Seafoam Islands 1F","LG",55.0,26,33],["Seafoam Islands B1F","LG",40.0,29,31],["Seafoam Islands B2F","LG",40.0,30,32]],"143":[["Route 12 (Roadblock)","FRLG",100.0,30,30],["Route 16 (Roadblock)","FRLG",100.0,30,30]],"17":[["Route 13","FRLG",5.0,29,29],["Route 14","FRLG",5.0,29,29],["Route 15","FRLG",5.0,29,29]],"132":[["Route 14","FRLG",15.0,23,23],["Pokemon Mansion B1F","FRLG",10.0,30,30],["Route 13","FRLG",5.0,25,25],["Route 15","FRLG",5.0,25,25]],"60":[["Fuchsia City","FRLG",60.0,5,15],["Safari Zone (Fishing)","FRLG",20.0,5,15]],"118":[["Safari Zone (Fishing)","FRLG",60.0,5,15],["Fuchsia City","FRLG",60.0,5,15]],"102":[["Safari Zone (Center Area)","FRLG",20.0,24,25],["Safari Zone (Area 1)","FRLG",20.0,23,25],["Safari Zone (Area 2)","FRLG",20.0,25,27],["Safari Zone (Area 3)","FRLG",20.0,25,27]],"111":[["Safari Zone (Center Area)","FRLG",20.0,25,25],["Safari Zone (Area 2)","FRLG",20.0,26,26]],"30":[["Safari Zone (Center Area)","LG",10.0,31,31],["Safari Zone (Area 1)","LG",10.0,33,33],["Safari Zone (Area 2)","LG",10.0,30,30],["Safari Zone (Area 3)","LG",10.0,30,30],["Safari Zone (Center Area)","FR",5.0,31,31],["Safari Zone (Area 2)","FR",5.0,30,30]],"33":[["Safari Zone (Center Area)","FR",10.0,31,31],["Safari Zone (Area 1)","FR",10.0,33,33],["Safari Zone (Area 2)","FR",10.0,30,30],["Safari Zone (Area 3)","FR",10.0,30,30],["Safari Zone (Center Area)","LG",5.0,31,31],["Safari Zone (Area 2)","LG",5.0,30,30]],"47":[["Safari Zone (Center Area)","FRLG",5.0,30,30],["Safari Zone (Area 1)","FRLG",5.0,25,25]],"123":[["Safari Zone (Center Area)","FR",4.0,23,23],["Safari Zone (Area 1)","FR",1.0,28,28]],"127":[["Safari Zone (Center Area)","LG",4.0,23,23],["Safari Zone (Area 1)","LG",1.0,28,28]],"113":[["Safari Zone (Area 2)","FRLG",4.0,26,26],["Safari Zone (Center Area)","FRLG",1.0,23,23]],"84":[["Route 18","FRLG",35.0,24,28],["Route 17","FRLG",35.0,24,28],["Route 16","FRLG",35.0,18,22],["Safari Zone (Area 1)","FRLG",20.0,26,26]],"115":[["Safari Zone (Area 1)","FRLG",4.0,25,25],["Safari Zone (Area 3)","FRLG",1.0,28,28]],"49":[["Safari Zone (Area 2)","FRLG",5.0,32,32],["Safari Zone (Area 3)","FRLG",5.0,32,32]],"128":[["Safari Zone (Area 3)","FRLG",4.0,35,35],["Safari Zone (Area 2)","FRLG",1.0,28,28]],"20":[["Pokemon Mansion 1F-3F","FRLG",30.0,32,36],["Pokemon Mansion B1F","FRLG",30.0,34,38],["Route 17","FRLG",25.0,25,29],["Route 18","FRLG",15.0,25,29]],"22":[["Mt. Ember","FRLG",25.0,38,40],["Treasure Beach","FRLG",20.0,36,40],["Route 18","FRLG",15.0,25,29],["Kindle Road","FRLG",10.0,26,26]],"119":[["Fuchsia City","FRLG",40.0,20,30]],"99":[["Route 19","LG",4.0,25,35]],"117":[["Route 19","FR",4.0,25,35],["Cinnabar Island","FR",4.0,25,35]],"42":[["Seafoam Islands B4F","FRLG",15.0,26,30],["Seafoam Islands 1F","FRLG",11.0,26,30],["Seafoam Islands B1F","FRLG",11.0,26,30],["Seafoam Islands B2F","FRLG",10.0,26,30]],"86":[["Seafoam Islands (Surf or Fish)","FRLG",60.0,25,35],["Seafoam Islands B4F","FRLG",50.0,30,34],["Seafoam Islands B3F","FRLG",40.0,30,32],["Seafoam Islands B2F","FRLG",20.0,30,32]],"55":[["Seafoam Islands B3F","FR",15.0,32,34],["Seafoam Islands B4F","FR",15.0,32,34],["Seafoam Islands B2F","FR",10.0,32,34],["Seafoam Islands B1F","FR",5.0,33,35]],"80":[["Seafoam Islands B3F","LG",15.0,32,34],["Seafoam Islands B4F","LG",15.0,32,34],["Seafoam Islands B2F","LG",10.0,32,34],["Seafoam Islands B1F","LG",5.0,33,35]],"87":[["Seafoam Islands B4F","FRLG",10.0,34,36],["Seafoam Islands B3F","FRLG",5.0,32,34],["Seafoam Islands (Surf or Fish)","FRLG",5.0,35,40]],"144":[["Seafoam Islands B4F","FRLG",100.0,50,50]],"90":[["Cinnabar Island","FR",40.0,15,25]],"120":[["Cinnabar Island","LG",40.0,15,25]],"88":[["Pokemon Mansion 1F-3F","LG",30.0,28,30],["Pokemon Mansion B1F","LG",30.0,28,30],["Pokemon Mansion 1F-3F","FR",5.0,28,28],["Pokemon Mansion B1F","FR",5.0,28,28]],"109":[["Pokemon Mansion 1F-3F","FR",30.0,28,30],["Pokemon Mansion B1F","FR",30.0,28,30],["Pokemon Mansion 1F-3F","LG",5.0,28,28],["Pokemon Mansion B1F","LG",5.0,38,38]],"89":[["Pokemon Mansion 1F-3F","LG",5.0,32,32],["Pokemon Mansion B1F","LG",5.0,34,34]],"110":[["Pokemon Mansion 1F-3F","FR",5.0,32,32],["Pokemon Mansion B1F","FR",5.0,34,34]],"73":[["One Island","FRLG",5.0,35,40]],"114":[["Treasure Beach","FRLG",30.0,33,35]],"53":[["Treasure Beach","FRLG",5.0,37,40],["Kindle Road","FRLG",5.0,37,40]],"77":[["Mt. Ember","FRLG",35.0,30,36],["Kindle Road","FRLG",30.0,31,34]],"78":[["Kindle Road","FRLG",5.0,37,40],["Mt. Ember","FRLG",5.0,39,42]],"75":[["Kindle Road","FRLG",5.0,25,40]],"126":[["Mt. Ember","LG",5.0,38,40]],"146":[["Mt. Ember","FRLG",100.0,50,50]]};
+const PRIZE = {"63":{"FR":{"c":180,"lv":9},"LG":{"c":120,"lv":7}},"35":{"FR":{"c":500,"lv":8},"LG":{"c":750,"lv":12}},"147":{"FR":{"c":2800,"lv":18},"LG":{"c":4600,"lv":24}},"123":{"FR":{"c":5500,"lv":25}},"127":{"LG":{"c":2500,"lv":18}},"137":{"FR":{"c":9999,"lv":26},"LG":{"c":6500,"lv":18}}};
+
+// ENC[dex] = [[area, game, rate%, lvLo, lvHi], ...] — best areas first.
+// Parsed from the hand-entered encounter CSV; every area's rates total 100%.
+// Ease band from the best rate available to the player's own version.
+function encFor(n, ver){
+  const rows=ENC[n]||[];
+  return rows.filter(r=>r[1]==='FRLG'||r[1]===ver);
+}
+function bestRate(n, ver){
+  const r=encFor(n,ver);
+  return r.length ? Math.max(...r.map(x=>x[2])) : null;
+}
+function easeBand(rate){
+  if(rate===null) return null;
+  if(rate>=25) return {k:'common',   label:'COMMON'};
+  if(rate>=10) return {k:'uncommon', label:rate+'%'};
+  if(rate>=3)  return {k:'scarce',   label:rate+'%'};
+  return {k:'grind', label:rate+'% GRIND'};
+}
+// Lowest level you can encounter it at, and the highest — the high end matters
+// because catching late can skip a long grind to the evolution level.
+function levelRange(n, ver){
+  const r=encFor(n,ver); if(!r.length) return null;
+  return [Math.min(...r.map(x=>x[3])), Math.max(...r.map(x=>x[4]))];
+}
+// How many levels of grinding until it evolves, if you catch it at its best spot.
+function evoAdvice(n, ver){
+  const evo=(EVO[n]||[])[0]; if(!evo) return null;
+  const m=/^Lv(\d+)$/.exec(evo.how); if(!m) return null;
+  const need=+m[1];
+  const lr=levelRange(n,ver); if(!lr) return null;
+  const gapLow=need-lr[1];
+  if(gapLow<=0) return {txt:'catchable at or past Lv'+need+' — evolves immediately', good:true};
+  return {txt:'catch at Lv'+lr[1]+' (best spot) → '+gapLow+' levels to Lv'+need, good:gapLow<=6};
+}
+
 const ROUTES = [
   { area:"Pallet Town — Starters", note:"You've both already traded for all three.", mons:[
     {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"}
@@ -641,8 +718,8 @@ const ROUTES = [
     {n:10,name:"Caterpie"},{n:11,name:"Metapod"},{n:13,name:"Weedle"},{n:14,name:"Kakuna"},
     {n:25,name:"Pikachu",t:"Viridian Forest"}
   ]},
-  { area:"Route 3", mons:[
-    {n:39,name:"Jigglypuff"},{n:29,name:"Nidoran♀"},{n:32,name:"Nidoran♂"}
+  { area:"Route 3", note:"NIDORAN: the one matching your version is common; the other is only ~1% here. FireRed sees ♂ commonly, LeafGreen sees ♀. Don't grind for the off-version one — catch TWO of your common gender and trade the spare to the Route 5 NPC for the opposite. (LeafGreen players can also get ♂ in the Safari Zone.)", mons:[
+    {n:39,name:"Jigglypuff"},{n:29,name:"Nidoran♀",t:"common in LG, 1% in FR"},{n:32,name:"Nidoran♂",t:"common in FR, 1% in LG"}
   ]},
   { area:"Mt. Moon", note:"Fossil choice here — one only. Two Moon Stones on this map.", mons:[
     {n:41,name:"Zubat"},{n:74,name:"Geodude"},{n:35,name:"Clefairy"},{n:46,name:"Paras"}
@@ -655,7 +732,7 @@ const ROUTES = [
   { area:"Routes 24 & 25 (Nugget Bridge → Bill)", mons:[
     {n:63,name:"Abra"},{n:43,name:"Oddish"},{n:69,name:"Bellsprout"}
   ]},
-  { area:"Routes 5 & 6 → Vermilion", note:"Nidoran♀ is on Route 5 in FR only; Nidoran♂ on Route 5 in LG only. Day Care is on Route 5.", mons:[
+  { area:"Routes 5 & 6 → Vermilion", note:"NIDORAN FIX: the Underground Path NPC here trades you the opposite-gender Nidoran. Bring a spare of whichever one your version gives you commonly — this is the intended way to get both, not grinding the 1% spawn on Route 3. Day Care is also on Route 5.", mons:[
     {n:52,name:"Meowth"}
   ]},
   { area:"Vermilion City", note:"OLD ROD: yellow house west of the Pokémon Center. S.S. Anne has no wild encounters.", mons:[
@@ -687,7 +764,7 @@ const ROUTES = [
   { area:"Routes 16–18 (Cycling Road)", note:"HM02 Fly is in a house off Route 16.", mons:[
     {n:84,name:"Doduo"},{n:20,name:"Raticate"},{n:22,name:"Fearow"}
   ]},
-  { area:"Fuchsia City & Safari Zone", note:"GOOD ROD: second brown house east of the Pokémon Center. 600 steps / 25 balls per run. Gold Teeth → HM04. HM03 Surf is in the Zone.", mons:[
+  { area:"Fuchsia City & Safari Zone", note:"GOOD ROD: second brown house east of the Pokémon Center. 600 steps / 25 balls per run. ROCKS double your catch factor, BAIT halves it — throw rocks at Chansey/Kangaskhan/Tauros/Scyther/Pinsir, never bait (it raises flee chance though, so throw a ball soon after). Gold Teeth → HM04. HM03 Surf is in the Zone.", mons:[
     {n:113,name:"Chansey"},{n:115,name:"Kangaskhan"},{n:128,name:"Tauros"},{n:111,name:"Rhyhorn"},
     {n:102,name:"Exeggcute"},{n:47,name:"Parasect"},{n:49,name:"Venomoth"},
     {n:148,name:"Dragonair",t:"Super Rod"},{n:119,name:"Seaking",t:"Super Rod"}
@@ -734,7 +811,9 @@ const ROUTES = [
     {n:108,name:"Lickitung",t:"Rt18 — Golduck/Slowbro"},
     {n:101,name:"Electrode",t:"optional — give Raichu"},
     {n:114,name:"Tangela",t:"optional — give Venonat"},
-    {n:86,name:"Seel",t:"optional — give Ponyta"}
+    {n:86,name:"Seel",t:"optional — give Ponyta"},
+    {n:29,name:"Nidoran♀",t:"Rt5 swap — FR gets ♀"},
+    {n:32,name:"Nidoran♂",t:"Rt5 swap — LG gets ♂"}
   ]},
   { area:"⇄ Trade evolutions — you need each other", note:"These four can ONLY be reached by trading. Trade, let it evolve, trade back.", mons:[
     {n:65,name:"Alakazam",t:"⇄ TRADE Kadabra"},{n:68,name:"Machamp",t:"⇄ TRADE Machoke"},
@@ -866,7 +945,9 @@ function applyPlayerColors(){
   });
   let tag=document.getElementById('playerColors');
   if(!tag){ tag=document.createElement('style'); tag.id='playerColors'; document.head.appendChild(tag); }
-  tag.textContent=css;
+  // Only touch the stylesheet if it actually changed — rewriting it forces a
+  // full style recalc across every row.
+  if(tag.textContent!==css) tag.textContent=css;
 }
 
 function savePlayers(){ set(playersRef,players).catch(e=>console.error(e)); }
@@ -1018,9 +1099,34 @@ function renderBars(){
 
 // ============ EVOLUTION FAMILY ============
 function renderFamily(n){
-  const fam=familyOf(n);
-  if(fam.length<2) return '<div class="evo-row"><span class="evo-none">Does not evolve.</span></div>';
+  const ver=playerById(viewAs).ver||'LG';
   let html='<div class="evo-row">';
+
+  // --- where to catch it, and how hard ---
+  const rows=encFor(n,ver);
+  if(rows.length){
+    html+='<div class="enc-head">WILD ENCOUNTERS ('+VER_LABEL[ver]+')</div>';
+    rows.forEach(r=>{
+      const b=easeBand(r[2]);
+      const lv = r[3]===r[4] ? 'Lv'+r[3] : 'Lv'+r[3]+'–'+r[4];
+      html+=`<div class="enc-line"><span class="enc-rate ${b.k}">${r[2]}%</span> `+
+            `<span class="enc-area">${r[0]}</span> <span class="enc-lv">${lv}</span></div>`;
+    });
+    const adv=evoAdvice(n,ver);
+    if(adv) html+=`<div class="enc-tip ${adv.good?'good':''}">⤷ ${adv.txt}</div>`;
+  }
+  const pz=PRIZE[n]&&PRIZE[n][ver];
+  if(pz) html+=`<div class="enc-line"><span class="enc-rate item">PRIZE</span> `+
+    `<span class="enc-area">Game Corner — ${pz.c.toLocaleString()} coins</span> <span class="enc-lv">Lv${pz.lv}</span></div>`;
+
+  // --- family chain ---
+  const fam=familyOf(n);
+  if(fam.length<2){
+    if(!rows.length&&!pz) html+='<span class="evo-none">Does not evolve; no wild encounter recorded.</span>';
+    else html+='<div class="enc-head">EVOLUTION</div><span class="evo-none">Does not evolve.</span>';
+    return html+'</div>';
+  }
+  html+='<div class="enc-head">FAMILY</div>';
   fam.forEach(f=>{
     const holders=players.filter(p=>caughtBy(f.n,p.id));
     const who = holders.length===players.length ? '<span class="evo-both">all ✓</span>'
@@ -1091,6 +1197,10 @@ function render(){
       if(ver==='LG') tags.push('<span class="tag lg">LG ONLY</span>');
       if(m.v==='FR'&&ver!=='FR') tags.push('<span class="tag frhere">FR HERE</span>');
       if(m.v==='LG'&&ver!=='LG') tags.push('<span class="tag lghere">LG HERE</span>');
+      const myVer=playerById(viewAs).ver||'LG';
+      const br=bestRate(m.n,myVer);
+      const bd=easeBand(br);
+      if(bd) tags.push('<span class="tag ease-'+bd.k+'">'+bd.label+'</span>');
       if(m.t){
         let cls='info';
         if(m.t.includes('TRADE')||m.t.includes('give')||m.t.includes('trade')||m.t.includes('swap')) cls='trade';
