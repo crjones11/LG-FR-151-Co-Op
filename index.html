@@ -185,7 +185,8 @@
   #filterToggle .caret{transition:transform .15s ease;display:inline-block;}
   #filterToggle.open .caret{transform:rotate(90deg);}
   .search{
-    flex:1;min-width:130px;background:var(--parch);border:2px solid var(--navy);border-radius:7px;
+    flex:1 1 auto;min-width:0;
+    background:var(--parch);border:2px solid var(--navy);border-radius:7px;
     box-shadow:inset 0 0 0 1px #fff;
     padding:6px 9px;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;font-weight:600;
   }
@@ -357,17 +358,15 @@
   .enc-tip{font-size:9.5px;color:#7a4a00;margin:3px 0 2px;line-height:1.5;}
   .enc-tip.good{color:#255c1a;}
   .sort-wrap{
-    display:flex;align-items:center;gap:5px;
+    display:flex;align-items:center;flex-shrink:0;
     background:var(--parch);border:2px solid var(--navy);border-radius:6px;
     box-shadow:inset 0 0 0 1px #fff, 0 2px 0 var(--navy-dk);
-    padding:3px 7px;
-    font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--ink-dk);
-    letter-spacing:.3px;
+    padding:2px 4px;
   }
   .sort-wrap select{
-    background:var(--parch-2);border:1.5px solid var(--ink);border-radius:4px;
+    background:transparent;border:none;
     color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;
-    padding:2px 3px;outline:none;
+    padding:3px 2px;outline:none;letter-spacing:.3px;
   }
   .flat-head{
     display:flex;align-items:center;gap:9px;margin-bottom:8px;
@@ -447,7 +446,9 @@
     .note-btn{width:30px;height:34px;font-size:15px;}
     .claim-btn{font-size:10px;padding:7px 10px;min-height:34px;}
     .chip{font-size:10.5px;padding:7px 10px;}
-    .search{font-size:16px;}
+    .search{font-size:16px;min-width:0;}
+    .sort-wrap select{font-size:11px;padding:5px 2px;}
+    #filterToggle{padding:7px 8px;}
     .note-row input{font-size:16px;}
     .pcard{flex-basis:100%;flex-wrap:wrap;row-gap:6px;}
     .pcard input{font-size:16px;flex:1 1 auto;min-width:90px;width:auto;}
@@ -534,8 +535,17 @@
   <div class="progress-wrap" id="barsWrap"></div>
   <div class="viewas">I AM: <select id="viewAsSel"></select></div>
   <div class="controls">
-    <input class="search" id="search" placeholder="search name or #num…">
+    <input class="search" id="search" placeholder="search…">
     <div class="chip" id="filterToggle"><span class="caret">▶</span> FILTERS</div>
+    <label class="sort-wrap">
+      <select id="sortSel">
+        <option value="route">Route</option>
+        <option value="dex">#Dex</option>
+        <option value="ease">Easiest</option>
+        <option value="hard">Hardest</option>
+        <option value="name">A–Z</option>
+      </select>
+    </label>
   </div>
   <div class="filter-rows" id="filterRows">
     <div class="chip on" data-filter="all">ALL</div>
@@ -547,15 +557,6 @@
     <div class="chip" data-filter="mine">I CAN'T CATCH</div>
     <div class="chip" id="hideDone">HIDE DONE</div>
     <div class="chip" id="collapseAll">⊟ ALL</div>
-    <label class="sort-wrap">SORT
-      <select id="sortSel">
-        <option value="route">Route order</option>
-        <option value="dex">#Dex number</option>
-        <option value="ease">Easiest first</option>
-        <option value="hard">Hardest first</option>
-        <option value="name">A–Z</option>
-      </select>
-    </label>
   </div>
 </header>
 
