@@ -556,6 +556,8 @@
   </div>
   <div class="filter-rows" id="filterRows">
     <div class="chip on" data-filter="all">ALL</div>
+    <div class="chip" data-filter="mycaught">✓ I'VE CAUGHT</div>
+    <div class="chip" data-filter="myuncaught">○ I STILL NEED</div>
     <div class="chip" data-filter="trade">NEEDS TRADE</div>
     <div class="chip" data-filter="tradeevo">TRADE EVOS</div>
     <div class="chip" data-filter="coord">⚠ COORDINATE</div>
@@ -1198,6 +1200,8 @@ function matches(m){
     if(!m.name.toLowerCase().includes(q) && !String(m.n).includes(q)) return false;
   }
   if(filter==='trade')    return needsTrade(m.n);
+  if(filter==='mycaught')   return caughtBy(m.n, viewAs);
+  if(filter==='myuncaught') return !caughtBy(m.n, viewAs);
   if(filter==='tradeevo') return TRADE_EVO.includes(m.n);
   if(filter==='coord')    return !!COORDINATE[m.n];
   if(filter==='perGame')  return !!ONE_PER_GAME[m.n];
@@ -1509,6 +1513,13 @@ function updateFilterLabel(){
   filterToggle.innerHTML=`<span class="caret">▶</span> ${name}`;
   filterToggle.classList.toggle('active', !isDefault);
   filterToggle.classList.toggle('open', filterRows.classList.contains('open'));
+  // personal chips carry the viewing player's name so it's clear whose list it is
+  const me=playerById(viewAs);
+  const mc=document.querySelector('.chip[data-filter="mycaught"]');
+  const mu=document.querySelector('.chip[data-filter="myuncaught"]');
+  const who = me ? me.name.toUpperCase() : 'I';
+  if(mc) mc.textContent="✓ "+who+" HAS";
+  if(mu) mu.textContent="○ "+who+" NEEDS";
 }
 
 // Collapsible info panels (Switch Trading / Sources / Roaming Legendary)
@@ -1584,7 +1595,7 @@ document.getElementById('setupSummary').addEventListener('click',()=>{
 document.getElementById('viewAsSel').addEventListener('change',e=>{
   viewAs=e.target.value;
   try{ localStorage.setItem('kanto-viewas',viewAs); }catch(e){}
-  render();
+  render(); updateFilterLabel();
 });
 document.querySelectorAll('.chip[data-filter]').forEach(c=>c.addEventListener('click',()=>{
   document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('on'));
