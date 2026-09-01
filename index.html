@@ -327,6 +327,13 @@
   }
   .evo-line{color:var(--ink);}
   .evo-current .evo-name{font-weight:700;color:var(--ink-dk);text-decoration:underline;}
+  .evo-jump{cursor:pointer;color:var(--frame);text-decoration:underline;text-decoration-style:dotted;}
+  .evo-jump:active{opacity:.6;}
+  @keyframes rowflash{
+    0%{background:var(--gold);box-shadow:inset 0 0 0 2px #a87800;}
+    100%{background:var(--parch);box-shadow:inset 0 0 0 1px #fff;}
+  }
+  .row.flash{animation:rowflash 1.2s ease-out;}
   .evo-how{color:var(--frame);font-weight:700;}
   .evo-name{color:var(--ink-dk);font-weight:600;}
   .evo-p1{color:var(--p1c);font-weight:700;}
@@ -550,13 +557,12 @@
   <div class="filter-rows" id="filterRows">
     <div class="chip on" data-filter="all">ALL</div>
     <div class="chip" data-filter="trade">NEEDS TRADE</div>
-    <div class="chip" data-filter="uncaught">UNCAUGHT</div>
     <div class="chip" data-filter="tradeevo">TRADE EVOS</div>
     <div class="chip" data-filter="coord">⚠ COORDINATE</div>
     <div class="chip" data-filter="perGame">1 PER GAME</div>
     <div class="chip" data-filter="mine">I CAN'T CATCH</div>
     <div class="chip" id="hideDone">HIDE DONE</div>
-    <div class="chip" id="collapseAll">⊟ ALL</div>
+    <div class="chip" id="collapseAll">⊟ FOLD</div>
   </div>
 </header>
 
@@ -613,7 +619,7 @@ const claimsRef   = ref(db,'kanto-trail/claims');
 const playersRef  = ref(db,'kanto-trail/players');
 
 // One-shot / must-choose. Each entry explains WHY it's limited.
-// MUST COORDINATE: a single game forces an either/or, so you two must take
+// MUST COORDINATE: a single game forces an either/or, so players must take
 // opposite options and trade. These are the only entries that get claim buttons.
 const COORDINATE = {
   138:"Mt. Moon fossil — one game can only get ONE. Take opposite fossils.",
@@ -628,17 +634,17 @@ const COORDINATE = {
 // ONE PER GAME: you EACH get your own — no coordination needed, but don't
 // lose it, because there's no second chance within your own save.
 const ONE_PER_GAME = {
-  142:"Old Amber — one per game, but you each get one",
+  142:"Old Amber — one per game; every player gets their own",
   133:"Eevee gift behind Celadon — one per game",
   131:"Silph Co. gift — also catchable in Icefall Cave, so recoverable",
   83:"Trade-only species — do this in your own game (costs a Spearow)",
   122:"Trade-only species — do this in your own game (costs an Abra)",
   124:"Trade-only species — do this in your own game (costs a Poliwhirl)",
   108:"Trade-only species — do this in your own game (Golduck FR / Slowbro LG)",
-  144:"Legendary — you each get your own. Gone if it faints or you flee.",
-  145:"Legendary — you each get your own. Gone if it faints or you flee.",
-  146:"Legendary — you each get your own. Gone if it faints or you flee.",
-  150:"Legendary — you each get your own. Gone if it faints or you flee."
+  144:"Legendary — one per save; every player gets their own. Gone if it faints or the battle is fled.",
+  145:"Legendary — one per save; every player gets their own. Gone if it faints or the battle is fled.",
+  146:"Legendary — one per save; every player gets their own. Gone if it faints or the battle is fled.",
+  150:"Legendary — one per save; every player gets their own. Gone if it faints or the battle is fled."
 };
 
 const FR_ONLY = [23,24,43,44,45,54,55,58,59,90,91,123,125];const LG_ONLY = [27,28,37,38,69,70,71,79,80,120,121,126,127];
@@ -739,7 +745,7 @@ function evoAdvice(n, ver){
 }
 
 const ROUTES = [
-  { area:"Pallet Town — Starters", note:"You've both already traded for all three.", mons:[
+  { area:"Pallet Town — Starters", note:"Each save gets ONE starter — trade between players to register all three lines.", mons:[
     {n:1,name:"Bulbasaur"},{n:4,name:"Charmander"},{n:7,name:"Squirtle"}
   ]},
   { area:"Route 1", mons:[
@@ -754,7 +760,7 @@ const ROUTES = [
     {n:25,name:"Pikachu",t:"Viridian Forest"}
   ]},
   { area:"Route 3", note:"NIDORAN: the one matching your version is common; the other is only ~1% here. FireRed sees ♂ commonly, LeafGreen sees ♀. Don't grind for the off-version one — catch TWO of your common gender and trade the spare to the Route 5 NPC for the opposite. (LeafGreen players can also get ♂ in the Safari Zone.)", mons:[
-    {n:39,name:"Jigglypuff"},{n:29,name:"Nidoran♀",t:"common in LG, 1% in FR"},{n:32,name:"Nidoran♂",t:"common in FR, 1% in LG"}
+    {n:39,name:"Jigglypuff"},{n:29,name:"Nidoran♀"},{n:32,name:"Nidoran♂"}
   ]},
   { area:"Mt. Moon", note:"Fossil choice here — one only. Two Moon Stones on this map.", mons:[
     {n:41,name:"Zubat"},{n:74,name:"Geodude"},{n:35,name:"Clefairy"},{n:46,name:"Paras"}
@@ -773,9 +779,9 @@ const ROUTES = [
   { area:"Vermilion City", note:"OLD ROD: yellow house west of the Pokémon Center. S.S. Anne has no wild encounters.", mons:[
     {n:120,name:"Staryu",t:"Super Rod"},{n:90,name:"Shellder",t:"Super Rod"},{n:130,name:"Gyarados",t:"Super Rod"}
   ]},
-  { area:"Route 11 & Diglett's Cave", mons:[
+  { area:"Route 11 & Diglett's Cave", note:"On THIS route Nidorina only appears in FR and Nidorino only in LG — but both show up in everyone's Safari Zone, so nobody is locked out. Tap either name for rates.", mons:[
     {n:96,name:"Drowzee"},{n:50,name:"Diglett"},{n:51,name:"Dugtrio"},
-    {n:30,name:"Nidorina",v:"FR"},{n:33,name:"Nidorino",v:"LG"}
+    {n:30,name:"Nidorina"},{n:33,name:"Nidorino"}
   ]},
   { area:"Route 10 → Rock Tunnel", note:"Bring Flash.", mons:[
     {n:100,name:"Voltorb",t:"Route 10"},{n:66,name:"Machop"},{n:95,name:"Onix"},{n:75,name:"Graveler"}
@@ -850,7 +856,7 @@ const ROUTES = [
     {n:29,name:"Nidoran♀",t:"Rt5 swap — FR gets ♀"},
     {n:32,name:"Nidoran♂",t:"Rt5 swap — LG gets ♂"}
   ]},
-  { area:"⇄ Trade evolutions — you need each other", note:"These four can ONLY be reached by trading. Trade, let it evolve, trade back.", mons:[
+  { area:"⇄ Trade evolutions", note:"These four can ONLY be reached by trading between players. Trade, let it evolve, trade back.", mons:[
     {n:65,name:"Alakazam",t:"⇄ TRADE Kadabra"},{n:68,name:"Machamp",t:"⇄ TRADE Machoke"},
     {n:76,name:"Golem",t:"⇄ TRADE Graveler"},{n:94,name:"Gengar",t:"⇄ TRADE Haunter"}
   ]},
@@ -1169,9 +1175,15 @@ function renderFamily(n){
     const who = holders.length===players.length ? '<span class="evo-both">all ✓</span>'
       : holders.length ? holders.map(p=>`<span class="evo-${p.id}">${p.name} ✓</span>`).join(' ')
       : '<span class="evo-none">nobody</span>';
-    html+=`<div class="evo-line${f.n===n?' evo-current':''}" style="padding-left:${f.depth*12}px">`+
+    const isCur=f.n===n;
+    const nm=NAME[f.n]||('#'+f.n);
+    // every OTHER family member is a jump link to its own row
+    const nameEl=isCur
+      ? `<span class="evo-name">${nm}</span>`
+      : `<span class="evo-name evo-jump" data-jump="${f.n}">${nm} ↗</span>`;
+    html+=`<div class="evo-line${isCur?' evo-current':''}" style="padding-left:${f.depth*12}px">`+
       (f.how?`<span class="evo-how">${f.how} →</span> `:'')+
-      `<span class="evo-name">${NAME[f.n]||('#'+f.n)}</span> ${who}</div>`;
+      `${nameEl} ${who}</div>`;
   });
   const missing=fam.filter(f=>!allHave(f.n)).length;
   html+=`<div class="evo-foot">${missing?missing+' of '+fam.length+' still needed by someone':'family complete for everyone ✓'}</div>`;
@@ -1186,7 +1198,6 @@ function matches(m){
     if(!m.name.toLowerCase().includes(q) && !String(m.n).includes(q)) return false;
   }
   if(filter==='trade')    return needsTrade(m.n);
-  if(filter==='uncaught') return !allHave(m.n);
   if(filter==='tradeevo') return TRADE_EVO.includes(m.n);
   if(filter==='coord')    return !!COORDINATE[m.n];
   if(filter==='perGame')  return !!ONE_PER_GAME[m.n];
@@ -1205,6 +1216,10 @@ function wireRowEvents(main){
     const a=el.dataset.area;
     if(collapsed[a]) delete collapsed[a]; else collapsed[a]=true;
     saveCollapsed(); render();
+  }));
+  main.querySelectorAll('[data-jump]').forEach(el=>el.addEventListener('click',ev=>{
+    ev.stopPropagation();               // don't also toggle the row we're in
+    jumpTo(+el.dataset.jump);
   }));
   main.querySelectorAll('[data-evo]').forEach(el=>el.addEventListener('click',()=>{
     const n=el.dataset.evo; openEvo[n]=!openEvo[n]; render();
@@ -1282,6 +1297,44 @@ function buildRow(m, showWhere){
       '<input type="text" placeholder="note — e.g. traded 8/16, Box 3" value="'+note.replace(/"/g,'&quot;')+'" data-noteinput="'+m.n+'">'+
     '</div>';
   return row;
+}
+
+// Jump from an evolution link to that Pokémon's own row: make sure it's
+// visible (clear filters/collapse/search that would hide it), expand it,
+// collapse the one we came from, then scroll it into view and flash it.
+function jumpTo(target){
+  // if a filter or search would hide the target, reset to a view that shows it
+  const wouldShow = ()=>ROUTES.some(sec=>sec.mons.some(mm=>mm.n===target && matches(mm)));
+  if(!wouldShow()){
+    filter='all';
+    document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.toggle('on',x.dataset.filter==='all'));
+    hideDone=false; document.getElementById('hideDone').classList.remove('on');
+    if(search){ search=''; document.getElementById('search').value=''; }
+    if(typeof updateFilterLabel==='function') updateFilterLabel();
+  }
+  // make sure any route section holding the target is open (route view only)
+  if(sortMode==='route'){
+    ROUTES.forEach(sec=>{ if(sec.mons.some(mm=>mm.n===target)) delete collapsed[sec.area]; });
+    saveCollapsed();
+  }
+  // open the target's evolution panel, close others so the jump is unambiguous
+  openEvo={}; openEvo[target]=true;
+  render();
+  // scroll after the DOM settles
+  requestAnimationFrame(()=>{
+    const els=document.querySelectorAll(`[data-evo="${target}"]`);
+    // prefer the row whose name isn't itself a jump link (i.e. the real row)
+    let el=null;
+    els.forEach(e=>{ if(!e.classList.contains('evo-jump')) el=e; });
+    el=el||els[0];
+    if(!el) return;
+    const row=el.closest('.row');
+    (row||el).scrollIntoView({behavior:'smooth',block:'center'});
+    if(row){
+      row.classList.add('flash');
+      setTimeout(()=>row.classList.remove('flash'),1200);
+    }
+  });
 }
 
 function render(){
@@ -1434,7 +1487,7 @@ function renderBeastPanel(){
   let html='';
   set_.forEach(p=>{ html+=`<b>${p.name}</b> → ${BEAST[p.starter]}<br>`; });
   const uniq=new Set(set_.map(p=>p.starter));
-  if(uniq.size<set_.length) html+=`<span class="warn">Some of you picked the same starter, so you'll get duplicate beasts — fewer unique trades.</span>`;
+  if(uniq.size<set_.length) html+=`<span class="warn">Multiple players picked the same starter, so their roaming beasts will be duplicates — fewer unique trades available.</span>`;
   html+=`<span class="warn">On GBA, Entei and Raikou could be lost to the Roar escape glitch — <b>fixed in the Switch release</b>.</span>`;
   html+=`<span class="warn">Repel trick: lead with a Lv11–49 Pokémon on Route 2 and spray a Repel — only the beast can spawn.</span>`;
   body.innerHTML=html;
@@ -1545,7 +1598,7 @@ document.getElementById('collapseAll').addEventListener('click',function(){
   collapsed = {};
   if(anyOpen) ROUTES.forEach(r=>{ collapsed[r.area]=true; });
   saveCollapsed(); render();
-  this.textContent = anyOpen ? '⊞ ALL' : '⊟ ALL';
+  this.textContent = anyOpen ? '⊞ UNFOLD' : '⊟ FOLD';
 });
 const sortSel=document.getElementById('sortSel');
 sortSel.value=sortMode;
