@@ -253,11 +253,29 @@
     background:var(--parch-2);border:2px solid var(--navy);
     display:flex;align-items:center;justify-content:center;
     font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--ink);
-    flex-shrink:0;z-index:1;
+    flex-shrink:0;z-index:1;position:relative;overflow:hidden;
   }
-  .route-marker.done{
-    background:radial-gradient(circle at 50% 32%, var(--fr) 0 45%, #fff 45% 55%, var(--parch) 55%);
+  /* half — the viewing player has everything on this route (their half is filled) */
+  .route-marker.mine{border-color:var(--navy-dk);color:transparent;}
+  .route-marker.mine::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:50%;
+    background:var(--viewc,#4f9fd9);
+  }
+  .route-marker.mine::after{
+    content:'';position:absolute;left:50%;right:0;top:calc(50% - 1px);height:2px;
+    background:var(--navy-dk);
+  }
+  /* full — everyone has everything: gold Poké Ball */
+  .route-marker.all{
+    background:radial-gradient(circle at 50% 32%, var(--fr) 0 44%, #fff 44% 54%, var(--gold) 54%);
     border-color:var(--navy-dk);color:transparent;
+  }
+  .route-marker.all::before{
+    content:'';position:absolute;left:0;right:0;top:calc(50% - 1.5px);height:3px;background:var(--navy-dk);
+  }
+  .route-marker.all::after{
+    content:'';position:absolute;left:calc(50% - 3px);top:calc(50% - 3px);width:6px;height:6px;
+    border-radius:50%;background:#fff;border:1.5px solid var(--navy-dk);
   }
   .route-title{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12px;flex:1;color:var(--ink-dk);}
   .route-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);font-weight:600;}
@@ -993,6 +1011,9 @@ function applyPlayerColors(){
   // Only touch the stylesheet if it actually changed — rewriting it forces a
   // full style recalc across every row.
   if(tag.textContent!==css) tag.textContent=css;
+  // the half-route marker fills with the viewing player's colour
+  const vp=players.find(p=>p.id===viewAs)||players[0];
+  if(vp) r.setProperty('--viewc', shadeFor(vp).c);
 }
 
 function savePlayers(){ set(playersRef,players).catch(e=>console.error(e)); }
@@ -1394,7 +1415,9 @@ function render(){
     if(!visible.length) return;
     anyShown=true;
     const caught=section.mons.filter(m=>allHave(m.n)).length;
-    const done=caught===section.mons.length;
+    const done=caught===section.mons.length;                          // everyone has all
+    const mineDone=section.mons.every(m=>caughtBy(m.n,viewAs));        // viewing player has all
+    const markState = done ? 'all' : (mineDone ? 'mine' : '');
     const isCol=collapsed[section.area];
     const idx=ROUTES.indexOf(section)+1;
 
@@ -1403,7 +1426,7 @@ function render(){
     sec.innerHTML=`
       <div class="route-trail"></div>
       <div class="route-head" data-area="${section.area.replace(/"/g,'&quot;')}">
-        <div class="route-marker ${done?'done':''}">${done?'✓':idx}</div>
+        <div class="route-marker ${markState}" title="${done?'Everyone has all — route complete':(mineDone?'You have all here':'')}">${done?'':(mineDone?'':idx)}</div>
         <div class="route-title">${section.area}</div>
         <div class="route-count">${caught}/${section.mons.length} ${isCol?'▸':'▾'}</div>
       </div>
