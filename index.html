@@ -460,6 +460,7 @@
   .safari-rate.scarce{color:#7a4a00;background:#fbe8c4;}
   .safari-rate.grind{color:#fff;background:#a02818;}
   .safari-name{color:var(--ink-dk);font-weight:600;}
+  .safari-area{color:#2c6320;font-weight:700;font-size:9.5px;background:#e8f4e0;border:1px solid var(--grass);border-radius:3px;padding:1px 5px;}
   .safari-lv{color:var(--muted);font-size:9.5px;}
   .safari-note{color:#a02818;font-size:9px;font-weight:700;}
   .safari-foot{margin-top:6px;padding-top:5px;border-top:1px solid var(--parch-3);color:var(--muted);font-size:9.5px;font-weight:600;}
@@ -798,7 +799,7 @@ function evoAdvice(n, ver){
   return {txt:'catch at Lv'+lr[1]+' (best spot) → '+gapLow+' levels to Lv'+need, good:gapLow<=6};
 }
 
-const SAFARI = {"29":["Nidoran F",20,"Grass","22-30","common"],"32":["Nidoran M",20,"Grass","22-30","common"],"30":["Nidorina",10,"Grass","30-33",""],"33":["Nidorino",10,"Grass","30-33",""],"102":["Exeggcute",20,"Grass","23-27",""],"111":["Rhyhorn",20,"Grass","25-26",""],"84":["Doduo",20,"Grass","26",""],"48":["Venonat",15,"Grass","22-23",""],"46":["Paras",15,"Grass","22-23",""],"47":["Parasect",5,"Grass","25-30",""],"49":["Venomoth",5,"Grass","32",""],"115":["Kangaskhan",4,"Grass","25-28","RARE - use rocks"],"123":["Scyther",4,"Grass","23-28","RARE, FR only"],"127":["Pinsir",4,"Grass","23-28","RARE, LG only"],"113":["Chansey",4,"Grass","23-26","RARE - use rocks"],"128":["Tauros",4,"Grass","25-28","RARE - use rocks"],"54":["Psyduck",100,"Surf","20-40","FR only"],"79":["Slowpoke",100,"Surf","20-40","LG only"],"129":["Magikarp",100,"Old Rod","5",""],"118":["Goldeen",60,"Good Rod","5-15",""],"60":["Poliwag",20,"Good Rod","5-15",""],"119":["Seaking",40,"Super Rod","20-30",""],"147":["Dratini",15,"Super Rod","15-25","only wild spot"],"148":["Dragonair",1,"Super Rod","25-35","only wild spot"]};
+const SAFARI = {"29":["Nidoran F",20,"Grass","Center","22",""],"30":["Nidorina",10,"Grass","Center","31",""],"32":["Nidoran M",20,"Grass","Center","22",""],"33":["Nidorino",10,"Grass","Center","31",""],"47":["Parasect",5,"Grass","Center","30",""],"48":["Venonat",15,"Grass","Center","22",""],"102":["Exeggcute",20,"Grass","Center","24-25",""],"111":["Rhyhorn",20,"Grass","Center","25",""],"113":["Chansey",4,"Grass","Area 2 (North)","26",""],"123":["Scyther",4,"Grass","Center","23","FR only"],"127":["Pinsir",4,"Grass","Center","23","LG only"],"54":["Psyduck",100,"Surf","Center","20-40","FR only"],"79":["Slowpoke",100,"Surf","Center","20-40","LG only"],"129":["Magikarp",100,"Old Rod","Center","5",""],"60":["Poliwag",20,"Good Rod","Center","5-15",""],"118":["Goldeen",60,"Good Rod","Center","5-15",""],"119":["Seaking",40,"Super Rod","Center","20-30",""],"147":["Dratini",15,"Super Rod","Center","15-25",""],"148":["Dragonair",1,"Super Rod","Center","25-35",""],"46":["Paras",15,"Grass","Area 1 (East)","22",""],"84":["Doduo",20,"Grass","Area 1 (East)","26",""],"115":["Kangaskhan",4,"Grass","Area 1 (East)","25",""],"49":["Venomoth",5,"Grass","Area 2 (North)","32",""],"128":["Tauros",4,"Grass","Area 3 (West)","25",""]};
 
 const ROUTES = [
   { area:"Pallet Town — Starters", note:"Each save gets ONE starter — trade between players to register all three lines.", mons:[
@@ -1546,7 +1547,7 @@ function renderSafariPanel(){
   const body=document.getElementById('safariBody');
   const ver=playerById(viewAs).ver||'LG';
   // version filter: a species shown only if its note has no opposite-version lock
-  const rows=Object.entries(SAFARI).map(([n,v])=>({n:+n,name:v[0],rate:v[1],method:v[2],lv:v[3],note:v[4]}))
+  const rows=Object.entries(SAFARI).map(([n,v])=>({n:+n,name:v[0],rate:v[1],method:v[2],area:v[3],lv:v[4],note:v[5]}))
     .filter(r=>{
       if(r.note.includes('FR only')) return ver==='FR';
       if(r.note.includes('LG only')) return ver==='LG';
@@ -1555,8 +1556,7 @@ function renderSafariPanel(){
   const order={Grass:0,Surf:1,'Old Rod':2,'Good Rod':3,'Super Rod':4};
   const byMethod={};
   rows.forEach(r=>{ (byMethod[r.method]=byMethod[r.method]||[]).push(r); });
-  let html='<div class="safari-tip">Rates are the BEST across all 4 areas. '+
-    '<b>Rocks</b> ×2 catch / <b>Bait</b> ÷2 — use rocks on the rare ones.</div>';
+  let html='<div class="safari-tip">Shows each mon\u2019s <b>best</b> area &amp; rate — lead with a Lv11–49 Pokémon + Repel to force that spawn. <b>Rocks</b> ×2 catch / <b>Bait</b> ÷2 on the rare ones.</div>';
   Object.keys(byMethod).sort((a,b)=>order[a]-order[b]).forEach(method=>{
     html+='<div class="safari-method">'+method.toUpperCase()+'</div>';
     byMethod[method].sort((a,b)=>b.rate-a.rate).forEach(r=>{
@@ -1566,6 +1566,7 @@ function renderSafariPanel(){
       html+=`<div class="safari-line${got?' got':''}">`+
         `<span class="safari-rate ${band}">${r.rate}%</span> `+
         `<span class="safari-name">${got?'✓ ':''}${disp}</span> `+
+        `<span class="safari-area">${r.area}</span> `+
         `<span class="safari-lv">Lv${r.lv}</span>`+
         (r.note&&!r.note.includes('only')?`<span class="safari-note">${r.note}</span>`:'')+
         `</div>`;
