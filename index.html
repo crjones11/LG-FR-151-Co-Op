@@ -445,6 +445,24 @@
   .trade-panel h3{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a87800;margin:0 0 7px;letter-spacing:.5px;}
   .trade-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:var(--ink-dk);}
   .trade-line span{color:var(--muted);}
+  .safari-box{box-shadow:inset 0 0 0 2px var(--grass);}
+  .safari-box .info-head{color:#2c6320;}
+  .safari-tip{font-size:9.5px;color:var(--ink);line-height:1.5;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid var(--parch-3);}
+  .safari-method{
+    font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.7px;
+    color:var(--muted);margin:7px 0 3px;
+  }
+  .safari-line{display:flex;align-items:baseline;gap:6px;font-size:11px;line-height:1.75;flex-wrap:wrap;}
+  .safari-line.got .safari-name{color:var(--muted);}
+  .safari-rate{font-weight:700;min-width:36px;text-align:right;font-size:10px;padding:0 4px;border-radius:3px;flex-shrink:0;}
+  .safari-rate.common{color:#255c1a;background:#dff2d2;}
+  .safari-rate.uncommon{color:#2c4f6b;background:#daeaf6;}
+  .safari-rate.scarce{color:#7a4a00;background:#fbe8c4;}
+  .safari-rate.grind{color:#fff;background:#a02818;}
+  .safari-name{color:var(--ink-dk);font-weight:600;}
+  .safari-lv{color:var(--muted);font-size:9.5px;}
+  .safari-note{color:#a02818;font-size:9px;font-weight:700;}
+  .safari-foot{margin-top:6px;padding-top:5px;border-top:1px solid var(--parch-3);color:var(--muted);font-size:9.5px;font-weight:600;}
   .beast-box{box-shadow:inset 0 0 0 2px #b060c0;}
   .beast-box .info-head{color:#8848a8;}
   .info-body .warn{color:#a02818;margin-top:6px;display:block;}
@@ -601,6 +619,11 @@
 
 <div class="install-hint" id="installHint">
   <b>Lose the Safari bars:</b> tap Share <b>⎋</b> → <b>Add to Home Screen</b>. Launches fullscreen with no browser toolbars. <span style="opacity:.7">(tap to dismiss)</span>
+</div>
+
+<div class="infobox safari-box" id="safariPanel">
+  <div class="info-head" data-info="safari"><span class="caret">▶</span> 🌿 SAFARI ZONE — FULL ROSTER</div>
+  <div class="info-body" id="safariBody"></div>
 </div>
 
 <div class="infobox beast-box" id="beastPanel">
@@ -774,6 +797,8 @@ function evoAdvice(n, ver){
   if(gapLow<=0) return {txt:'catchable at or past Lv'+need+' — evolves immediately', good:true};
   return {txt:'catch at Lv'+lr[1]+' (best spot) → '+gapLow+' levels to Lv'+need, good:gapLow<=6};
 }
+
+const SAFARI = {"29":["Nidoran F",20,"Grass","22-30","common"],"32":["Nidoran M",20,"Grass","22-30","common"],"30":["Nidorina",10,"Grass","30-33",""],"33":["Nidorino",10,"Grass","30-33",""],"102":["Exeggcute",20,"Grass","23-27",""],"111":["Rhyhorn",20,"Grass","25-26",""],"84":["Doduo",20,"Grass","26",""],"48":["Venonat",15,"Grass","22-23",""],"46":["Paras",15,"Grass","22-23",""],"47":["Parasect",5,"Grass","25-30",""],"49":["Venomoth",5,"Grass","32",""],"115":["Kangaskhan",4,"Grass","25-28","RARE - use rocks"],"123":["Scyther",4,"Grass","23-28","RARE, FR only"],"127":["Pinsir",4,"Grass","23-28","RARE, LG only"],"113":["Chansey",4,"Grass","23-26","RARE - use rocks"],"128":["Tauros",4,"Grass","25-28","RARE - use rocks"],"54":["Psyduck",100,"Surf","20-40","FR only"],"79":["Slowpoke",100,"Surf","20-40","LG only"],"129":["Magikarp",100,"Old Rod","5",""],"118":["Goldeen",60,"Good Rod","5-15",""],"60":["Poliwag",20,"Good Rod","5-15",""],"119":["Seaking",40,"Super Rod","20-30",""],"147":["Dratini",15,"Super Rod","15-25","only wild spot"],"148":["Dragonair",1,"Super Rod","25-35","only wild spot"]};
 
 const ROUTES = [
   { area:"Pallet Town — Starters", note:"Each save gets ONE starter — trade between players to register all three lines.", mons:[
@@ -1417,7 +1442,7 @@ function render(){
     }
     if(!anyShown) main.innerHTML='<div class="loading">nothing matches that filter.</div>';
     wireRowEvents(main);
-    renderBars(); renderTradePanel(); renderBeastPanel();
+    renderBars(); renderTradePanel(); renderBeastPanel(); renderSafariPanel();
     return;
   }
 
@@ -1457,6 +1482,7 @@ function render(){
   renderBars();
   renderTradePanel();
   renderBeastPanel();
+  renderSafariPanel();
 }
 
 // ============ PANELS ============
@@ -1514,6 +1540,40 @@ function renderTradePanel(){
     }).join(', ')+(missing.length>40?` <span>…+${missing.length-40} more</span>`:'')+'<br><br>';
   });
   box.innerHTML = html || '<span>Nothing to trade yet — nobody has something another player is missing.</span>';
+}
+
+function renderSafariPanel(){
+  const body=document.getElementById('safariBody');
+  const ver=playerById(viewAs).ver||'LG';
+  // version filter: a species shown only if its note has no opposite-version lock
+  const rows=Object.entries(SAFARI).map(([n,v])=>({n:+n,name:v[0],rate:v[1],method:v[2],lv:v[3],note:v[4]}))
+    .filter(r=>{
+      if(r.note.includes('FR only')) return ver==='FR';
+      if(r.note.includes('LG only')) return ver==='LG';
+      return true;
+    });
+  const order={Grass:0,Surf:1,'Old Rod':2,'Good Rod':3,'Super Rod':4};
+  const byMethod={};
+  rows.forEach(r=>{ (byMethod[r.method]=byMethod[r.method]||[]).push(r); });
+  let html='<div class="safari-tip">Rates are the BEST across all 4 areas. '+
+    '<b>Rocks</b> ×2 catch / <b>Bait</b> ÷2 — use rocks on the rare ones.</div>';
+  Object.keys(byMethod).sort((a,b)=>order[a]-order[b]).forEach(method=>{
+    html+='<div class="safari-method">'+method.toUpperCase()+'</div>';
+    byMethod[method].sort((a,b)=>b.rate-a.rate).forEach(r=>{
+      const got=caughtBy(r.n,viewAs);
+      const band = r.rate>=25?'common':r.rate>=10?'uncommon':r.rate>=4?'scarce':'grind';
+      const disp = r.name.replace(' F','♀').replace(' M','♂');
+      html+=`<div class="safari-line${got?' got':''}">`+
+        `<span class="safari-rate ${band}">${r.rate}%</span> `+
+        `<span class="safari-name">${got?'✓ ':''}${disp}</span> `+
+        `<span class="safari-lv">Lv${r.lv}</span>`+
+        (r.note&&!r.note.includes('only')?`<span class="safari-note">${r.note}</span>`:'')+
+        `</div>`;
+    });
+  });
+  const total=rows.length, caught=rows.filter(r=>caughtBy(r.n,viewAs)).length;
+  html+=`<div class="safari-foot">${caught}/${total} caught here · ${playerById(viewAs).name} (${VER_LABEL[ver]})</div>`;
+  body.innerHTML=html;
 }
 
 const BEAST = { B:'Entei (Fire)', C:'Suicune (Water)', S:'Raikou (Electric)' };
