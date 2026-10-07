@@ -184,12 +184,22 @@
   #filterToggle.active{background:var(--gold);box-shadow:inset 0 0 0 1px #ffe8a0, 0 2px 0 #a87800;}
   #filterToggle .caret{transition:transform .15s ease;display:inline-block;}
   #filterToggle.open .caret{transform:rotate(90deg);}
+  .search-wrap{flex:1 1 auto;min-width:0;position:relative;display:flex;}
   .search{
     flex:1 1 auto;min-width:0;
     background:var(--parch);border:2px solid var(--navy);border-radius:7px;
     box-shadow:inset 0 0 0 1px #fff;
-    padding:6px 9px;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;font-weight:600;
+    padding:6px 28px 6px 9px;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;font-weight:600;
   }
+  .search-clear{
+    position:absolute;right:4px;top:50%;transform:translateY(-50%);
+    width:20px;height:20px;border-radius:50%;border:none;
+    background:var(--parch-3);color:var(--ink);
+    font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;line-height:1;
+    cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;
+  }
+  .search-clear.show{display:flex;}
+  .search-clear:active{background:var(--navy);color:#fff;}
   .search::placeholder{color:var(--muted);}
   .chip{
     background:var(--parch);border:2px solid var(--navy);border-radius:6px;
@@ -587,7 +597,10 @@
   <div class="progress-wrap" id="barsWrap"></div>
   <div class="viewas">I AM: <select id="viewAsSel"></select></div>
   <div class="controls">
-    <input class="search" id="search" placeholder="search…">
+    <div class="search-wrap">
+      <input class="search" id="search" placeholder="search…">
+      <button class="search-clear" id="searchClear" aria-label="clear search" type="button">×</button>
+    </div>
     <div class="chip" id="filterToggle"><span class="caret">▶</span> FILTERS</div>
     <label class="sort-wrap">
       <select id="sortSel">
@@ -1718,7 +1731,16 @@ sortSel.addEventListener('change',e=>{
 });
 document.getElementById('collapseAll').style.display = sortMode==='route' ? '' : 'none';
 
-document.getElementById('search').addEventListener('input',e=>{ search=e.target.value; render(); });
+const searchEl=document.getElementById('search'), searchClear=document.getElementById('searchClear');
+searchEl.addEventListener('input',e=>{
+  search=e.target.value;
+  searchClear.classList.toggle('show', !!search);
+  render();
+});
+searchClear.addEventListener('click',()=>{
+  search=''; searchEl.value=''; searchClear.classList.remove('show');
+  searchEl.focus(); render();
+});
 document.getElementById('resetBtn').addEventListener('click',()=>{
   if(confirm('Reset ALL caught progress, notes and claims for every player?')){
     progress={}; notes={}; claims={};
