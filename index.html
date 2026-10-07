@@ -337,6 +337,7 @@
   .tag.evo{color:#404858;background:var(--parch-3);border-color:var(--ink);}
   .tag.item{color:#583c00;background:#f8e8b8;border-color:#a88820;}
   .tag.info{color:var(--ink);background:var(--parch-2);border-color:var(--ink);}
+  .tag.best{color:#503800;background:var(--gold);border-color:#a87800;}
 
   .check{
     width:30px;height:28px;border-radius:5px;
@@ -398,6 +399,9 @@
   .enc-rate.item{color:#583c00;background:#f8e8b8;}
   .enc-area{color:var(--ink-dk);font-weight:600;}
   .enc-lv{color:var(--muted);font-size:9.5px;}
+  .enc-best{background:#fff8d8;border-radius:3px;padding:1px 4px;margin:0 -4px;}
+  .enc-flag{color:#a87800;font-weight:700;font-size:8.5px;letter-spacing:.4px;margin-left:4px;}
+  .enc-alt{font-size:9px;color:var(--muted);margin:2px 0 3px;font-style:italic;}
   .enc-tip{font-size:9.5px;color:#7a4a00;margin:3px 0 2px;line-height:1.5;}
   .enc-tip.good{color:#255c1a;}
   .sort-wrap{
@@ -620,7 +624,8 @@
     <div class="chip" data-filter="tradeevo">TRADE EVOS</div>
     <div class="chip" data-filter="coord">⚠ COORDINATE</div>
     <div class="chip" data-filter="perGame">1 PER GAME</div>
-    <div class="chip" data-filter="mine">I CAN'T CATCH</div>
+    <div class="chip" data-filter="mine">⇄ NEED FROM OTHERS</div>
+    <div class="chip" data-filter="myexcl">★ MY EXCLUSIVES</div>
     <div class="chip" id="hideDone">HIDE DONE</div>
     <div class="chip" id="collapseAll">⊟ FOLD</div>
   </div>
@@ -774,7 +779,7 @@ function familyOf(n){
   return out;
 }
 
-const ENC = {"10":[["Viridian Forest","FRLG",40,3,5],["Route 24","FRLG",20,7,7],["Route 2","FRLG",5,4,5]],"11":[["Viridian Forest","LG",10,4,6],["Viridian Forest","FR",5,5,5],["Route 24","LG",4,8,8],["Route 24","FR",1,8,8]],"13":[["Viridian Forest","FRLG",40,3,5],["Route 24","FRLG",20,7,7],["Route 2","FRLG",5,4,5]],"14":[["Viridian Forest","FR",10,4,6],["Viridian Forest","LG",5,5,5],["Route 24","FR",4,8,8],["Route 24","LG",1,8,8]],"16":[["Route 1","FRLG",50,2,5],["Route 2","FRLG",45,2,5],["Route 5","FRLG",40,13,16],["Route 3","FRLG",30,6,7]],"17":[["Berry Forest","FRLG",20,37,37],["Bond Bridge","FRLG",15,34,40],["Route 13","FRLG",5,29,29],["Route 14","FRLG",5,29,29]],"19":[["Route 1","FRLG",50,2,4],["Route 22","FRLG",45,2,5],["Route 2","FRLG",45,2,5],["Route 9","FRLG",40,14,17]],"20":[["Pokemon Mansion 1F-3F","FRLG",30,32,36],["Pokemon Mansion B1F","FRLG",30,34,38],["Route 17","FRLG",25,25,29],["Route 18","FRLG",15,25,29]],"21":[["Route 3","FRLG",35,6,8],["Route 4","FRLG",35,8,12],["Route 11","FRLG",35,13,17],["Route 9","FRLG",35,13,17],["Mt. Ember","FR",15,30,32],["Mt. Ember","LG",10,32,32]],"22":[["Mt. Ember","FRLG",25,38,40],["Route 23","FRLG",25,40,44],["Treasure Beach","FRLG",20,36,40],["Route 18","FRLG",15,25,29]],"23":[["Route 11","FR",40,12,15],["Route 4","FR",25,6,12],["Route 9","FR",25,11,17],["Route 10 (North)","FR",25,11,17]],"24":[["Route 23","FR",5,44,44],["Victory Road","FR",5,44,46]],"25":[["Power Plant","FRLG",25,22,26],["Viridian Forest","FRLG",5,3,5]],"27":[["Route 11","LG",40,12,15],["Route 4","LG",25,6,12],["Route 9","LG",25,11,17],["Route 10 (North)","LG",25,11,17]],"28":[["Route 23","LG",5,44,44],["Victory Road","LG",5,44,46]],"29":[["Safari Zone (Center Area)","LG",20,22,22],["Safari Zone (Area 1)","LG",20,24,24],["Safari Zone (Area 2)","LG",20,30,30],["Safari Zone (Area 3)","LG",20,22,22],["Safari Zone (Area 1)","FR",5,24,24],["Safari Zone (Area 3)","FR",5,30,30],["Route 3","FR",1,6,6]],"30":[["Safari Zone (Center Area)","LG",10,31,31],["Safari Zone (Area 1)","LG",10,33,33],["Safari Zone (Area 2)","LG",10,30,30],["Safari Zone (Area 3)","LG",10,30,30],["Safari Zone (Center Area)","FR",5,31,31],["Safari Zone (Area 2)","FR",5,30,30]],"32":[["Safari Zone (Center Area)","FR",20,22,22],["Safari Zone (Area 1)","FR",20,24,24],["Safari Zone (Area 2)","FR",20,30,30],["Safari Zone (Area 3)","FR",20,22,22],["Safari Zone (Area 1)","LG",5,24,24],["Safari Zone (Area 3)","LG",5,30,30],["Route 3","LG",1,6,6]],"33":[["Safari Zone (Center Area)","FR",10,31,31],["Safari Zone (Area 1)","FR",10,33,33],["Safari Zone (Area 2)","FR",10,30,30],["Safari Zone (Area 3)","FR",10,30,30],["Safari Zone (Center Area)","LG",5,31,31],["Safari Zone (Area 2)","LG",5,30,30]],"35":[["Mt. Moon B2F","FRLG",6,10,12],["Mt. Moon 1F","FRLG",1,8,8]],"37":[["Route 8","LG",20,15,18],["Pokemon Mansion 1F-3F","LG",15,30,32],["Pokemon Mansion B1F","LG",15,30,32],["Route 7","LG",10,18,20]],"39":[["Route 3","FRLG",10,3,7]],"41":[["Mt. Moon 1F","FRLG",69,7,10],["Mt. Moon B2F","FRLG",49,8,11],["Seafoam Islands 1F","FRLG",34,22,26],["Seafoam Islands B1F","FRLG",34,22,26]],"42":[["Seafoam Islands B4F","FRLG",15,26,30],["Seafoam Islands 1F","FRLG",11,26,30],["Seafoam Islands B1F","FRLG",11,26,30],["Seafoam Islands B2F","FRLG",10,26,30]],"43":[["Route 12","FR",35,22,26],["Route 13","FR",35,22,26],["Route 14","FR",35,22,26],["Route 15","FR",35,22,26],["Two Island","FR",30,30,32]],"44":[["Berry Forest","FR",20,35,35],["Two Island","FR",15,36,38],["Bond Bridge","FR",10,36,36],["Route 12","FR",5,28,30],["Route 13","FR",5,28,30]],"46":[["Mt. Moon B1F","FRLG",100,5,10],["Mt. Moon B2F","FRLG",15,10,12],["Safari Zone (Area 1)","FRLG",15,22,22],["Safari Zone (Area 2)","FRLG",15,23,23]],"47":[["Safari Zone (Center Area)","FRLG",5,30,30],["Safari Zone (Area 1)","FRLG",5,25,25]],"48":[["Route 12","FRLG",30,24,26],["Route 13","FRLG",30,24,26],["Route 14","FRLG",30,24,26],["Route 15","FRLG",30,24,26]],"49":[["Safari Zone (Area 2)","FRLG",5,32,32],["Safari Zone (Area 3)","FRLG",5,32,32],["Berry Forest","FRLG",5,37,40]],"50":[["Diglett's Cave","FRLG",95,15,22]],"51":[["Diglett's Cave","FRLG",5,29,31]],"52":[["Route 7","FRLG",40,17,20],["Route 5","FRLG",35,10,16],["Route 8","FRLG",30,18,20],["Treasure Beach","FRLG",10,31,31]],"53":[["Treasure Beach","FRLG",5,37,40],["Kindle Road","FRLG",5,37,40],["Two Island","FRLG",5,37,40],["Bond Bridge","FRLG",5,37,40]],"54":[["Fuchsia City","FR",100,20,40],["Seafoam Islands 1F","FR",55,26,33],["Seafoam Islands B1F","FR",40,29,31],["Seafoam Islands B2F","FR",40,30,32],["Two Island","FR",5,31,31]],"55":[["Seafoam Islands B3F","FR",15,32,34],["Seafoam Islands B4F","FR",15,32,34],["Seafoam Islands B2F","FR",10,32,34],["Two Island","FR",5,37,40],["Seafoam Islands B1F","FR",5,33,35]],"56":[["Route 22","FRLG",45,2,5],["Route 23","FRLG",30,32,34],["Route 10 (Rock Tunnel) 1F","FRLG",15,16,17],["Route 10 (Rock Tunnel) B1F","FRLG",15,16,17]],"57":[["Victory Road","FRLG",10,42,42],["Route 23","FRLG",5,42,42]],"58":[["Route 8","FR",20,15,18],["Pokemon Mansion 1F-3F","FR",15,30,32],["Pokemon Mansion B1F","FR",15,30,32],["Route 7","FR",10,18,20]],"60":[["Fuchsia City","FRLG",60,5,15],["Safari Zone (Fishing)","FRLG",20,5,15]],"61":[["Route 22","FRLG",40,20,30],["Cerulean Cave","FRLG",40,20,30]],"63":[["Route 24","FRLG",15,8,12]],"66":[["Victory Road","FRLG",20,32,34],["Route 10 (Rock Tunnel) 1F","FRLG",15,16,17],["Route 10 (Rock Tunnel) B1F","FRLG",10,17,17],["Mt. Ember","FRLG",10,35,35]],"67":[["Victory Road","FRLG",5,44,48]],"69":[["Route 12","LG",35,22,26],["Route 13","LG",35,22,26],["Route 14","LG",35,22,26],["Route 15","LG",35,22,26],["Two Island","LG",30,30,32]],"70":[["Berry Forest","LG",20,35,35],["Two Island","LG",15,36,38],["Bond Bridge","LG",10,36,36],["Route 12","LG",5,28,30],["Route 13","LG",5,28,30]],"72":[["Route 12","FRLG",100,5,40],["Route 13","FRLG",100,5,40],["Route 19","FRLG",100,5,40],["Cinnabar Island","FRLG",100,5,40]],"73":[["One Island","FRLG",5,35,40],["Bond Bridge","FRLG",5,35,40]],"74":[["Kindle Road","FRLG",95,5,30],["Route 10 (Rock Tunnel) 1F","FRLG",35,15,17],["Route 10 (Rock Tunnel) B1F","FRLG",35,15,17],["Mt. Moon B2F","FRLG",30,9,10]],"75":[["Kindle Road","FRLG",5,25,40]],"77":[["Mt. Ember","FRLG",35,30,36],["Kindle Road","FRLG",30,31,34]],"78":[["Kindle Road","FRLG",5,37,40],["Mt. Ember","FRLG",5,39,42]],"79":[["Fuchsia City","LG",100,20,40],["Seafoam Islands 1F","LG",55,26,33],["Seafoam Islands B1F","LG",40,29,31],["Seafoam Islands B2F","LG",40,30,32],["Two Island","LG",5,31,31]],"80":[["Seafoam Islands B3F","LG",15,32,34],["Seafoam Islands B4F","LG",15,32,34],["Seafoam Islands B2F","LG",10,32,34],["Two Island","LG",5,37,40],["Seafoam Islands B1F","LG",5,33,35]],"81":[["Power Plant","FRLG",30,22,25]],"82":[["Power Plant","LG",15,31,34],["Power Plant","FR",10,31,34]],"84":[["Route 18","FRLG",35,24,28],["Route 17","FRLG",35,24,28],["Route 16","FRLG",35,18,22],["Safari Zone (Area 1)","FRLG",20,26,26]],"86":[["Seafoam Islands (Surf or Fish)","FRLG",60,25,35],["Seafoam Islands B4F","FRLG",50,30,34],["Seafoam Islands B3F","FRLG",40,30,32],["Seafoam Islands B2F","FRLG",20,30,32]],"87":[["Seafoam Islands B4F","FRLG",10,34,36],["Seafoam Islands B3F","FRLG",5,32,34],["Seafoam Islands (Surf or Fish)","FRLG",5,35,40]],"88":[["Pokemon Mansion 1F-3F","LG",30,28,30],["Pokemon Mansion B1F","LG",30,28,30],["Pokemon Mansion 1F-3F","FR",5,28,28],["Pokemon Mansion B1F","FR",5,28,28]],"89":[["Pokemon Mansion 1F-3F","LG",5,32,32],["Pokemon Mansion B1F","LG",5,34,34]],"90":[["Cinnabar Island","FR",40,15,25]],"92":[["Pokemon Tower 3F","FRLG",90,13,19],["Pokemon Tower 4F-5F","FRLG",86,13,19],["Pokemon Tower 6F","FRLG",85,14,19],["Pokemon Tower 7F","FRLG",75,15,19]],"93":[["Pokemon Tower 7F","FRLG",15,23,25],["Pokemon Tower 6F","FRLG",6,21,23],["Pokemon Tower 4F-5F","FRLG",5,20,20],["Pokemon Tower 3F","FRLG",1,20,20]],"95":[["Victory Road","FRLG",30,40,48],["Route 10 (Rock Tunnel) B1F","FRLG",10,13,17],["Route 10 (Rock Tunnel) 1F","FRLG",5,13,15]],"96":[["Route 11","FRLG",25,11,15],["Berry Forest","FRLG",10,34,34]],"97":[["Berry Forest","FRLG",5,37,40]],"98":[["Route 12","LG",84,15,35],["Route 13","LG",84,15,35],["Route 19","LG",80,15,25],["Seafoam Islands (Surf or Fish)","LG",80,15,30],["Route 12","FR",20,5,15],["Route 13","FR",20,5,15],["Route 19","FR",20,5,15],["Seafoam Islands (Surf or Fish)","FR",20,5,15]],"99":[["Route 19","LG",4,25,35]],"100":[["Route 10 (North)","FRLG",40,14,17],["Power Plant","FRLG",30,22,25]],"101":[["Cerulean Cave","FRLG",5,58,58]],"102":[["Safari Zone (Center Area)","FRLG",20,24,25],["Safari Zone (Area 1)","FRLG",20,23,25],["Safari Zone (Area 2)","FRLG",20,25,27],["Safari Zone (Area 3)","FRLG",20,25,27]],"104":[["Pokemon Tower 7F","FRLG",10,17,19],["Pokemon Tower 3F","FRLG",9,15,17],["Pokemon Tower 4F-5F","FRLG",9,15,17],["Pokemon Tower 6F","FRLG",9,17,19]],"105":[["Pokemon Tower 6F","FRLG",100,30,30],["Victory Road","FRLG",5,44,48]],"109":[["Pokemon Mansion 1F-3F","FR",30,28,30],["Pokemon Mansion B1F","FR",30,28,30],["Pokemon Mansion 1F-3F","LG",5,28,28],["Pokemon Mansion B1F","LG",5,38,38]],"110":[["Pokemon Mansion 1F-3F","FR",5,32,32],["Pokemon Mansion B1F","FR",5,34,34]],"111":[["Safari Zone (Center Area)","FRLG",20,25,25],["Safari Zone (Area 2)","FRLG",20,26,26]],"113":[["Safari Zone (Area 2)","FRLG",4,26,26],["Safari Zone (Center Area)","FRLG",1,23,23]],"114":[["Route 21","FRLG",100,17,28],["Treasure Beach","FRLG",30,33,35]],"115":[["Safari Zone (Area 1)","FRLG",4,25,25],["Safari Zone (Area 3)","FRLG",1,28,28]],"116":[["Route 12","FR",84,15,35],["Route 13","FR",84,15,35],["Route 19","FR",80,15,25],["Seafoam Islands (Surf or Fish)","FR",80,15,30],["Route 12","LG",20,5,15],["Route 13","LG",20,5,15],["Route 19","LG",20,5,15],["Seafoam Islands (Surf or Fish)","LG",20,5,15]],"117":[["Route 19","FR",4,25,35],["Cinnabar Island","FR",4,25,35]],"118":[["Safari Zone (Fishing)","FRLG",60,5,15],["Fuchsia City","FRLG",60,5,15]],"119":[["Fuchsia City","FRLG",40,20,30]],"120":[["Cinnabar Island","LG",40,15,25]],"123":[["Safari Zone (Center Area)","FR",4,23,23],["Safari Zone (Area 1)","FR",1,28,28]],"125":[["Power Plant","FR",5,32,35]],"126":[["Mt. Ember","LG",5,38,40]],"127":[["Safari Zone (Center Area)","LG",4,23,23],["Safari Zone (Area 1)","LG",1,28,28]],"128":[["Safari Zone (Area 3)","FRLG",4,35,35],["Safari Zone (Area 2)","FRLG",1,28,28]],"129":[["Vermilion City","FRLG",100,0,0],["Vermilion Harbor","FRLG",100,5,5],["Route 11","FRLG",100,5,5],["Route 10 (North)","FRLG",100,5,5]],"130":[["Seafoam Islands (Surf or Fish)","FRLG",16,15,35],["Route 12","FRLG",15,15,25],["Route 13","FRLG",15,15,25],["Fuchsia City","FRLG",15,15,25]],"132":[["Route 14","FRLG",15,23,23],["Pokemon Mansion B1F","FRLG",10,30,30],["Route 13","FRLG",5,25,25],["Route 15","FRLG",5,25,25]],"143":[["Route 12 (Roadblock)","FRLG",100,30,30],["Route 16 (Roadblock)","FRLG",100,30,30]],"144":[["Seafoam Islands B4F","FRLG",100,50,50]],"145":[["Power Plant","FRLG",100,50,50]],"146":[["Mt. Ember","FRLG",100,50,50]],"147":[["Safari Zone","FRLG",15,15,25]],"148":[["Safari Zone","FRLG",1,25,35]],"150":[["Cerulean Cave","FRLG",100,70,70]]};
+const ENC = {"10":[["Viridian Forest","FRLG",40,3,5],["Route 24","FRLG",20,7,7]],"11":[["Viridian Forest","LG",10,4,6],["Viridian Forest","FR",5,5,5],["Route 24","LG",4,8,8],["Route 24","FR",1,8,8]],"13":[["Viridian Forest","FRLG",40,3,5],["Route 24","FRLG",20,7,7]],"14":[["Viridian Forest","FR",10,4,6],["Viridian Forest","LG",5,5,5],["Route 24","FR",4,8,8],["Route 24","LG",1,8,8]],"16":[["Route 1","FRLG",50,2,5],["Route 2","FRLG",45,2,5],["Route 5","FRLG",40,13,16],["Route 3","FRLG",30,6,7]],"17":[["Berry Forest","FRLG",20,37,37],["Route 13","FRLG",5,29,29]],"19":[["Route 1","FRLG",50,2,4],["Route 22","FRLG",45,2,5],["Route 2","FRLG",45,2,5],["Route 9","FRLG",40,14,17]],"20":[["Pokemon Mansion 1F-3F","FRLG",30,32,36],["Route 17","FRLG",25,25,29]],"21":[["Route 3","FRLG",35,6,8],["Route 4","FRLG",35,8,12],["Route 11","FRLG",35,13,17],["Route 9","FRLG",35,13,17],["Mt. Ember","FR",15,30,32],["Mt. Ember","LG",10,32,32]],"22":[["Mt. Ember","FRLG",25,38,40],["Route 23","FRLG",25,40,44],["Route 18","FRLG",15,25,29]],"23":[["Route 11","FR",40,12,15],["Route 4","FR",25,6,12],["Route 9","FR",25,11,17]],"24":[["Route 23","FR",5,44,44]],"25":[["Power Plant","FRLG",25,22,26],["Viridian Forest","FRLG",5,3,5]],"27":[["Route 11","LG",40,12,15],["Route 4","LG",25,6,12],["Route 9","LG",25,11,17]],"28":[["Route 23","LG",5,44,44]],"29":[["Safari Zone (Center Area)","LG",20,22,22],["Route 3","LG",14,6,7],["Safari Zone (Area 1)","FR",5,24,24],["Route 3","FR",1,6,6]],"30":[["Safari Zone (Center Area)","LG",10,31,31],["Safari Zone (Center Area)","FR",5,31,31]],"32":[["Safari Zone (Center Area)","FR",20,22,22],["Route 3","FR",14,6,7],["Safari Zone (Area 1)","LG",5,24,24],["Route 3","LG",1,6,6]],"33":[["Safari Zone (Center Area)","FR",10,31,31],["Safari Zone (Center Area)","LG",5,31,31]],"35":[["Mt. Moon B2F","FRLG",6,10,12]],"37":[["Route 8","LG",20,15,18],["Pokemon Mansion 1F-3F","LG",15,30,32]],"39":[["Route 3","FRLG",10,3,7]],"41":[["Mt. Moon 1F","FRLG",69,7,10],["Seafoam Islands 1F","FRLG",34,22,26]],"42":[["Seafoam Islands B4F","FRLG",15,26,30]],"43":[["Route 12","FR",35,22,26],["Two Island","FR",30,30,32]],"44":[["Berry Forest","FR",20,35,35],["Route 12","FR",5,28,30]],"46":[["Mt. Moon B1F","FRLG",100,5,10],["Safari Zone (Area 1)","FRLG",15,22,22]],"47":[["Safari Zone (Center Area)","FRLG",5,30,30]],"48":[["Route 12","FRLG",30,24,26]],"49":[["Safari Zone (Area 2)","FRLG",5,32,32],["Berry Forest","FRLG",5,37,40]],"50":[["Diglett's Cave","FRLG",95,15,22]],"51":[["Diglett's Cave","FRLG",5,29,31]],"52":[["Route 7","FRLG",40,17,20],["Route 5","FRLG",35,10,16],["Treasure Beach","FRLG",10,31,31]],"53":[["Treasure Beach","FRLG",5,37,40]],"54":[["Fuchsia City","FR",100,20,40],["Seafoam Islands 1F","FR",55,26,33],["Two Island","FR",5,31,31]],"55":[["Seafoam Islands B3F","FR",15,32,34],["Two Island","FR",5,37,40]],"56":[["Route 22","FRLG",45,2,5],["Route 23","FRLG",30,32,34],["Route 10 (Rock Tunnel) 1F","FRLG",15,16,17]],"57":[["Victory Road","FRLG",10,42,42]],"58":[["Route 8","FR",20,15,18],["Pokemon Mansion 1F-3F","FR",15,30,32]],"60":[["Fuchsia City","FRLG",60,5,15]],"61":[["Route 22","FRLG",40,20,30],["Cerulean Cave","FRLG",40,20,30]],"63":[["Route 24","FRLG",15,8,12]],"66":[["Victory Road","FRLG",20,32,34],["Route 10 (Rock Tunnel) 1F","FRLG",15,16,17],["Mt. Ember","FRLG",10,35,35]],"67":[["Victory Road","FRLG",5,44,48]],"69":[["Route 12","LG",35,22,26],["Two Island","LG",30,30,32]],"70":[["Berry Forest","LG",20,35,35],["Route 12","LG",5,28,30]],"72":[["Route 12","FRLG",100,5,40],["Route 19","FRLG",100,5,40],["Cinnabar Island","FRLG",100,5,40]],"73":[["One Island","FRLG",5,35,40]],"74":[["Kindle Road","FRLG",95,5,30],["Route 10 (Rock Tunnel) 1F","FRLG",35,15,17],["Mt. Moon B2F","FRLG",30,9,10]],"75":[["Kindle Road","FRLG",5,25,40]],"77":[["Mt. Ember","FRLG",35,30,36]],"78":[["Kindle Road","FRLG",5,37,40]],"79":[["Fuchsia City","LG",100,20,40],["Seafoam Islands 1F","LG",55,26,33],["Two Island","LG",5,31,31]],"80":[["Seafoam Islands B3F","LG",15,32,34],["Two Island","LG",5,37,40]],"81":[["Power Plant","FRLG",30,22,25]],"82":[["Power Plant","LG",15,31,34],["Power Plant","FR",10,31,34]],"84":[["Route 18","FRLG",35,24,28],["Safari Zone (Area 1)","FRLG",20,26,26]],"86":[["Seafoam Islands (Surf or Fish)","FRLG",60,25,35]],"87":[["Seafoam Islands B4F","FRLG",10,34,36]],"88":[["Pokemon Mansion 1F-3F","LG",30,28,30],["Pokemon Mansion 1F-3F","FR",5,28,28]],"89":[["Pokemon Mansion 1F-3F","LG",5,32,32]],"90":[["Cinnabar Island","FR",40,15,25]],"92":[["Pokemon Tower 3F","FRLG",90,13,19]],"93":[["Pokemon Tower 7F","FRLG",15,23,25]],"95":[["Victory Road","FRLG",30,40,48],["Route 10 (Rock Tunnel) B1F","FRLG",10,13,17]],"96":[["Route 11","FRLG",25,11,15],["Berry Forest","FRLG",10,34,34]],"97":[["Berry Forest","FRLG",5,37,40]],"98":[["Route 12","LG",84,15,35],["Route 19","LG",80,15,25],["Route 12","FR",20,5,15],["Route 19","FR",20,5,15]],"99":[["Route 19","LG",4,25,35]],"100":[["Route 10 (North)","FRLG",40,14,17],["Power Plant","FRLG",30,22,25]],"101":[["Cerulean Cave","FRLG",5,58,58]],"102":[["Safari Zone (Center Area)","FRLG",20,24,25]],"104":[["Pokemon Tower 7F","FRLG",10,17,19]],"105":[["Pokemon Tower 6F","FRLG",100,30,30],["Victory Road","FRLG",5,44,48]],"109":[["Pokemon Mansion 1F-3F","FR",30,28,30],["Pokemon Mansion 1F-3F","LG",5,28,28]],"110":[["Pokemon Mansion 1F-3F","FR",5,32,32]],"111":[["Safari Zone (Center Area)","FRLG",20,25,25]],"113":[["Safari Zone (Area 2)","FRLG",4,26,26]],"114":[["Route 21","FRLG",100,17,28],["Treasure Beach","FRLG",30,33,35]],"115":[["Safari Zone (Area 1)","FRLG",4,25,25]],"116":[["Route 12","FR",84,15,35],["Route 19","FR",80,15,25],["Route 12","LG",20,5,15],["Route 19","LG",20,5,15]],"117":[["Route 19","FR",4,25,35],["Cinnabar Island","FR",4,25,35]],"118":[["Safari Zone (Fishing)","FRLG",60,5,15]],"119":[["Fuchsia City","FRLG",40,20,30]],"120":[["Cinnabar Island","LG",40,15,25]],"123":[["Safari Zone (Center Area)","FR",4,23,23]],"125":[["Power Plant","FR",5,32,35]],"126":[["Mt. Ember","LG",5,38,40]],"127":[["Safari Zone (Center Area)","LG",4,23,23]],"128":[["Safari Zone (Area 3)","FRLG",4,35,35]],"129":[["Vermilion City","FRLG",100,0,0],["Route 11","FRLG",100,5,5],["Route 10 (North)","FRLG",100,5,5]],"130":[["Seafoam Islands (Surf or Fish)","FRLG",16,15,35],["Route 12","FRLG",15,15,25],["Fuchsia City","FRLG",15,15,25]],"132":[["Route 14","FRLG",15,23,23],["Pokemon Mansion B1F","FRLG",10,30,30]],"143":[["Route 12 (Roadblock)","FRLG",100,30,30],["Route 16 (Roadblock)","FRLG",100,30,30]],"144":[["Seafoam Islands B4F","FRLG",100,50,50]],"145":[["Power Plant","FRLG",100,50,50]],"146":[["Mt. Ember","FRLG",100,50,50]],"147":[["Safari Zone","FRLG",15,15,25]],"148":[["Safari Zone","FRLG",1,25,35]],"150":[["Cerulean Cave","FRLG",100,70,70]]};
 const PRIZE = {"63":{"FR":{"c":180,"lv":9},"LG":{"c":120,"lv":7}},"35":{"FR":{"c":500,"lv":8},"LG":{"c":750,"lv":12}},"147":{"FR":{"c":2800,"lv":18},"LG":{"c":4600,"lv":24}},"123":{"FR":{"c":5500,"lv":25}},"127":{"LG":{"c":2500,"lv":18}},"137":{"FR":{"c":9999,"lv":26},"LG":{"c":6500,"lv":18}}};
 
 // ENC[dex] = [[area, game, rate%, lvLo, lvHi], ...] — best areas first.
@@ -915,6 +920,7 @@ const ROUTES = [
     {n:57,name:"Primeape"},{n:132,name:"Ditto"},{n:67,name:"Machoke"},{n:101,name:"Electrode"},
     {n:61,name:"Poliwhirl",t:"Super Rod"},{n:150,name:"Mewtwo",t:"legendary"}
   ]},
+  { area:"⇄ NOT IN MY VERSION — get these from a partner", dynamic:"theirs", note:"These only spawn in the other version. Each row shows where a partner catches it and at what rate, so they know where to go. Catch spares of YOUR exclusives to swap back.", mons:[] },
   { area:"⇄ NPC trades — all 9, each one-time", note:"Farfetch'd, Mr. Mime, Jynx and Lickitung are TRADE-ONLY — confirmed no wild encounter exists. The Cinnabar Lab three are optional. Spearow for the Farfetch'd trade is on Routes 3,4,9,10,11,16,17,18,22,23.", mons:[
     {n:122,name:"Mr. Mime",t:"Rt2 — give Abra"},
     {n:83,name:"Farfetch'd",t:"Vermilion — give Spearow"},
@@ -946,6 +952,61 @@ const ROUTES = [
   ]}
 ];
 
+
+// ============ BEST-LOCATION PLACEMENT ============
+// Route view places each wild species under the section where it is EASIEST
+// to catch for the viewing player's version. ENC area names are mapped to the
+// chronological section titles in ROUTES. Alternatives stay in the expanded panel.
+const AREA_TO_SECTION = [
+  [/^Route 1$/,                      'Route 1'],
+  [/^Route 22$/,                     'Route 22'],
+  [/^Route 2$|^Viridian Forest$/,    'Route 2 & Viridian Forest'],
+  [/^Route 3$/,                      'Route 3'],
+  [/^Mt\. Moon/,                     'Mt. Moon'],
+  [/^Route 4$/,                      'Route 4 → Cerulean City'],
+  [/^Route 24$|^Route 25$/,          'Routes 24 & 25 (Nugget Bridge → Bill)'],
+  [/^Route 5$|^Route 6$/,            'Routes 5 & 6 → Vermilion'],
+  [/^Vermilion/,                     'Vermilion City'],
+  [/^Route 11$|^Diglett/,            'Route 11 & Diglett\'s Cave'],
+  [/^Route 9$|^Route 10/,            'Route 10 → Rock Tunnel'],
+  [/^Pokemon Tower|^Pokémon Tower/,  'Lavender Town & Pokémon Tower'],
+  [/^Route 7$|^Route 8$/,            'Routes 7 & 8 → Celadon City'],
+  [/^Route 1[2-5]/,                  'Routes 12–15'],
+  [/^Route 1[6-8]/,                  'Routes 16–18 (Cycling Road)'],
+  [/^Fuchsia|^Safari Zone/,          'Fuchsia City & Safari Zone'],
+  [/^Route 19$|^Route 20$|^Seafoam/, 'Routes 19–20 & Seafoam Islands'],
+  [/^Route 21$|^Cinnabar Island/,    'Route 21 → Cinnabar Island'],
+  [/^Pokemon Mansion|^Pokémon Mansion/,'Pokémon Mansion'],
+  [/^Power Plant/,                   'Power Plant'],
+  [/^Route 23$|^Victory Road/,       'Route 23 & Victory Road'],
+  [/Island|Beach|Kindle|Mt\. Ember|Berry Forest|Bond Bridge|Cape Brink|Icefall|Ruin Valley/,'Sevii Islands — Kanto species found here'],
+  [/^Cerulean Cave/,                 'Cerulean Cave (post-Elite Four)'],
+];
+function sectionForArea(area){
+  for(const [re,title] of AREA_TO_SECTION){ if(re.test(area)) return title; }
+  return null;
+}
+// species whose ENC entry is a fixed/static encounter already hand-placed with a tag
+const STATIC_PLACED = new Set([143,144,145,146,150]);
+
+// Returns {section, entry} for the best catch spot of species n in version ver,
+// breaking rate ties toward the EARLIEST section so you catch it soonest.
+function bestSpot(n, ver){
+  if(STATIC_PLACED.has(n)) return null;
+  const rows=encFor(n, ver); if(!rows.length) return null;
+  const maxRate=Math.max(...rows.map(r=>r[2]));
+  let best=null;
+  rows.filter(r=>r[2]===maxRate).forEach(r=>{
+    const sec=sectionForArea(r[0]); if(!sec) return;
+    const idx=ROUTES.findIndex(s=>s.area===sec); if(idx<0) return;
+    if(!best || idx<best.idx) best={idx, section:sec, entry:r};
+  });
+  return best;
+}
+// A hand-written ROUTES entry describes a non-wild acquisition if its tag names one.
+function isMethodEntry(m){
+  return !!(m.t && /give|trade|swap|gift|prize|coins|Fossil|Amber|Stone|\bLv\d|legendary|event|pick one|story|TRADE|not required/i.test(m.t));
+}
 
 const SEEN=new Set(); const ALL=[];
 const NAME={};
@@ -1221,13 +1282,17 @@ function renderFamily(n){
   // --- where to catch it, and how hard ---
   const rows=encFor(n,ver);
   if(rows.length){
-    html+='<div class="enc-head">WILD ENCOUNTERS ('+VER_LABEL[ver]+')</div>';
-    rows.forEach(r=>{
+    const bs=bestSpot(n,ver);
+    html+='<div class="enc-head">WHERE TO CATCH ('+VER_LABEL[ver]+') — best first</div>';
+    rows.forEach((r,i)=>{
       const b=easeBand(r[2]);
       const lv = r[3]===r[4] ? 'Lv'+r[3] : 'Lv'+r[3]+'–'+r[4];
-      html+=`<div class="enc-line"><span class="enc-rate ${b.k}">${r[2]}%</span> `+
-            `<span class="enc-area">${r[0]}</span> <span class="enc-lv">${lv}</span></div>`;
+      const isBest = bs && r[0]===bs.entry[0] && r[2]===bs.entry[2];
+      html+=`<div class="enc-line${isBest?' enc-best':''}"><span class="enc-rate ${b.k}">${r[2]}%</span> `+
+            `<span class="enc-area">${r[0]}</span> <span class="enc-lv">${lv}</span>`+
+            (isBest?'<span class="enc-flag">★ BEST</span>':(i===0&&!bs?'':''))+`</div>`;
     });
+    if(rows.length>1) html+='<div class="enc-alt">'+(rows.length-1)+' alternative spot'+(rows.length>2?'s':'')+' listed above — pick by level or convenience.</div>';
     const adv=evoAdvice(n,ver);
     if(adv) html+=`<div class="enc-tip ${adv.good?'good':''}">⤷ ${adv.txt}</div>`;
   }
@@ -1277,6 +1342,7 @@ function matches(m){
   if(filter==='coord')    return !!COORDINATE[m.n];
   if(filter==='perGame')  return !!ONE_PER_GAME[m.n];
   if(filter==='mine')     return cantCatch(m.n);
+  if(filter==='myexcl')   return verOf(m.n)===(playerById(viewAs).ver||'LG');
   return true;
 }
 
@@ -1320,7 +1386,8 @@ function buildRow(m, showWhere){
   if(bd) tags.push('<span class="tag ease-'+bd.k+'">'+bd.label+'</span>');
   if(m.t){
     let cls='info';
-    if(m.t.includes('TRADE')||m.t.includes('give')||m.t.includes('trade')||m.t.includes('swap')) cls='trade';
+    if(m.t.startsWith('★')) cls='best';
+    else if(m.t.includes('TRADE')||m.t.includes('give')||m.t.includes('trade')||m.t.includes('swap')) cls='trade';
     else if(m.t.includes('legendary')||m.t.includes('event')||m.t.includes('not required')) cls='special';
     else if(m.t.includes('rare')) cls='rare';
     else if(m.t.includes('Rod')||m.t.includes('surf')) cls='water';
@@ -1379,7 +1446,7 @@ function buildRow(m, showWhere){
 // collapse the one we came from, then scroll it into view and flash it.
 function jumpTo(target){
   // if a filter or search would hide the target, reset to a view that shows it
-  const wouldShow = ()=>ROUTES.some(sec=>sec.mons.some(mm=>mm.n===target && matches(mm)));
+  const wouldShow = ()=>{ const probe={n:target,name:NAME[target]||''}; return matches(probe); };
   if(!wouldShow()){
     filter='all';
     document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.toggle('on',x.dataset.filter==='all'));
@@ -1389,6 +1456,9 @@ function jumpTo(target){
   }
   // make sure any route section holding the target is open (route view only)
   if(sortMode==='route'){
+    // open the best-spot section (wild) and any hand-written section holding it
+    const bs=bestSpot(target, playerById(viewAs).ver||'LG');
+    if(bs) delete collapsed[bs.section];
     ROUTES.forEach(sec=>{ if(sec.mons.some(mm=>mm.n===target)) delete collapsed[sec.area]; });
     saveCollapsed();
   }
@@ -1460,13 +1530,86 @@ function render(){
     return;
   }
 
+  // ---- compute membership: each wild species goes under its BEST spot ----
+  const myVerR=playerById(viewAs).ver||'LG';
+  const membership={};                       // section title -> mon[]
+  ROUTES.forEach(sec=>{ membership[sec.area]=[]; });
+  const placedWild=new Set();
+  // 1) data-driven wild placement
+  const otherVer = myVerR==='LG' ? 'FR' : 'LG';
+  const theirsSec = ROUTES.find(s=>s.dynamic==='theirs');
+  // TRUE opposite-version exclusives (species-level, from the verified list) —
+  // includes stone-evolutions like Arcanine that never appear wild.
+  const theirsSet = new Set(myVerR==='LG' ? FR_ONLY : LG_ONLY);
+
+  // 1a) wild species catchable in my version -> FIRST encounter + BEST spot
+  //     (one row if they're the same place). Checks are keyed by dex number,
+  //     so ticking either row ticks both.
+  const lvTxt=e=> e[3]===e[4] ? 'Lv'+e[3] : 'Lv'+e[3]+'–'+e[4];
+  Object.keys(ENC).map(Number).forEach(n=>{
+    if(theirsSet.has(n)) return;                 // handled below
+    const bs=bestSpot(n,myVerR); if(!bs) return;
+    const name=NAME[n]||('#'+n);
+    // earliest section (chronologically) where it appears at ANY rate
+    let first=null;
+    encFor(n,myVerR).forEach(r=>{
+      const sec=sectionForArea(r[0]); if(!sec) return;
+      const idx=ROUTES.findIndex(s=>s.area===sec); if(idx<0) return;
+      if(!first || idx<first.idx || (idx===first.idx && r[2]>first.entry[2])) first={idx,section:sec,entry:r};
+    });
+    if(first && first.section!==bs.section){
+      // early row: what you get here, and where it's better
+      membership[first.section].push({n, name,
+        t:first.entry[2]+'% · '+lvTxt(first.entry)+' · ★ '+bs.entry[2]+'% at '+bs.entry[0], first:true});
+      // best row
+      membership[bs.section].push({n, name, t:'★ BEST '+bs.entry[2]+'% · '+lvTxt(bs.entry), best:true});
+    } else {
+      membership[bs.section].push({n, name, t:'★ '+bs.entry[2]+'% · '+lvTxt(bs.entry), best:true});
+    }
+    placedWild.add(n);
+  });
+  // 1b) every opposite-version exclusive -> the trade-targets section,
+  //     tagged with where/how the PARTNER gets it
+  if(theirsSec){
+    [...theirsSet].sort((a,b)=>a-b).forEach(n=>{
+      const name=NAME[n]||('#'+n);
+      const ob=bestSpot(n,otherVer);
+      let t;
+      if(ob){
+        const e=ob.entry;
+        const lv = e[3]===e[4] ? 'Lv'+e[3] : 'Lv'+e[3]+'–'+e[4];
+        t=VER_LABEL[otherVer]+': '+e[0]+' · '+e[2]+'% · '+lv;
+      } else {
+        const pre=PRE[n];
+        t=VER_LABEL[otherVer]+': evolve '+(pre?NAME[pre.from]+' ('+pre.how+')':'— no wild spot');
+      }
+      membership[theirsSec.area].push({n, name, t, best:true});
+      placedWild.add(n);
+    });
+  }
+  // 2) hand-written entries: keep method/acquisition rows, and wild rows only
+  //    for species that have no ENC data (so nothing silently disappears)
+  ROUTES.forEach(sec=>{
+    sec.mons.forEach(m=>{
+      if(theirsSet.has(m.n)) return;             // lives only in the trade-targets section
+      if(isMethodEntry(m)) { membership[sec.area].push(m); return; }
+      if(!placedWild.has(m.n)) membership[sec.area].push(m);
+    });
+  });
+  // keep each section's list stable: dex order, best-spot first
+  Object.values(membership).forEach(list=>list.sort((a,b)=>((b.best||b.first)?1:0)-((a.best||a.first)?1:0) || a.n-b.n));
+
   ROUTES.forEach((section)=>{
-    const visible=section.mons.filter(matches);
-    if(!visible.length) return;
+    const mons=membership[section.area]||[];
+    const visible=mons.filter(matches);
+    // a section whose species all have better spots elsewhere can still carry
+    // useful guidance in its note — show it (only under the default filter)
+    const noteOnly = !visible.length && !!section.note && filter==='all' && !search && !hideDone;
+    if(!visible.length && !noteOnly) return;
     anyShown=true;
-    const caught=section.mons.filter(m=>allHave(m.n)).length;
-    const done=caught===section.mons.length;                          // everyone has all
-    const mineDone=section.mons.every(m=>caughtBy(m.n,viewAs));        // viewing player has all
+    const caught=mons.filter(m=>allHave(m.n)).length;
+    const done=caught===mons.length;                          // everyone has all
+    const mineDone=mons.every(m=>caughtBy(m.n,viewAs));        // viewing player has all
     const markState = done ? 'all' : (mineDone ? 'mine' : '');
     const isCol=collapsed[section.area];
     const idx=ROUTES.indexOf(section)+1;
@@ -1477,8 +1620,8 @@ function render(){
       <div class="route-trail"></div>
       <div class="route-head" data-area="${section.area.replace(/"/g,'&quot;')}">
         <div class="route-marker ${markState}" title="${done?'Everyone has all — route complete':(mineDone?'You have all here':'')}">${done?'':(mineDone?'':idx)}</div>
-        <div class="route-title">${section.area}</div>
-        <div class="route-count">${caught}/${section.mons.length} ${isCol?'▸':'▾'}</div>
+        <div class="route-title">${section.dynamic==='theirs' ? '⇄ NOT IN '+VER_LABEL[myVerR].toUpperCase()+' — get from a '+VER_LABEL[otherVer]+' partner' : section.area}</div>
+        <div class="route-count">${mons.length?caught+"/"+mons.length:"info"} ${isCol?'▸':'▾'}</div>
       </div>
       ${section.note&&!isCol?`<div class="route-note">${section.note}</div>`:''}
       ${section.link&&!isCol?`<a class="route-link" href="${section.link.url}" target="_blank" rel="noopener noreferrer">${section.link.label} ↗</a>`:''}
@@ -1502,7 +1645,7 @@ function render(){
 // ============ PANELS ============
 function renderTradePanel(){
   const panel=document.getElementById('tradePanel');
-  if(!['trade','mine','coord','perGame'].includes(filter)){ panel.classList.remove('open'); return; }
+  if(!['trade','mine','myexcl','coord','perGame'].includes(filter)){ panel.classList.remove('open'); return; }
   panel.classList.add('open');
   const box=document.getElementById('tradeContent');
 
@@ -1537,10 +1680,31 @@ function renderTradePanel(){
   }
   if(filter==='mine'){
     const me=playerById(viewAs);
-    const list=ALL.filter(m=>cantCatch(m.n)).map(m=>m.name);
+    const list=ALL.filter(m=>cantCatch(m.n));
+    const have=list.filter(m=>caughtBy(m.n,me.id)).length;
     const suppliers=players.filter(p=>p.id!==me.id && p.ver!==me.ver).map(p=>p.name);
-    box.innerHTML=`<b>${me.name} (${VER_LABEL[me.ver]}) must trade for these ${list.length}:</b><br>${list.join(', ')}`+
-      `<br><br><b>Can supply:</b> ${suppliers.length?suppliers.join(', '):'<span>nobody — everyone is on the same version!</span>'}`;
+    box.innerHTML=`<b>${me.name} (${VER_LABEL[me.ver]}) can't catch these ${list.length} — ${have} already traded in, ${list.length-have} to go:</b><br>`+
+      list.map(m=>(caughtBy(m.n,me.id)?'<span>✓ '+m.name+'</span>':m.name)).join(', ')+
+      `<br><br><b>Who can supply:</b> ${suppliers.length?suppliers.join(', '):'<span>nobody — everyone is on the same version!</span>'}`;
+    return;
+  }
+  if(filter==='myexcl'){
+    const me=playerById(viewAs);
+    const mine=ALL.filter(m=>verOf(m.n)===(me.ver||'LG'));
+    const others=players.filter(p=>p.id!==me.id);
+    // for each exclusive: which partners still lack it -> that's how many spares to catch
+    let html=`<b>${me.name}'s ${VER_LABEL[me.ver]} exclusives (${mine.length}) — catch a spare for each partner who needs one:</b><br>`;
+    let totalSpares=0;
+    html+=mine.map(m=>{
+      const needers=others.filter(p=>!caughtBy(m.n,p.id));
+      totalSpares+=needers.length;
+      const gotMine=caughtBy(m.n,me.id)?'✓ ':'';
+      return needers.length
+        ? `${gotMine}${m.name} <span>×${needers.length} (${needers.map(p=>p.name).join(', ')})</span>`
+        : `<span>${gotMine}${m.name} — everyone has it</span>`;
+    }).join('<br>');
+    html+=`<br><br><b>Spares to catch in total: ${totalSpares}</b>`;
+    box.innerHTML=html;
     return;
   }
   // filter === 'trade' : who is missing what, and who has it
