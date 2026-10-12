@@ -231,6 +231,8 @@
     border-top:1px solid var(--parch-3);margin-top:0;padding-top:9px;
   }
   .infobox.open .info-body{display:block;}
+  .end-panels{max-width:760px;margin:6px auto 0;padding-bottom:calc(24px + env(safe-area-inset-bottom));}
+  .end-panels .infobox{margin-left:14px;margin-right:14px;}
   .info-body b{color:var(--ink-dk);}
 
   .disclaimer{
@@ -459,25 +461,6 @@
   .trade-panel h3{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#a87800;margin:0 0 7px;letter-spacing:.5px;}
   .trade-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.7;color:var(--ink-dk);}
   .trade-line span{color:var(--muted);}
-  .safari-box{box-shadow:inset 0 0 0 2px var(--grass);}
-  .safari-box .info-head{color:#2c6320;}
-  .safari-tip{font-size:9.5px;color:var(--ink);line-height:1.5;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid var(--parch-3);}
-  .safari-method{
-    font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.7px;
-    color:var(--muted);margin:7px 0 3px;
-  }
-  .safari-line{display:flex;align-items:baseline;gap:6px;font-size:11px;line-height:1.75;flex-wrap:wrap;}
-  .safari-line.got .safari-name{color:var(--muted);}
-  .safari-rate{font-weight:700;min-width:36px;text-align:right;font-size:10px;padding:0 4px;border-radius:3px;flex-shrink:0;}
-  .safari-rate.common{color:#255c1a;background:#dff2d2;}
-  .safari-rate.uncommon{color:#2c4f6b;background:#daeaf6;}
-  .safari-rate.scarce{color:#7a4a00;background:#fbe8c4;}
-  .safari-rate.grind{color:#fff;background:#a02818;}
-  .safari-name{color:var(--ink-dk);font-weight:600;}
-  .safari-area{color:#2c6320;font-weight:700;font-size:9.5px;background:#e8f4e0;border:1px solid var(--grass);border-radius:3px;padding:1px 5px;}
-  .safari-lv{color:var(--muted);font-size:9.5px;}
-  .safari-note{color:#a02818;font-size:9px;font-weight:700;}
-  .safari-foot{margin-top:6px;padding-top:5px;border-top:1px solid var(--parch-3);color:var(--muted);font-size:9.5px;font-weight:600;}
   .beast-box{box-shadow:inset 0 0 0 2px #b060c0;}
   .beast-box .info-head{color:#8848a8;}
   .info-body .warn{color:#a02818;margin-top:6px;display:block;}
@@ -640,34 +623,21 @@
   <b>Lose the Safari bars:</b> tap Share <b>⎋</b> → <b>Add to Home Screen</b>. Launches fullscreen with no browser toolbars. <span style="opacity:.7">(tap to dismiss)</span>
 </div>
 
-<div class="infobox safari-box" id="safariPanel">
-  <div class="info-head" data-info="safari"><span class="caret">▶</span> 🌿 SAFARI ZONE — FULL ROSTER</div>
-  <div class="info-body" id="safariBody"></div>
-</div>
+<main id="main"><div class="loading">connecting…</div></main>
 
+<div class="end-panels">
 <div class="infobox beast-box" id="beastPanel">
   <div class="info-head" data-info="beast"><span class="caret">▶</span> ROAMING LEGENDARY (post-game)</div>
   <div class="info-body" id="beastBody"></div>
 </div>
 
 <div class="infobox">
-  <div class="info-head" data-info="switch"><span class="caret">▶</span> SWITCH TRADING — HOW IT WORKS</div>
-  <div class="info-body">
-    Local wireless only — no online trading, and no Nintendo Switch Online membership needed. Both Switches must be physically near each other with the game running. Go to any Pokémon Center → upstairs → Pokémon Wireless Club → Union Room. Unlocks once you have the Pokédex from Oak. Up to 4 players. <b>Plan trades here, execute them when you're in the same room.</b><br><br>
-    <b>Pokémon HOME:</b> not connectable yet — support arrives <b>October 2026</b>, and it'll be deposit-only (FRLG → HOME, not back). So for now everything must come from another Switch copy of FRLG in the same room.<br><br>
-    <b>Trade-evolutions still work</b> over local wireless exactly like the old Link Cable — Kadabra, Machoke, Graveler and Haunter evolve on trade as normal.<br><br>
-    <b>Nugget Bridge trick note:</b> the repeatable-Nugget glitch was patched out of the European GBA release. If your Switch copy is based on that build it won't work, so don't rely on it for early money.
-  </div>
-</div>
-
-<div class="infobox">
   <div class="info-head" data-info="sources"><span class="caret">▶</span> SOURCES &amp; DATA NOTES</div>
   <div class="info-body">
-    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.<br><br><b>How to use:</b> tap P1/P2 to mark caught, ✎ for a note, a route header to collapse it. Everything syncs live between both trainers.<br><br><button class="reset-btn" id="resetBtn">reset all progress</button>
+    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.<br><br><b>How to use:</b> tap P1/P2 to mark caught, ✎ for a note, a route header to collapse it. Everything syncs live between all trainers.<br><br><button class="reset-btn" id="resetBtn">reset all progress</button>
   </div>
 </div>
-
-<main id="main"><div class="loading">connecting…</div></main>
+</div>
 
 
 <script type="module">
@@ -947,8 +917,8 @@ const ROUTES = [
     {n:134,name:"Vaporeon",t:"Water Stone"},{n:135,name:"Jolteon",t:"Thunder Stone"},{n:136,name:"Flareon",t:"Fire Stone"},
     {n:139,name:"Omastar",t:"Lv40"},{n:141,name:"Kabutops",t:"Lv40"},{n:149,name:"Dragonite",t:"Lv55"}
   ]},
-  { area:"Mew — does NOT count", note:"The Kanto Dex is 150, not 151. Mew is excluded from completion and isn't obtainable in normal play. Tracked here for interest only; it is not in your totals.", noCount:true, mons:[
-    {n:151,name:"Mew",t:"not required"}
+  { area:"✨ Mew — the secret 151st", note:"Not required — the Kanto Dex is 150 and Mew is excluded from your totals. It isn't catchable through normal play… but rumor has it a glitch still works on the Switch release. Feeling brave? Back up your save, do some digging, and tick this box if you pull it off.", noCount:true, mons:[
+    {n:151,name:"Mew",t:"bonus · not required"}
   ]}
 ];
 
@@ -1534,7 +1504,7 @@ function render(){
     }
     if(!anyShown) main.innerHTML='<div class="loading">nothing matches that filter.</div>';
     wireRowEvents(main);
-    renderBars(); renderTradePanel(); renderBeastPanel(); renderSafariPanel();
+    renderBars(); renderTradePanel(); renderBeastPanel();
     return;
   }
 
@@ -1576,6 +1546,36 @@ function render(){
     }
     placedWild.add(n);
   });
+  // 1c) Safari Zone is its own place: list EVERY Safari species for my
+  //     version there (one row each), even when a better spot exists elsewhere.
+  const safariSec = ROUTES.find(s=>/Safari Zone/.test(s.area));
+  if(safariSec){
+    const list=membership[safariSec.area];
+    Object.entries(SAFARI).forEach(([k,v])=>{
+      const n=+k, method=v[2], note=v[5];
+      let rate=v[1], area=v[3], lv=String(v[4]);
+      // prefer the version-specific encounter row (e.g. Nidoran differs FR vs LG)
+      const AREA_LBL={'Center Area':'Center','Area 1':'Area 1 (East)','Area 2':'Area 2 (North)','Area 3':'Area 3 (West)'};
+      const sz=encFor(n,myVerR).filter(r=>/^Safari Zone/.test(r[0])).sort((a,b)=>b[2]-a[2])[0];
+      if(sz){
+        rate=sz[2];
+        const sub=(sz[0].match(/\(([^)]+)\)/)||[])[1];
+        if(sub && AREA_LBL[sub]) area=AREA_LBL[sub];
+        lv = sz[3]===sz[4] ? String(sz[3]) : sz[3]+'-'+sz[4];
+      }
+      if(note.includes('FR only') && myVerR!=='FR') return;
+      if(note.includes('LG only') && myVerR!=='LG') return;
+      if(theirsSet.has(n)) return;
+      for(let i=list.length-1;i>=0;i--) if(list[i].n===n) list.splice(i,1);
+      const bs=bestSpot(n,myVerR);
+      const lvS='Lv'+String(lv).replace('-','–');
+      const base=rate+'% · Safari '+area+' · '+method+' · '+lvS;
+      const row={n, name:NAME[n]||('#'+n)};
+      if(bs && bs.entry[2]>rate){ row.t=base+' · ★ '+bs.entry[2]+'% at '+bs.entry[0]; row.first=true; }
+      else { row.t='★ '+base; row.best=true; }
+      list.push(row); placedWild.add(n);
+    });
+  }
   // 1b) every opposite-version exclusive -> the trade-targets section,
   //     tagged with where/how the PARTNER gets it
   if(theirsSec){
@@ -1647,7 +1647,6 @@ function render(){
   renderBars();
   renderTradePanel();
   renderBeastPanel();
-  renderSafariPanel();
 }
 
 // ============ PANELS ============
@@ -1726,40 +1725,6 @@ function renderTradePanel(){
     }).join(', ')+(missing.length>40?` <span>…+${missing.length-40} more</span>`:'')+'<br><br>';
   });
   box.innerHTML = html || '<span>Nothing to trade yet — nobody has something another player is missing.</span>';
-}
-
-function renderSafariPanel(){
-  const body=document.getElementById('safariBody');
-  const ver=playerById(viewAs).ver||'LG';
-  // version filter: a species shown only if its note has no opposite-version lock
-  const rows=Object.entries(SAFARI).map(([n,v])=>({n:+n,name:v[0],rate:v[1],method:v[2],area:v[3],lv:v[4],note:v[5]}))
-    .filter(r=>{
-      if(r.note.includes('FR only')) return ver==='FR';
-      if(r.note.includes('LG only')) return ver==='LG';
-      return true;
-    });
-  const order={Grass:0,Surf:1,'Old Rod':2,'Good Rod':3,'Super Rod':4};
-  const byMethod={};
-  rows.forEach(r=>{ (byMethod[r.method]=byMethod[r.method]||[]).push(r); });
-  let html='<div class="safari-tip">Shows each mon\u2019s <b>best</b> area &amp; rate — lead with a Lv11–49 Pokémon + Repel to force that spawn. <b>Rocks</b> ×2 catch / <b>Bait</b> ÷2 on the rare ones.</div>';
-  Object.keys(byMethod).sort((a,b)=>order[a]-order[b]).forEach(method=>{
-    html+='<div class="safari-method">'+method.toUpperCase()+'</div>';
-    byMethod[method].sort((a,b)=>b.rate-a.rate).forEach(r=>{
-      const got=caughtBy(r.n,viewAs);
-      const band = r.rate>=25?'common':r.rate>=10?'uncommon':r.rate>=4?'scarce':'grind';
-      const disp = r.name.replace(' F','♀').replace(' M','♂');
-      html+=`<div class="safari-line${got?' got':''}">`+
-        `<span class="safari-rate ${band}">${r.rate}%</span> `+
-        `<span class="safari-name">${got?'✓ ':''}${disp}</span> `+
-        `<span class="safari-area">${r.area}</span> `+
-        `<span class="safari-lv">Lv${r.lv}</span>`+
-        (r.note&&!r.note.includes('only')?`<span class="safari-note">${r.note}</span>`:'')+
-        `</div>`;
-    });
-  });
-  const total=rows.length, caught=rows.filter(r=>caughtBy(r.n,viewAs)).length;
-  html+=`<div class="safari-foot">${caught}/${total} caught here · ${playerById(viewAs).name} (${VER_LABEL[ver]})</div>`;
-  body.innerHTML=html;
 }
 
 const BEAST = { B:'Entei (Fire)', C:'Suicune (Water)', S:'Raikou (Electric)' };
