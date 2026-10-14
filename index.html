@@ -327,6 +327,8 @@
     font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;padding:2px 4px;border-radius:3px;
     border:1.5px solid var(--ink);color:var(--ink);background:var(--parch-2);white-space:nowrap;
   }
+  /* long route tags (rate · method · level · better-spot pointer) wrap inside the card instead of running off it */
+  .tag.long{white-space:normal;max-width:100%;line-height:1.45;overflow-wrap:anywhere;}
   .tag.fr{color:#fff;background:var(--fr);border-color:#a02818;}
   .tag.lg{color:#fff;background:var(--lg);border-color:#286818;}
   /* location-scoped version split — outlined, so it reads as subordinate to a true exclusive */
@@ -1381,7 +1383,7 @@ function buildRow(m, showWhere){
     else if(m.t.includes('Rod')||m.t.includes('surf')) cls='water';
     else if(m.t.includes('Stone')||m.t.includes('Lv')) cls='evo';
     else if(m.t.includes('Fossil')||m.t.includes('Amber')||m.t.includes('pick one')||m.t.includes('gift')||m.t.includes('coins')||m.t.includes('prize')) cls='item';
-    tags.push('<span class="tag '+cls+'">'+m.t+'</span>');
+    tags.push('<span class="tag '+cls+(m.t.length>28?' long':'')+'">'+m.t+'</span>');
   }
 
   const isCoord=!!COORDINATE[m.n], isPerGame=!!ONE_PER_GAME[m.n];
@@ -1549,7 +1551,7 @@ function render(){
     if(first && first.section!==bs.section){
       // early row: what you get here, and where it's better
       membership[first.section].push({n, name,
-        t:first.entry[2]+'% · '+mTxt(n,first.entry)+lvTxt(first.entry)+' · ★ '+bs.entry[2]+'% at '+bs.entry[0]+(methodOf(n,bs.entry)?', '+methodOf(n,bs.entry):''), first:true});
+        t:first.entry[2]+'% · '+mTxt(n,first.entry)+lvTxt(first.entry)+' · ★ '+bs.entry[2]+'% at '+bs.entry[0]+(methodOf(n,bs.entry)&&methodOf(n,bs.entry)!==methodOf(n,first.entry)?', '+methodOf(n,bs.entry):''), first:true});
       // best row
       membership[bs.section].push({n, name, t:'★ BEST '+bs.entry[2]+'% · '+mTxt(n,bs.entry)+lvTxt(bs.entry), best:true});
     } else {
@@ -1582,7 +1584,7 @@ function render(){
       const lvS='Lv'+String(lv).replace('-','–');
       const base=rate+'% · Safari '+area+' · '+(METH_ICON[method]?METH_ICON[method]+' ':'')+method+' · '+lvS;
       const row={n, name:NAME[n]||('#'+n)};
-      if(bs && bs.entry[2]>rate){ row.t=base+' · ★ '+bs.entry[2]+'% at '+bs.entry[0]+(methodOf(n,bs.entry)?', '+methodOf(n,bs.entry):''); row.first=true; }
+      if(bs && bs.entry[2]>rate){ row.t=base+' · ★ '+bs.entry[2]+'% at '+bs.entry[0]+(methodOf(n,bs.entry)&&methodOf(n,bs.entry)!==method?', '+methodOf(n,bs.entry):''); row.first=true; }
       else { row.t='★ '+base; row.best=true; }
       list.push(row); placedWild.add(n);
     });
