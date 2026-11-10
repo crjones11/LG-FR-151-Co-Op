@@ -546,6 +546,138 @@
   .badge-row{display:flex;align-items:center;gap:6px;flex-basis:100%;margin-top:2px;flex-wrap:wrap;}
   .badge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);font-weight:600;}
 
+
+  /* ============ HALL OF FAME ============ */
+  .hof-panel{display:none;margin:12px 14px 0;max-width:760px;}
+  .hof-panel.show{display:block;}
+  .hof-title{
+    font-family:'Press Start 2P',monospace;font-size:13px;text-align:center;letter-spacing:1px;
+    padding:12px 8px 10px;margin-bottom:-3px;position:relative;z-index:1;
+    background:linear-gradient(90deg,#a87800,#f8d848 30%,#fff6c0 50%,#f8d848 70%,#a87800);
+    background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:hofShimmer 4s linear infinite;
+    filter:drop-shadow(2px 2px 0 var(--navy-dk));
+  }
+  .hof-trophy{-webkit-text-fill-color:initial;color:initial;font-size:14px;}
+  @keyframes hofShimmer{from{background-position:200% 0}to{background-position:0 0}}
+  .hof-plaque{
+    position:relative;margin-top:10px;padding:12px 12px 10px;border-radius:10px;
+    background:linear-gradient(160deg,#284870 0%,#183050 55%,#102840 100%);
+    border:3px solid #f8b800;
+    box-shadow:inset 0 0 0 2px #102840, inset 0 0 0 4px #c89000, 0 3px 0 #6a4c00, 0 0 18px rgba(248,184,0,.35);
+    color:#f8f0d0;overflow:hidden;
+  }
+  .hof-plaque::before{ /* slow sheen sweeping across the plaque */
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,transparent 35%,rgba(255,240,180,.16) 50%,transparent 65%);
+    background-size:250% 100%;animation:hofSheen 6s ease-in-out infinite;
+  }
+  @keyframes hofSheen{0%{background-position:150% 0}60%,100%{background-position:-100% 0}}
+  .hof-head{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;margin-bottom:10px;}
+  .hof-rank{font-family:'Press Start 2P',monospace;font-size:8px;color:#f8d848;letter-spacing:1px;}
+  .hof-who{font-family:'Press Start 2P',monospace;font-size:15px;color:#fff;
+    text-shadow:2px 2px 0 #000, 0 0 10px currentColor;padding:2px 0;}
+  .hof-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#c8d8e8;}
+  .hof-team{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+  @media (min-width:700px){ .hof-team{grid-template-columns:repeat(6,1fr);} }
+  .hof-mon{
+    position:relative;background:var(--parch);border:2px solid #c89000;border-radius:7px;
+    box-shadow:inset 0 0 0 1px #fff, 0 2px 0 #6a4c00;
+    padding:7px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;
+    color:var(--ink-dk);
+  }
+  .hof-ball{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink-dk);margin-bottom:2px;
+    background:linear-gradient(180deg,#e03c28 0 44%,var(--ink-dk) 44% 56%,#fff 56%);position:relative;}
+  .hof-ball::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-3px 0 0 -3px;
+    border-radius:50%;background:#fff;border:1px solid var(--ink-dk);}
+  .hof-dex{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--muted);}
+  .hof-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;max-width:100%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hof-species{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--muted);}
+  .hof-lv{margin-top:2px;font-family:'Press Start 2P',monospace;font-size:8px;color:#6a4c00;
+    background:#f8d848;border:1px solid #a87800;border-radius:3px;padding:3px 4px 2px;}
+  .hof-foot{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;color:#f8d848;}
+  .hof-foot span{flex:1 1 100%;text-align:center;}
+  .hof-foot .hof-replay{margin-left:auto;}
+  .hof-edit,.hof-replay{background:none;border:1px solid rgba(248,216,72,.5);color:#f8d848;border-radius:4px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;cursor:pointer;}
+  .hof-invite{
+    margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--parch);border:3px dashed #c89000;border-radius:9px;padding:10px 12px;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-dk);
+  }
+  .hof-invite b{color:#a87800;}
+  .hof-invite span{flex:1 1 200px;}
+  .hof-btn{
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.5px;cursor:pointer;
+    border-radius:6px;padding:10px 12px 9px;border:2px solid var(--navy-dk);
+  }
+  .hof-btn.gold{background:linear-gradient(180deg,#ffe070,#f8b800);color:#402c00;box-shadow:inset 0 0 0 1px #fff6c0,0 3px 0 #6a4c00;}
+  .hof-btn.gold:active{transform:translateY(2px);box-shadow:inset 0 0 0 1px #fff6c0;}
+  .hof-btn.ghost{background:var(--parch);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;}
+  .hof-enter{
+    margin-left:auto;background:linear-gradient(180deg,#ffe070,#f8b800);color:#402c00;
+    border:2px solid #a87800;border-radius:5px;padding:3px 7px;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;white-space:nowrap;
+  }
+  .hof-enter.done{background:#183050;color:#f8d848;border-color:#f8b800;}
+  .sum-hof{font-size:11px;margin-left:2px;}
+
+  /* editor */
+  body.modal-open{overflow:hidden;}
+  .hof-modal{display:none;position:fixed;inset:0;z-index:90;background:rgba(16,40,64,.72);
+    padding:calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));overflow-y:auto;}
+  .hof-modal.open{display:block;}
+  .hof-dialog{max-width:520px;margin:0 auto;background:var(--parch);border:3px solid var(--navy);border-radius:10px;
+    box-shadow:inset 0 0 0 2px var(--gold),0 6px 0 var(--navy-dk);padding:14px 12px 12px;}
+  .hof-dtitle{font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.6;color:#a87800;margin-bottom:10px;}
+  .hof-field{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--ink-dk);}
+  .hof-dialog input{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--ink-dk);background:#fff;
+    border:2px solid var(--frame);border-radius:5px;padding:5px 7px;min-width:0;}
+  .hof-slots-label{margin:12px 0 6px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;}
+  .hof-slot{display:grid;grid-template-columns:18px 1fr 64px;gap:5px;align-items:center;margin-bottom:8px;}
+  .hof-slot .hof-nick-in{grid-column:2 / 4;font-size:14px;padding:4px 7px;}
+  .hof-slotn{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--ink);}
+  .hof-err{min-height:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a02818;font-weight:700;}
+  .hof-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px;}
+  .hof-actions #hofDel{margin-right:auto;color:#a02818;}
+
+  /* celebration */
+  .hof-overlay{display:none;position:fixed;inset:0;z-index:100;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 40%,#2c5a8c 0%,#102840 60%,#060f1c 100%);}
+  .hof-overlay.open{display:block;}
+  .hof-rays{position:absolute;left:50%;top:38%;width:220vmax;height:220vmax;margin:-110vmax 0 0 -110vmax;
+    background:repeating-conic-gradient(rgba(248,216,72,.14) 0 9deg,transparent 9deg 18deg);
+    animation:hofSpin 40s linear infinite;}
+  @keyframes hofSpin{to{transform:rotate(360deg)}}
+  .hof-confetti{position:absolute;inset:0;pointer-events:none;}
+  .hof-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:1px;opacity:.9;
+    animation:hofFall 3s linear infinite;}
+  @keyframes hofFall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(110vh) rotate(540deg)}}
+  .hof-stage{position:relative;height:100%;overflow-y:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:8px;text-align:center;padding:calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));}
+  .hof-kicker{font-family:'Press Start 2P',monospace;font-size:10px;color:#c8d8e8;letter-spacing:2px;
+    animation:hofRise .6s ease-out both;}
+  .hof-big{font-family:'Press Start 2P',monospace;font-size:clamp(20px,7vw,34px);line-height:1.3;
+    background:linear-gradient(90deg,#a87800,#f8d848 30%,#fffbe0 50%,#f8d848 70%,#a87800);background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(3px 3px 0 #000);animation:hofRise .7s .15s ease-out both, hofShimmer 3s linear infinite;}
+  .hof-champ{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#fff;max-width:520px;
+    animation:hofRise .6s .45s ease-out both;}
+  .hof-champ b{font-family:'Press Start 2P',monospace;font-size:13px;text-shadow:2px 2px 0 #000;}
+  .hof-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#c8d8e8;animation:hofRise .6s .6s ease-out both;}
+  .hof-stage .hof-team{width:100%;max-width:560px;margin:8px 0 10px;}
+  .hof-stage .hof-mon{animation:hofPop .5s cubic-bezier(.2,1.6,.4,1) both;}
+  .hof-stage .hof-btn{animation:hofRise .5s 3.2s ease-out both;}
+  @keyframes hofRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes hofPop{from{opacity:0;transform:scale(.3) rotate(-8deg)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    .hof-title,.hof-plaque::before,.hof-rays,.hof-confetti i,.hof-big{animation:none !important;}
+    .hof-confetti{display:none;}
+    .hof-stage *{animation:none !important;}
+  }
+
   /* checks scale down as players are added so rows still fit */
   .checks{display:flex;gap:4px;flex-shrink:0;}
   .checks[data-n="3"] .check{width:34px;font-size:9.5px;}
@@ -621,6 +753,10 @@
   </div>
 </header>
 
+<section class="hof-panel" id="hofPanel" aria-label="Hall of Fame"></section>
+<div class="hof-modal" id="hofModal"></div>
+<div class="hof-overlay" id="hofOverlay" aria-live="polite"></div>
+
 <div class="trade-panel" id="tradePanel">
   <h3>▸ TRADE LIST</h3>
   <div class="trade-line" id="tradeContent"></div>
@@ -667,6 +803,7 @@ const namesRef    = ref(db,'kanto-trail/names');
 const notesRef    = ref(db,'kanto-trail/notes');
 const claimsRef   = ref(db,'kanto-trail/claims');
 const playersRef  = ref(db,'kanto-trail/players');
+const hofRef      = ref(db,'kanto-trail/hof');
 
 // One-shot / must-choose. Each entry explains WHY it's limited.
 // MUST COORDINATE: a single game forces an either/or, so players must take
@@ -1177,6 +1314,8 @@ function renderPlayerCards(){
           badgeArt(gi)+`</div>`
         ).join('')}</div>
         <span class="badge-count">${p.badges}/8${p.badges?' — '+GYMS[p.badges-1]:''}</span>
+        ${hof[p.id] ? `<button type="button" class="hof-enter done" data-hof-open="${p.id}">🏆 CHAMPION</button>`
+          : p.badges>=8 ? `<button type="button" class="hof-enter" data-hof-open="${p.id}">🏆 BEAT THE LEAGUE?</button>` : ''}
       </div>`;
     wrap.appendChild(card);
   });
@@ -1201,6 +1340,7 @@ function renderPlayerCards(){
       savePlayers();
     });
   });
+  wrap.querySelectorAll('[data-hof-open]').forEach(el=>el.addEventListener('click',()=>openHofEditor(el.dataset.hofOpen)));
   wrap.querySelectorAll('[data-remove]').forEach(el=>{
     el.addEventListener('click',()=>{
       const p=playerById(el.dataset.remove);
@@ -1229,7 +1369,7 @@ function renderSetup(){
   sum.innerHTML = players.map(p=>
     `<span class="seg"><span class="dot ${p.id}"></span>${p.name}`+
     `<span class="sub2">${VER_LABEL[p.ver]} · ${STARTER_LABEL[p.starter]}</span>`+
-    `<span class="sum-badges">${p.badges}/8 badges</span></span>`
+    `<span class="sum-badges">${p.badges}/8 badges</span>${hof[p.id]?'<span class="sum-hof" title="Hall of Fame">🏆</span>':''}</span>`
   ).join('') + '<span class="edit">EDIT ▸</span>';
 }
 
@@ -1477,6 +1617,7 @@ function render(){
   applyPlayerColors();
   renderPlayerCards();
   renderSetup();
+  renderHof();
   renderViewAs();
 
   const main=document.getElementById('main');
@@ -1899,6 +2040,180 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   }
 });
 
+
+// ============ HALL OF FAME ============
+// kanto-trail/hof/{playerId} = { date:'YYYY-MM-DD', team:[{n,lv,nick}], dex:<caught at induction>, ts:<first induction>, edited? }
+// ts is set once, so editing a team later doesn't re-trigger everyone's celebration.
+let hof = {};
+let hofLoaded=false, playersLoaded=false, hofShowing=false;
+let hofSeen = (()=>{ try{ return JSON.parse(localStorage.getItem('kanto-hof-seen')||'{}'); }catch(e){ return {}; } })();
+function saveHofSeen(){ try{ localStorage.setItem('kanto-hof-seen', JSON.stringify(hofSeen)); }catch(e){} }
+const escH=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad3=n=>String(n).padStart(3,'0');
+const DEX_LIST=Object.keys(NAME).map(Number).sort((a,b)=>a-b);
+const RANKS=['1ST','2ND','3RD','4TH','5TH','6TH'];
+function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=String(iso).split('-').map(Number);
+  if(!y||!m||!d) return escH(iso);
+  return new Date(y,m-1,d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+}
+function teamOf(e){ return (e && Array.isArray(e.team) ? e.team : []).filter(t=>t && NAME[t.n]); }
+function dexToN(txt){
+  const t=String(txt||'').trim().toLowerCase().replace(/^#/,'');
+  if(!t) return 0;
+  if(/^\d{1,3}$/.test(t)){ const n=+t; return NAME[n]?n:-1; }
+  const norm=x=>x.toLowerCase().replace(/[^a-z0-9♀♂]/g,'');
+  const hit=DEX_LIST.find(n=>norm(NAME[n])===norm(t));
+  return hit||-1;
+}
+function caughtTotal(pid){ return ALL.filter(m=>caughtBy(m.n,pid)).length; }
+
+function hofTeamHTML(team, animate){
+  return team.map((t,i)=>
+    '<div class="hof-mon"'+(animate?' style="animation-delay:'+(1.0+i*0.35).toFixed(2)+'s"':'')+'>'+
+      '<span class="hof-ball"></span>'+
+      '<span class="hof-dex">#'+pad3(t.n)+'</span>'+
+      '<span class="hof-name">'+escH(t.nick||NAME[t.n])+'</span>'+
+      (t.nick?'<span class="hof-species">'+escH(NAME[t.n])+'</span>':'')+
+      '<span class="hof-lv">Lv'+escH(t.lv)+'</span>'+
+    '</div>').join('');
+}
+
+function renderHof(){
+  const box=document.getElementById('hofPanel');
+  const total=ALL.length;
+  const champs=players.filter(p=>hof[p.id]).sort((a,b)=>(hof[a.id].ts||0)-(hof[b.id].ts||0));
+  const ready=players.filter(p=>!hof[p.id] && p.badges>=8);
+  if(!champs.length && !ready.length){ box.innerHTML=''; box.classList.remove('show'); return; }
+  box.classList.add('show');
+  let html='<div class="hof-title"><span class="hof-trophy">🏆</span> HALL OF FAME <span class="hof-trophy">🏆</span></div>';
+  html+=champs.map((p,i)=>{
+    const e=hof[p.id], now=caughtTotal(p.id);
+    return '<div class="hof-plaque">'+
+      '<div class="hof-head">'+
+        '<span class="hof-rank">'+RANKS[i]+' CHAMPION</span>'+
+        '<span class="hof-who" style="color:var(--'+p.id+'c)"><span style="color:#fff">'+escH(p.name)+'</span></span>'+
+        '<span class="hof-meta">'+(VER_LABEL[p.ver]||'')+' · '+fmtDate(e.date)+
+          (e.dex!=null?' · '+e.dex+'/'+total+' dex that day':'')+'</span>'+
+      '</div>'+
+      '<div class="hof-team">'+hofTeamHTML(teamOf(e),false)+'</div>'+
+      '<div class="hof-foot"><span>'+(now>=total?'★ KANTO DEX COMPLETE ★':'The journey continues — '+(total-now)+' left to catch')+'</span>'+
+        '<button type="button" class="hof-replay" data-hof-replay="'+p.id+'">▶ replay</button>'+
+        '<button type="button" class="hof-edit" data-hof-edit="'+p.id+'">edit</button></div>'+
+    '</div>';
+  }).join('');
+  html+=ready.map(p=>
+    '<div class="hof-invite"><span><b>'+escH(p.name)+'</b> has all 8 badges. Beat the Elite Four? Enter your team for everyone to see.</span>'+
+    '<button type="button" class="hof-btn gold" data-hof-edit="'+p.id+'">🏆 ENTER</button></div>').join('');
+  box.innerHTML=html;
+  box.querySelectorAll('[data-hof-edit]').forEach(b=>b.addEventListener('click',()=>openHofEditor(b.dataset.hofEdit)));
+  box.querySelectorAll('[data-hof-replay]').forEach(b=>b.addEventListener('click',()=>celebrate(b.dataset.hofReplay,true)));
+}
+
+function closeHofModal(){
+  const m=document.getElementById('hofModal');
+  m.classList.remove('open'); m.innerHTML='';
+  document.body.classList.remove('modal-open');
+}
+function openHofEditor(pid){
+  const p=playerById(pid), e=hof[pid]||null;
+  const team=teamOf(e).map(t=>({...t}));
+  while(team.length<6) team.push({n:0,lv:'',nick:''});
+  const m=document.getElementById('hofModal');
+  m.innerHTML='<div class="hof-dialog" role="dialog" aria-modal="true" aria-label="Hall of Fame entry">'+
+    '<div class="hof-dtitle">🏆 '+escH(p.name)+(e?' — HALL OF FAME TEAM':' — ENTER THE HALL OF FAME')+'</div>'+
+    '<label class="hof-field">Beat the League on <input type="date" id="hofDate" value="'+escH(e&&e.date||todayISO())+'"></label>'+
+    '<div class="hof-slots-label">YOUR CHAMPION TEAM — UP TO 6</div>'+
+    team.map((t,i)=>
+      '<div class="hof-slot">'+
+        '<span class="hof-slotn">'+(i+1)+'</span>'+
+        '<input class="hof-mon-in" list="hofDex" autocomplete="off" placeholder="Pokémon or dex #" value="'+(t.n?escH(NAME[t.n]):'')+'">'+
+        '<input class="hof-lv-in" type="number" inputmode="numeric" min="1" max="100" placeholder="Lv" value="'+escH(t.lv||'')+'">'+
+        '<input class="hof-nick-in" maxlength="10" placeholder="nickname (optional)" value="'+escH(t.nick||'')+'">'+
+      '</div>').join('')+
+    '<datalist id="hofDex">'+DEX_LIST.map(n=>'<option value="'+escH(NAME[n])+'">#'+pad3(n)+'</option>').join('')+'</datalist>'+
+    '<div class="hof-err" id="hofErr"></div>'+
+    '<div class="hof-actions">'+
+      (e?'<button type="button" class="hof-btn ghost" id="hofDel">remove entry</button>':'')+
+      '<button type="button" class="hof-btn ghost" id="hofCancel">cancel</button>'+
+      '<button type="button" class="hof-btn gold" id="hofSave">'+(e?'SAVE':'ENTER HALL OF FAME')+'</button>'+
+    '</div></div>';
+  m.classList.add('open'); document.body.classList.add('modal-open');
+  m.onclick=ev=>{ if(ev.target===m) closeHofModal(); };
+  document.getElementById('hofCancel').onclick=closeHofModal;
+  const del=document.getElementById('hofDel');
+  if(del) del.onclick=()=>{
+    if(!confirm('Remove '+p.name+' from the Hall of Fame?')) return;
+    set(ref(db,'kanto-trail/hof/'+pid), null).catch(err=>console.error(err));
+    closeHofModal();
+  };
+  document.getElementById('hofSave').onclick=()=>{
+    const err=document.getElementById('hofErr');
+    const mons=[...m.querySelectorAll('.hof-mon-in')], lvs=[...m.querySelectorAll('.hof-lv-in')], nicks=[...m.querySelectorAll('.hof-nick-in')];
+    const out=[];
+    for(let i=0;i<6;i++){
+      const raw=mons[i].value.trim(), lvRaw=lvs[i].value.trim(), nick=nicks[i].value.trim().slice(0,10);
+      if(!raw && !lvRaw && !nick) continue;
+      const n=dexToN(raw);
+      if(n<=0){ err.textContent='Slot '+(i+1)+': pick a Pokémon from the list.'; mons[i].focus(); return; }
+      const lv=parseInt(lvRaw,10);
+      if(!(lv>=1 && lv<=100)){ err.textContent='Slot '+(i+1)+': level must be 1–100.'; lvs[i].focus(); return; }
+      const t={n,lv}; if(nick && nick.toLowerCase()!==NAME[n].toLowerCase()) t.nick=nick;
+      out.push(t);
+    }
+    if(!out.length){ err.textContent='Add at least one Pokémon.'; mons[0].focus(); return; }
+    const date=document.getElementById('hofDate').value||todayISO();
+    const entry={ date, team:out,
+      dex: e && e.dex!=null ? e.dex : caughtTotal(pid),
+      ts:  e && e.ts ? e.ts : Date.now() };
+    if(e) entry.edited=Date.now();
+    set(ref(db,'kanto-trail/hof/'+pid), entry).catch(er=>console.error(er));
+    // you can't reach the League without all 8 badges
+    if(p.badges<8){ p.badges=8; savePlayers(); }
+    closeHofModal();
+  };
+}
+
+function celebrate(pid, replay){
+  const p=players.find(q=>q.id===pid), e=hof[pid];
+  if(!p || !e) return;
+  hofShowing=true;
+  const ov=document.getElementById('hofOverlay');
+  const COLORS=['#f8b800','#e03c28','#48a038','#88b8e0','#ffffff','#f87878','#b060c0'];
+  let conf='';
+  for(let i=0;i<48;i++) conf+='<i style="left:'+((i*37+11)%100)+'%;background:'+COLORS[i%COLORS.length]+
+    ';animation-delay:'+((i%12)*0.25).toFixed(2)+'s;animation-duration:'+(2.6+(i%5)*0.45).toFixed(2)+'s"></i>';
+  ov.innerHTML='<div class="hof-rays"></div><div class="hof-confetti">'+conf+'</div>'+
+    '<div class="hof-stage">'+
+      '<div class="hof-kicker">WELCOME TO THE</div>'+
+      '<div class="hof-big">HALL OF FAME</div>'+
+      '<div class="hof-champ"><b style="color:var(--'+p.id+'c)">'+escH(p.name)+'</b><br>is a POKéMON LEAGUE CHAMPION!</div>'+
+      '<div class="hof-sub">'+(VER_LABEL[p.ver]||'')+' · '+fmtDate(e.date)+'</div>'+
+      '<div class="hof-team">'+hofTeamHTML(teamOf(e),true)+'</div>'+
+      '<button type="button" class="hof-btn gold" id="hofClose">CONTINUE ▸</button>'+
+    '</div>';
+  ov.classList.add('open'); document.body.classList.add('modal-open');
+  const done=()=>{
+    ov.classList.remove('open'); ov.innerHTML=''; document.body.classList.remove('modal-open');
+    document.removeEventListener('keydown',onKey);
+    if(!replay){ hofSeen[pid]=e.ts; saveHofSeen(); }
+    hofShowing=false;
+    setTimeout(checkHofCelebrations,250);   // next champion in line, if any
+  };
+  const onKey=ev=>{ if(ev.key==='Escape') done(); };
+  document.addEventListener('keydown',onKey);
+  document.getElementById('hofClose').onclick=done;
+}
+// Celebrate every induction this device hasn't seen yet (oldest first).
+function checkHofCelebrations(){
+  if(!hofLoaded || !playersLoaded || hofShowing) return;
+  const fresh=players.filter(p=>hof[p.id] && hof[p.id].ts && hofSeen[p.id]!==hof[p.id].ts)
+                     .sort((a,b)=>hof[a.id].ts-hof[b.id].ts);
+  if(fresh.length) celebrate(fresh[0].id,false);
+}
+
 // ============ LIVE SYNC ============
 onValue(playersRef, s=>{
   const v=s.val();
@@ -1906,8 +2221,11 @@ onValue(playersRef, s=>{
   else if(!players.length){ players=defaultPlayers(); }
   if(!players.some(p=>p.id===viewAs)) viewAs=players[0].id;
   players.forEach(p=>{ if(typeof p.badges!=='number') p.badges=0; });
+  playersLoaded=true;
   render();
+  checkHofCelebrations();
 });
+onValue(hofRef, s=>{ hof=s.val()||{}; hofLoaded=true; render(); checkHofCelebrations(); });
 onValue(progressRef,s=>{ progress=s.val()||{}; render(); });
 onValue(notesRef,s=>{ notes=s.val()||{}; render(); });
 onValue(claimsRef,s=>{ claims=s.val()||{}; render(); });
