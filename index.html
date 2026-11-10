@@ -593,6 +593,12 @@
     background:linear-gradient(180deg,#e03c28 0 44%,var(--ink-dk) 44% 56%,#fff 56%);position:relative;}
   .hof-ball::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-3px 0 0 -3px;
     border-radius:50%;background:#fff;border:1px solid var(--ink-dk);}
+  .hof-art{height:44px;display:flex;align-items:center;justify-content:center;}
+  .hof-sprite{display:none;width:44px;height:44px;object-fit:contain;image-rendering:pixelated;image-rendering:crisp-edges;}
+  .hof-art.has-sprite .hof-sprite{display:block;}
+  .hof-art.has-sprite .hof-ball{display:none;}
+  .hof-stage .hof-art{height:64px;}
+  .hof-stage .hof-sprite{width:64px;height:64px;}
   .hof-dex{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--muted);}
   .hof-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;max-width:100%;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -1149,6 +1155,12 @@ const GYM_CITY = ['Pewter','Cerulean','Vermilion','Celadon','Fuchsia','Saffron',
 // Drop your own PNGs into a /badges folder in the repo and flip this to true.
 // Expected filenames: boulder.png cascade.png thunder.png rainbow.png
 //                     soul.png marsh.png volcano.png earth.png
+// Hall of Fame sprites: add your own images to a /sprites folder in the repo, named by
+// dex number (1.png … 151.png). Any that are missing just show the Poké Ball instead.
+// To pull from somewhere else, change the pattern: {n} = 6, {nnn} = 006.
+const SPRITE_PATTERN = 'sprites/{n}.png';
+function spriteURL(n){ return SPRITE_PATTERN.replace('{nnn}',String(n).padStart(3,'0')).replace('{n}',String(n)); }
+
 const USE_BADGE_IMAGES = false;
 const BADGE_FILES = ['boulder','cascade','thunder','rainbow','soul','marsh','volcano','earth'];
 
@@ -2077,7 +2089,9 @@ function caughtTotal(pid){ return ALL.filter(m=>caughtBy(m.n,pid)).length; }
 function hofTeamHTML(team, animate){
   return team.map((t,i)=>
     '<div class="hof-mon"'+(animate?' style="animation-delay:'+(1.0+i*0.35).toFixed(2)+'s"':'')+'>'+
-      '<span class="hof-ball"></span>'+
+      '<span class="hof-art"><span class="hof-ball"></span>'+
+        '<img class="hof-sprite" alt="" decoding="async" src="'+escH(spriteURL(t.n))+'" '+
+        'onload="this.parentNode.classList.add(\'has-sprite\')" onerror="this.remove()"></span>'+
       '<span class="hof-dex">#'+pad3(t.n)+'</span>'+
       '<span class="hof-name">'+escH(t.nick||NAME[t.n])+'</span>'+
       (t.nick?'<span class="hof-species">'+escH(NAME[t.n])+'</span>':'')+
