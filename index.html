@@ -233,6 +233,7 @@
   .infobox.open .info-body{display:block;}
   .end-panels{max-width:760px;margin:6px auto 0;padding-bottom:calc(24px + env(safe-area-inset-bottom));}
   .end-panels .infobox{margin-left:14px;margin-right:14px;}
+  @media (max-width:640px){ .end-panels .infobox{margin-left:10px;margin-right:10px;} }
   .info-body b{color:var(--ink-dk);}
 
   .disclaimer{
@@ -755,7 +756,6 @@
   </div>
 </header>
 
-<section class="hof-panel" id="hofPanel" aria-label="Hall of Fame"></section>
 <div class="hof-modal" id="hofModal"></div>
 <div class="hof-overlay" id="hofOverlay" aria-live="polite"></div>
 
@@ -769,6 +769,8 @@
 </div>
 
 <main id="main"><div class="loading">connecting…</div></main>
+
+<section class="hof-panel" id="hofPanel" aria-label="Hall of Fame"></section>
 
 <div class="end-panels">
 <div class="infobox beast-box" id="beastPanel">
