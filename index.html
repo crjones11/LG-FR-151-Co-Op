@@ -321,6 +321,11 @@
   .coord-label{color:#8848a8;font-weight:700;}
   .row-main{display:flex;align-items:center;gap:8px;}
   .dexnum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:34px;flex-shrink:0;font-weight:600;}
+  /* sprite stacked over the dex number, so the column stays as narrow as before */
+  .dexcol{width:34px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;margin:-4px 0;}
+  .dexcol .dexnum{width:auto;font-size:9px;line-height:1;}
+  .row-sprite{width:32px;height:28px;display:flex;align-items:center;justify-content:center;overflow:visible;}
+  .row-sprite img{width:32px;height:32px;image-rendering:pixelated;image-rendering:crisp-edges;}
   .pname{flex:1;font-size:13px;font-weight:700;color:var(--ink-dk);font-family:'IBM Plex Mono',monospace;}
   .row.caught-both .pname::before{content:'● ';color:var(--fr);}
   .tags{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:200px;}
@@ -787,7 +792,7 @@
 <div class="infobox">
   <div class="info-head" data-info="sources"><span class="caret">▶</span> SOURCES &amp; DATA NOTES</div>
   <div class="info-body">
-    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Fishing/surf is marked but rod tiers aren't tracked.<br><br><b>How to use:</b> tap P1/P2 to mark caught, ✎ for a note, a route header to collapse it. Everything syncs live between all trainers.<br><br><button class="reset-btn" id="resetBtn">reset all progress</button>
+    <b>Sources:</b> full location list cross-checked against the Prima official guide, Bulbapedia (Cerulean Cave), StrategyWiki (Power Plant) and Game8 (NPC trades, rods). <b>Resolved:</b> Farfetch'd, Mr. Mime, Jynx and Lickitung are all confirmed trade-only — Prima's wild listings for them were wrong. Ponyta/Rapidash are Sevii-only (Kindle Road / Mt. Ember), not Cycling Road. <b>Confirmed:</b> Helix Fossil → Omanyte, Dome Fossil → Kabuto. (One source had these reversed; it was wrong.) <b>Note:</b> the Kanto Dex counts 150 — Mew is excluded from completion and from the totals here. Playing on Switch: the GBA Roar glitch that could erase a roaming legendary is fixed. Each water encounter shows its method (Surf, Old/Good/Super Rod). <b>Sprites:</b> FireRed/LeafGreen sprites courtesy of <a href="https://pokemondb.net/sprites" target="_blank" rel="noopener">PokémonDB</a>; tap a Hall of Fame sprite for its PokémonDB page.<br><br><b>How to use:</b> tap a player's box to mark caught, ✎ for a note, a route header to collapse it. Everything syncs live between all trainers.<br><br><button class="reset-btn" id="resetBtn">reset all progress</button>
   </div>
 </div>
 </div>
@@ -1170,6 +1175,8 @@ function spriteFill(pat,n){
   return pat.replace('{nnn}',String(n).padStart(3,'0')).replace('{n}',String(n)).replace('{slug}',spriteSlug(n));
 }
 function spriteURL(n){ return spriteFill(SPRITE_PATTERN,n); }
+// Small copies of the same sprites beside every name in the list (loaded only as rows scroll into view).
+const ROW_SPRITES = true;
 
 const USE_BADGE_IMAGES = false;
 const BADGE_FILES = ['boulder','cascade','thunder','rainbow','soul','marsh','volcano','earth'];
@@ -1583,7 +1590,10 @@ function buildRow(m, showWhere){
     +(isCoord?' coord':'')+(isPerGame?' pergame':'');
   row.innerHTML=
     '<div class="row-main">'+
-      '<span class="dexnum">#'+String(m.n).padStart(3,'0')+'</span>'+
+      (ROW_SPRITES
+        ? '<span class="dexcol"><span class="row-sprite"><img alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+spriteURL(m.n)+'" onerror="this.remove()"></span>'+
+          '<span class="dexnum">#'+String(m.n).padStart(3,'0')+'</span></span>'
+        : '<span class="dexnum">#'+String(m.n).padStart(3,'0')+'</span>')+
       '<span class="pname tappable" data-evo="'+m.n+'">'+m.name+((EVO[m.n]||PRE[m.n])?' <span class="evo-caret">▾</span>':'')+'</span>'+
       '<div class="tags">'+tags.join('')+'</div>'+
       '<div class="note-btn '+(note?'has':'')+'" data-note="'+m.n+'">✎</div>'+
