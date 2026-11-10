@@ -459,7 +459,7 @@
 
   /* ---- panels ---- */
   .trade-panel{
-    margin:12px 14px 0;max-width:760px;
+    margin:12px auto 0;max-width:732px;width:calc(100% - 28px);box-sizing:border-box;
     background:var(--parch);border:3px solid var(--navy);border-radius:9px;
     box-shadow:inset 0 0 0 2px var(--gold);
     padding:10px 12px;display:none;
@@ -491,7 +491,8 @@
     h1{font-size:10px;}
     .sub{display:none;}
     main{padding:10px 10px 0;}
-    .infobox,.trade-panel{margin-left:10px;margin-right:10px;}
+    .infobox{margin-left:10px;margin-right:10px;}
+    .trade-panel{width:calc(100% - 20px);}
     .rows{margin-left:20px;}
     .route-note{margin-left:20px;}
     .route-trail{left:9px;}
@@ -548,7 +549,8 @@
 
 
   /* ============ HALL OF FAME ============ */
-  .hof-panel{display:none;margin:12px 14px 0;max-width:760px;}
+  .hof-panel{display:none;margin:12px auto 0;max-width:732px;width:calc(100% - 28px);}
+  @media (max-width:640px){ .hof-panel{width:calc(100% - 20px);} }
   .hof-panel.show{display:block;}
   .hof-title{
     font-family:'Press Start 2P',monospace;font-size:13px;text-align:center;letter-spacing:1px;
